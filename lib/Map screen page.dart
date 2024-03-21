@@ -22,6 +22,8 @@ import 'package:google_places_flutter/model/prediction.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitiled/Homescreens/settings.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:uuid/uuid.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'Apiutils.dart';
 import 'Homescreens/save alarm pages.dart';
@@ -308,6 +310,9 @@ class _MyHomePageState extends State<MyHomePage> {
               leading: Icon(Icons.rate_review),
               title: Text('Rate/Review'),
               onTap: () {
+                setState(() {
+                  _launched = _launchInBrowser(toLaunch);
+                });
                 // Handle item 2 tap
               },
             ),
@@ -806,7 +811,7 @@ class _MyHomePageState extends State<MyHomePage> {
         alarmName: alramnamecontroller.text,
         notes: notescontroller.text,
         locationRadius: radius,
-        isAlarmOn: true, isFavourite: false, lat: _target!.latitude, lng: _target!.longitude,
+        isAlarmOn: true, isFavourite: false, lat: _target!.latitude, lng: _target!.longitude, id:Uuid().v4(),
       );
       alarms.add(newAlarm);
     });
@@ -1146,23 +1151,7 @@ class _MyHomePageState extends State<MyHomePage> {
 //   }
 // }
   _handleTap(LatLng point) async {
-    // Perform reverse geocoding to get the address from coordinates
-    List<Placemark> placemarks = await placemarkFromCoordinates(point.latitude, point.longitude);
 
-    // Extract the location name from the placemark
-    String name = placemarks.isEmpty ? 'Default' : [
-      placemarks[0].name,
-      placemarks[0].subLocality,
-      placemarks[0].locality,
-    ].toList()
-        .where((element) => element != null && element != '')
-        .join(', ');
-    String locationName = name;
-
-    // Update the app bar title with the location name
-    setState(() {
-      _appBarTitle = locationName;
-    });
     _handletap=true;
     ByteData byteData = await rootBundle.load('assets/locationimage.png');
     Uint8List imageData = byteData.buffer.asUint8List();
@@ -1188,13 +1177,31 @@ class _MyHomePageState extends State<MyHomePage> {
         markerId: MarkerId(point.toString()),
         position: point,
         infoWindow: InfoWindow(
-          title: 'I am a marker',
+          title: _appBarTitle,
         ),
         icon: customIcon,
       ));
 
       // Convert the list back to a set
       _markers = markerList.toSet();
+    });
+
+    // Perform reverse geocoding to get the address from coordinates
+    List<Placemark> placemarks = await placemarkFromCoordinates(point.latitude, point.longitude);
+
+    // Extract the location name from the placemark
+    String name = placemarks.isEmpty ? 'Default' : [
+      placemarks[0].name,
+      placemarks[0].subLocality,
+      placemarks[0].locality,
+    ].toList()
+        .where((element) => element != null && element != '')
+        .join(', ');
+    String locationName = name;
+
+    // Update the app bar title with the location name
+    setState(() {
+      _appBarTitle = locationName;
     });
   }
 
@@ -1211,22 +1218,103 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
 
+// class MeterCalculatorWidget extends StatefulWidget {
+//   final Function(double) callback;
+//
+//   const MeterCalculatorWidget({super.key, required this.callback});
+//
+//
+//
+//   @override
+//   _MeterCalculatorWidgetState createState() => _MeterCalculatorWidgetState();
+// }
+//
+// class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
+//   double _radius = 200;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Padding(
+//       padding: const EdgeInsets.all(16.0),
+//       child: Column(
+//         children: [
+//           Text(
+//             'Radius',
+//             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+//           ),
+//           SizedBox(height: 10),
+//           Row(
+//             mainAxisAlignment: MainAxisAlignment.center,
+//             children: [
+//               SliderTheme(
+//                 data: SliderTheme.of(context).copyWith(
+//                   thumbShape: RoundSliderThumbShape(
+//                     enabledThumbRadius: 15.0, // Set your desired thumb radius
+//                   ),
+//                 ),
+//                 child: Slider(
+//                   activeColor: Colors.red,
+//
+//                   value: _radius,
+//                   divisions: 20,
+//                   min: 20,
+//                   max: 1000, // Set your maximum radius value here
+//                   onChanged: (value) {
+//                     setState(() {
+//                       _radius = value.roundToDouble(); // Round the value to the nearest integer
+//                     });
+//                     widget.callback(value);
+//                   },
+//                 ),
+//               ),
+//             ],
+//           ),
+//           SizedBox(height: 10),
+//           Text(' ${_radius.round()} meters'), // Display the rounded value
+//         ],
+//       ),
+//
+//     );
+//   }
+// }
 class MeterCalculatorWidget extends StatefulWidget {
   final Function(double) callback;
 
-  const MeterCalculatorWidget({super.key, required this.callback});
+  const MeterCalculatorWidget({
+    Key? key,
+    required this.callback,
 
-
+  }) : super(key: key);
 
   @override
   _MeterCalculatorWidgetState createState() => _MeterCalculatorWidgetState();
 }
 
 class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
+  String? _selectedUnit;
+
   double _radius = 200;
+  bool _imperial=false;
+  @override
+  void initState() {
+    _loadSelectedUnit();
+    // TODO: implement initState
+    super.initState();
+  }
+  Future _loadSelectedUnit() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _selectedUnit = prefs.getString('selectedUnit');
+      _imperial=(_selectedUnit == 'Imperial system (mi/ft)');
+      _radius=_imperial?1.24:2000;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    print(_selectedUnit);
+    print(_radius);
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -1247,14 +1335,13 @@ class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
                 ),
                 child: Slider(
                   activeColor: Colors.red,
-
                   value: _radius,
-                  divisions: 20,
-                  min: 20,
-                  max: 1000, // Set your maximum radius value here
+                  divisions:100,
+                  min:  _imperial?0.05:50,
+                  max: _imperial?5.05:5050, // Set your maximum radius value here
                   onChanged: (value) {
                     setState(() {
-                      _radius = value.roundToDouble(); // Round the value to the nearest integer
+                      _radius = double.parse(value.toStringAsFixed(2)); // Round the value to the nearest integer
                     });
                     widget.callback(value);
                   },
@@ -1263,13 +1350,15 @@ class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
             ],
           ),
           SizedBox(height: 10),
-          Text(' ${_radius.round()} meters'), // Display the rounded value
+          Text(' $_radius ${_imperial ? 'miles' : 'meters'}'),
+          // Display the rounded value with the appropriate unit based on the selected system
         ],
       ),
-
     );
   }
 }
+
+
 
 
 

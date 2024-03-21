@@ -14,6 +14,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'Apiutils.dart';
+import 'Track.dart';
+import 'Track.dart';
 
 int id = 0;
 
@@ -111,6 +113,68 @@ class _TrackState extends State<Track> {
     }
   }
 
+  // Future markLocation() async {
+  //   Marker? current;
+  //   ByteData byteData = await rootBundle.load('assets/locationimage.png');
+  //   Uint8List imageData = byteData.buffer.asUint8List();
+  //
+  //   // Create a BitmapDescriptor from the image data
+  //   BitmapDescriptor customIcon = BitmapDescriptor.fromBytes(imageData);
+  //
+  //   setState(() {
+  //     if (_markers.isNotEmpty) {
+  //       current = _markers.first;
+  //     }
+  //
+  //     _markers.clear();
+  //     _circles.clear();
+  //     if (current != null) {
+  //       _markers.add(current!);
+  //     }
+  //
+  //
+  //     print(alarms.toString());
+  //     if (widget.alarm!=null){
+  //       _markers.add(Marker(
+  //         markerId: MarkerId(const Uuid().v4()),
+  //         icon: customIcon,
+  //         position: LatLng(widget.alarm!.lat, widget.alarm!.lng),
+  //       ));
+  //
+  //       _circles.add(Circle(
+  //
+  //         onTap: (){
+  //
+  //         },
+  //         circleId: CircleId(const Uuid().v4()),
+  //         center: LatLng(widget.alarm!.lat, widget.alarm!.lng),
+  //         radius: widget.alarm!.locationRadius, // Set your desired radius in meters
+  //         fillColor: Colors.blue.withOpacity(0.3),
+  //         strokeColor: Colors.blue,
+  //         strokeWidth: 2,
+  //       ));
+  //     }
+  //     else{
+  //       _markers.addAll(
+  //         alarms.map((AlarmDetails alarm) => Marker(
+  //           markerId: MarkerId(const Uuid().v4()),
+  //           icon: customIcon,
+  //           position: LatLng(alarm.lat, alarm.lng),
+  //         )),
+  //       );
+  //       _circles.addAll(
+  //         alarms.map((AlarmDetails alarm) => Circle(
+  //           circleId: CircleId(const Uuid().v4()),
+  //           center: LatLng(alarm.lat, alarm.lng),
+  //           radius:  alarm!.locationRadius, // Set your desired radius in meters
+  //           fillColor: Colors.blue.withOpacity(0.3),
+  //           strokeColor: Colors.blue,
+  //           strokeWidth: 2,
+  //         ),
+  //       ));
+  //     }
+  //   });
+  // }
   Future markLocation() async {
     Marker? current;
     ByteData byteData = await rootBundle.load('assets/locationimage.png');
@@ -130,46 +194,78 @@ class _TrackState extends State<Track> {
         _markers.add(current!);
       }
 
-
-      print(alarms.toString());
-      if (widget.alarm!=null){
+      if (widget.alarm != null) {
+        // Add marker for alarm
         _markers.add(Marker(
-          markerId: MarkerId(const Uuid().v4()),
+          markerId: MarkerId( widget.alarm!.id), // Use the same ID for the marker
           icon: customIcon,
           position: LatLng(widget.alarm!.lat, widget.alarm!.lng),
+          draggable: true, // Enable marker dragging
+          onDragEnd: (newPosition) async {
+            setState(() {
+              AlarmDetails old = alarms.firstWhere((element) => element.id == widget.alarm!.id);
+              old.lat = newPosition.latitude;
+              old.lng = newPosition.longitude;
+              alarms.removeWhere((element) => element.id == widget.alarm!.id);
+              alarms.add(old);
+            });
+
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            List<Map<String, dynamic>> alarmsJson =
+            alarms.map((alarm) => alarm.toJson()).toList();
+            await prefs.setStringList(
+                'alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
+            await loadData();
+            await markLocation();
+          },
         ));
 
+        // Add circle for alarm
         _circles.add(Circle(
-
-          onTap: (){
-
-          },
-          circleId: CircleId(const Uuid().v4()),
+          circleId: CircleId(widget.alarm!.id), // Use the same ID for the circle
           center: LatLng(widget.alarm!.lat, widget.alarm!.lng),
           radius: widget.alarm!.locationRadius, // Set your desired radius in meters
           fillColor: Colors.blue.withOpacity(0.3),
           strokeColor: Colors.blue,
           strokeWidth: 2,
         ));
-      }
-      else{
+      } else {
+        // Add markers and circles for all alarms
         _markers.addAll(
           alarms.map((AlarmDetails alarm) => Marker(
-            markerId: MarkerId(const Uuid().v4()),
+            markerId: MarkerId(alarm.id), // Use unique IDs for markers
             icon: customIcon,
             position: LatLng(alarm.lat, alarm.lng),
+            draggable: true, // Enable marker dragging
+            onDragEnd: (newPosition) async {
+              setState(() {
+                AlarmDetails old = alarms.firstWhere((element) => element.id == alarm.id);
+                old.lat = newPosition.latitude;
+                old.lng = newPosition.longitude;
+                alarms.removeWhere((element) => element.id == alarm.id);
+                alarms.add(old);
+              });
+
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              List<Map<String, dynamic>> alarmsJson =
+              alarms.map((alarm) => alarm.toJson()).toList();
+              await prefs.setStringList(
+                  'alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
+              await loadData();
+              await markLocation();
+            },
           )),
         );
         _circles.addAll(
           alarms.map((AlarmDetails alarm) => Circle(
-            circleId: CircleId(const Uuid().v4()),
+            circleId: CircleId(alarm.id), // Use unique IDs for circles
             center: LatLng(alarm.lat, alarm.lng),
-            radius:  alarm!.locationRadius, // Set your desired radius in meters
+            radius: alarm.locationRadius, // Set your desired radius in meters
             fillColor: Colors.blue.withOpacity(0.3),
             strokeColor: Colors.blue,
             strokeWidth: 2,
-          ),
-        ));
+          )),
+        );
       }
     });
   }
