@@ -13,6 +13,7 @@ import 'Apiutils.dart';
 import 'Homescreens/homescreen.dart';
 import 'Track.dart';
 
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
    await initializeService();
@@ -77,10 +78,10 @@ Future<void> initializeService() async {
 void onStart(ServiceInstance service) async {
   DartPluginRegistrant.ensureInitialized();
   location.Location _locationService = location.Location();
-  bool serviceEnabled = await _locationService.serviceEnabled();
-  if (!serviceEnabled) {
-    return;
-  }
+  // bool serviceEnabled = await _locationService.serviceEnabled();
+  // if (!serviceEnabled) {
+  //   return;
+  // }
 
   location.PermissionStatus permissionStatus = await _locationService
       .hasPermission();
