@@ -26,6 +26,17 @@ Future<void> main() async {
 
   await flutterLocalNotificationsPlugin.initialize(
     initializationSettings,
+    onDidReceiveNotificationResponse:
+        (NotificationResponse notificationResponse) async {
+      switch (notificationResponse.notificationResponseType) {
+        case NotificationResponseType.selectedNotificationAction:
+          if (notificationResponse.actionId == "dismiss") {
+            await flutterLocalNotificationsPlugin.cancelAll();
+          }
+          break;
+        default:
+      }
+    },
   );
 
   runApp(const MyApp());
@@ -48,6 +59,17 @@ Future<void> initializeService() async {
       const InitializationSettings(
         android: AndroidInitializationSettings('ic_notification'),
       ),
+      onDidReceiveNotificationResponse:
+          (NotificationResponse notificationResponse) async {
+        switch (notificationResponse.notificationResponseType) {
+          case NotificationResponseType.selectedNotificationAction:
+            if (notificationResponse.actionId == "dismiss") {
+              await flutterLocalNotificationsPlugin.cancelAll();
+            }
+            break;
+          default:
+        }
+      },
     );
   }
 
@@ -196,7 +218,7 @@ class Splashscreen extends StatefulWidget {
 class _SplashscreenState extends State<Splashscreen> {
   // Simulate some initialization process (replace it with your actual initialization logic)
   Future<void> _initializeApp() async {
-    await Future.delayed(Duration(seconds: 5)); // Simulating a 2-second initialization time
+    await Future.delayed(Duration(seconds: 3)); // Simulating a 2-second initialization time
   }
 
   @override

@@ -1,495 +1,287 @@
-
-
 import 'dart:convert';
-
+import 'dart:developer';
+import 'dart:math' as math;
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:google_places_flutter/google_places_flutter.dart';
-import 'package:google_places_flutter/model/prediction.dart';
 import 'package:location/location.dart';
+import 'package:untitiled/Track.dart';
+import 'package:untitiled/main.dart';
 import 'package:location/location.dart' as location;
-import 'package:geocoding/geocoding.dart' as geocoding;
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:google_places_flutter/google_places_flutter.dart';
-import 'package:google_places_flutter/model/prediction.dart';
+import '../Apiutils.dart';
+import '../Map screen page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
 
-import 'Apiutils.dart';
-import 'Homescreens/save alarm pages.dart';
+// class MyAlarmsPage extends StatefulWidget {
+//   final String alarmName;
+//   final String notes;
+//   final double locationRadius;
+//   final bool isAlarmOn;
+//
+//   MyAlarmsPage({
+//     required this.alarmName,
+//     required this.notes,
+//     required this.locationRadius,
+//     required this.isAlarmOn,
+//   });
+//
+//   @override
+//   _MyAlarmsPageState createState() => _MyAlarmsPageState();
+// }
+// class AlarmDetails {
+//   final String alarmName;
+//   final String notes;
+//   final double locationRadius;
+//   final bool isAlarmOn;
+//
+//   AlarmDetails({
+//     required this.alarmName,
+//     required this.notes,
+//     required this.locationRadius,
+//     required this.isAlarmOn,
+//   });
+// }
+// class _MyAlarmsPageState extends State<MyAlarmsPage> {
+//   List<AlarmDetails> alarms = [];
+//
+//   @override
+//   @override
+//   void initState() {
+//     super.initState();
+//     alarms.add(widget.alarmDetails);
+//   }
+//
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text('My Alarms'),
+//       ),
+//       body: Padding(
+//         padding: const EdgeInsets.only(top: 300),
+//         child: ListView.builder(
+//           itemCount: alarms.length,
+//           itemBuilder: (context, index) {
+//             return Material(
+//               elevation: 3,
+//               borderRadius: BorderRadius.circular(10),
+//               child: Container(
+//                 height: 150,
+//                 width: 300,
+//                 decoration: BoxDecoration(
+//                   color: Colors.white,
+//                   border: Border.all(color: Colors.black12),
+//                   borderRadius: BorderRadius.circular(10),
+//                 ),
+//                 child: Column(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     Text('Alarm Name: ${widget.alarms[index].alarmName}'),
+//                     SizedBox(height: 10),
+//                     Text('Notes: ${widget.alarms[index].notes}'),
+//                     SizedBox(height: 10),
+//                     Text('Location Radius: ${widget.alarms[index].locationRadius} meters'),
+//                     SizedBox(height: 10),
+//                     Text('Is Alarm On: ${widget.alarms[index].isAlarmOn ? 'On' : 'Off'}'),
+//                     SizedBox(height: 20),
+//                     GestureDetector(
+//                       onTap: () {
+//                         setState(() {
+//                           alarms.removeAt(index);
+//                         });
+//                       },
+//                       child: Icon(Icons.delete),
+//                     ),
+//
+//                     // Add more details as needed
+//                   ],
+//                 ),
+//               ),
+//             );
+//           },
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 
+// class _MyAlarmsPageState extends State<MyAlarmsPage> {
+//   List<AlarmDetails> alarms = [];
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text('My Alarms'),
+//       ),
+//       body: Padding(
+//         padding: const EdgeInsets.only(top: 300),
+//         child: ListView.builder(
+//           itemCount: 10,
+//           itemBuilder: (context, index) {
+//             return
+//             Material(
+//                 elevation: 3,
+//                 borderRadius: BorderRadius.circular(10),
+//                 child: Container(
+//                   height:150,
+//                   width: 300,
+//
+//                   decoration: BoxDecoration(
+//                     color: Colors.white,
+//                     border: Border.all(color: Colors.black12),
+//                     borderRadius: BorderRadius.circular(10),
+//                   ),
+//
+//                   child: Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       Text('Alarm Name: ${widget.alarmName}'),
+//                       SizedBox(height: 10),
+//                       Text('Notes: ${widget.notes}'),
+//                       SizedBox(height: 10),
+//                       Text('Location Radius: ${widget.locationRadius} meters'),
+//                       SizedBox(height: 10),
+//                       Text('Is Alarm On: ${widget.isAlarmOn ? 'On' : 'Off'}'),
+//                       SizedBox(height: 20),
+//                       // Add more details as needed
+//                     ],
+//                   ),
+//                 ),
+//             );
+//
+//           },
+//         ),
+//       ),
+//
+//     );
+//   }
+// }
+// Padding(
+//   padding: const EdgeInsets.all(30.0),
+//   child: Material(
+//     elevation: 3,
+//     borderRadius: BorderRadius.circular(10),
+//     child: Container(
+//       height:150,
+//       width: 300,
+//
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         border: Border.all(color: Colors.black12),
+//         borderRadius: BorderRadius.circular(10),
+//       ),
+//
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Text('Alarm Name: ${widget.alarmName}'),
+//           SizedBox(height: 10),
+//           Text('Notes: ${widget.notes}'),
+//           SizedBox(height: 10),
+//           Text('Location Radius: ${widget.locationRadius} meters'),
+//           SizedBox(height: 10),
+//           Text('Is Alarm On: ${widget.isAlarmOn ? 'On' : 'Off'}'),
+//           SizedBox(height: 20),
+//           // Add more details as needed
+//         ],
+//       ),
+//     ),
+//   ),
+// ),
+class MyAlarmsPage extends StatefulWidget {
 
-class MyHomePage extends StatefulWidget {
-  // final Function(String, String, double, bool) onSave;
 
-
-  final String? title;
-
-  const MyHomePage({super.key,  this.title, });
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _MyAlarmsPageState createState() => _MyAlarmsPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyAlarmsPageState extends State<MyAlarmsPage> {
   double radius=0;
   updateradiusvalue(value){
     setState(() {
       radius=value;
     });
-
   }
-
-  TextEditingController controller = TextEditingController();
-  GoogleMapController? mapController;
-  location.LocationData? currentLocation;
+  LatLng? currentLocation;
+  Set<Marker> _markers={};
   location.Location _locationService = location.Location();
-  bool _isCameraMoving = true;
-
-  final LatLng _defaultLocation = const LatLng(
-      13.067439, 80.237617); // Default location
-
-  TextEditingController searchController = TextEditingController();
+  // bool isFavorite = false;
+  bool _enabled = false;
+  final _controller = ValueNotifier<bool>(false);
   List<AlarmDetails> alarms = [];
+  double calculateDistance(LatLng point1, LatLng point2) {
+    const double earthRadius = 6371000; // meters
+    double lat1 = degreesToRadians(point1.latitude);
+    double lat2 = degreesToRadians(point2.latitude);
+    double lon1 = degreesToRadians(point1.longitude);
+    double lon2 = degreesToRadians(point2.longitude);
+    double dLat = lat2 - lat1;
+    double dLon = lon2 - lon1;
+
+    double a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+        math.cos(lat1) * math.cos(lat2) * math.sin(dLon / 2) * math.sin(dLon / 2);
+    double c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
+    double distance = earthRadius * c;
+
+    return distance;
+  }
   @override
   void initState() {
     super.initState();
-    _requestLocationPermission();
-
     loadData();
   }
+  void updateFavoriteStatus(int index, bool isFavorite) {
+    setState(() {
+      alarms[index].isFavourite = isFavorite;
 
+      saveData(); // Save the updated list of alarms
+    });
+  }
   Future<void> loadData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     List<String>? alarmsJson = prefs.getStringList('alarms');
 
     if (alarmsJson != null) {
-      alarms = alarmsJson.map((json) => AlarmDetails.fromJson(jsonDecode(json))).toList();
-    } else {
-      alarms = [];
+      alarms = alarmsJson.map((json) => AlarmDetails.fromJson(jsonDecode(json)))
+          .toList();
     }
-
-    setState(() {});
-  }
-
-  Future<void> _requestLocationPermission() async {
-    bool serviceEnabled = await _locationService.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await _locationService.requestService();
-      if (!serviceEnabled) {
-        return;
-      }
-    }
-
-    location.PermissionStatus permissionStatus = await _locationService
-        .hasPermission();
-    if (permissionStatus == location.PermissionStatus.denied) {
-      permissionStatus = await _locationService.requestPermission();
-      if (permissionStatus != location.PermissionStatus.granted) {
-        return;
-      }
-    }
-
-    _locationService.onLocationChanged.listen((
-        location.LocationData newLocation) {
-      if (_isCameraMoving) return;
-
-      setState(() {
-        if (newLocation.latitude != null && newLocation.longitude != null) {
-          _current = LatLng(newLocation.latitude!, newLocation.longitude!);
-        }
-        currentLocation = newLocation;
-      });
-
-      if (mapController != null) {
-        mapController!.animateCamera(CameraUpdate.newLatLng(
-          LatLng(newLocation.latitude!, newLocation.longitude!),
-        ));
-      }
-    });
-  }
-
-
-  Future<void> _moveToLocation(String locationName) async {
-    List<geocoding.Location> locations = await geocoding.locationFromAddress(
-        locationName);
-    if (locations.isNotEmpty) {
-      LatLng destination = LatLng(
-          locations[0].latitude!, locations[0].longitude!);
-
-      if (mapController != null) {
-        mapController!.animateCamera(CameraUpdate.newLatLng(destination));
-      }
+    double? storedLatitude = prefs.getDouble('current_latitude');
+    double? storedLongitude = prefs.getDouble('current_longitude');
+    if (storedLatitude != null && storedLongitude != null) {
+      currentLocation=LatLng(storedLatitude,storedLongitude);
+      print('Stored location: ($storedLatitude, $storedLongitude)');
+      Marker? tap = _markers.length > 1 ? _markers.last : null;
     }
   }
-  Set<Marker> _markers={};
+  Future<void> saveData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
 
-  LatLng? _current = const LatLng(
-      13.067439, 80.237617);
-  LatLng? _target = null;
+    List<Map<String, dynamic>> alarmsJson = alarms.map((alarm) => alarm.toJson()).toList();
 
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            SizedBox(
-              height: 40,
-            ),
-            Row(
-              children: [
-                Image.asset("assets/mapimage.png",height: 100,width: 100,),
-                Text('GPS ALARM',style: TextStyle(
-                  color: CupertinoColors.black,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 18,
-                ),),
-              ],
-            ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.track_changes),
-              title: Text('Track'),
-              onTap: () {
-                // Handle item 1 tap
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.alarm),
-              title: Text('Set a alarm'),
-              onTap: () {
-                // Handle item 2 tap
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.alarm_on_outlined),
-              title: Text('Saved Alarm'),
-              onTap: () {
-                // Handle item 2 tap
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Settings'),
-              onTap: () {
-                // Handle item 2 tap
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.share),
-              title: Text('Share'),
-              onTap: () {
-                // Handle item 2 tap
-              },
-            ),
-
-
-            // Add more list items as needed
-          ],
-        ),
-      ),
-
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            InkWell(
-                onTap: (){
-                  _scaffoldKey.currentState?.openDrawer();
-                },
-
-
-                child: Icon(Icons.menu,size: 25,color: Colors.black,)),
-
-            Text(
-                "Inodesys Technologies"
-            ),
-          ],
-        ),
-      ),
-      body: Stack(
-        children: [
-          // GoogleMap(
-          //   mapType: MapType.normal,
-          //   myLocationButtonEnabled: false,
-          //   zoomControlsEnabled: false,
-          //   initialCameraPosition: CameraPosition(
-          //     zoom: 15,
-          //     target: _defaultLocation,
-          //   ),
-          //   onMapCreated: (GoogleMapController controller) {
-          //     mapController = controller;
-          //   },
-          //   // markers: {
-          //   //   Marker(
-          //   //     markerId: MarkerId("_currentLocation"),
-          //   //     icon: BitmapDescriptor.defaultMarker,
-          //   //     position: currentLocation != null
-          //   //         ? LatLng(
-          //   //         currentLocation!.latitude!, currentLocation!.longitude!)
-          //   //         : _defaultLocation,
-          //   //   ),
-          //   //   Marker(
-          //   //     markerId: MarkerId("_destination"),
-          //   //     icon: BitmapDescriptor.defaultMarkerWithHue(
-          //   //         BitmapDescriptor.hueBlue),
-          //   //     position: LatLng(0.0, 0.0),
-          //   //   ),
-          //   // },
-          //   markers: {
-          //     Marker(
-          //       markerId: MarkerId("_currentLocation"),
-          //       icon: BitmapDescriptor.defaultMarker,
-          //       position: currentLocation != null
-          //           ? LatLng(
-          //           currentLocation!.latitude!, currentLocation!.longitude!)
-          //           : _defaultLocation,
-          //     ),
-          //
-          //   },
-          //
-          //
-          //   onCameraMoveStarted: () {
-          //     setState(() {
-          //       _isCameraMoving = true;
-          //     });
-          //   },
-          //   onCameraIdle: () {
-          //     setState(() {
-          //       _isCameraMoving = false;
-          //     });
-          //   },
-          //
-          // ),
-          GoogleMap(
-            markers: {
-              _current != null ? Marker(
-                markerId: const MarkerId('current'),
-                position: _current!,
-                icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueMagenta),
-              ) : const Marker(markerId: MarkerId('current')),
-
-              _target != null ? Marker(
-                markerId: const MarkerId('target'),
-                position: _target!,
-                icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
-              ) : const Marker(markerId: MarkerId('current')),
-
-            },
-            initialCameraPosition:CameraPosition(
-              zoom: 15,
-              target: _defaultLocation,
-            ),
-            onMapCreated: (GoogleMapController controller) {
-              mapController=controller;
-            },
-            onTap: _handleTap,
-          ),
-
-          Positioned(
-            top: 200,
-            left: 19,
-            right: 16,
-            child:
-            Container(
-              height: 50,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(
-                  color: Colors.black,
-                ),
-                borderRadius: BorderRadius.circular(10),
-              ), child: placesAutoCompleteTextField(),),
-            //   child: Center(
-            //     child: Padding(
-            //       padding: const EdgeInsets.only(left: 20.0),
-            //       child: TypeAheadField(
-            //         suggestionsCallback: (pattern) async {
-            //           return await _fetchSuggestions(pattern);
-            //         },
-            //         itemBuilder: (context, suggestion) {
-            //           return ListTile(
-            //             title: Text(suggestion.description),
-            //           );
-            //         },
-            //         onSelected: (suggestion) {
-            //           searchController.text = suggestion.description;
-            //           _moveToLocation(suggestion.description);
-            //         },
-            //       ),
-            //     ),
-            //   ),
-            // ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 300.0, left: 100),
-            child: Container(
-                height: 100,
-                width: 100,
-                decoration: BoxDecoration(
-                  color:Colors.red[50],
-                  borderRadius: BorderRadius.circular(100),
-                  border: Border.all(color: Colors.red),
-                ),
-
-                child: Icon(
-                  CupertinoIcons.location_solid, size: 40, color: Colors.red,)),
-          ),
-          // Padding(
-          //       padding: const EdgeInsets.only(top: 400.0),
-          //       child: Material(
-          //         elevation: 5,
-          //         borderRadius: BorderRadius.circular(30),
-          //         child: Container(
-          //           height: 300,
-          //           width: double.infinity,
-          //
-          //           decoration: BoxDecoration(
-          //             color: Colors.white,
-          //             border: Border.all(color: Colors.black12),
-          //             borderRadius: BorderRadius.circular(30),
-          //           ),child: Column(
-          //           children: [
-          //             Row(
-          //               children: [
-          //                 Icon(CupertinoIcons.up_arrow,size: ,)
-          //               ],
-          //             )
-          //           ],
-          //         ),
-          //         ),
-          //       ),
-          //     ),
-          Padding(
-            padding: const EdgeInsets.only(top:500.0),
-            child: Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  _showCustomBottomSheet(context);
-                },
-                child: Text('Set the alarm'),
-              ),
-
-              // Align(
-              //   alignment: Alignment.bottomCenter,
-              //   child: ElevatedButton(
-              //     onPressed: () {
-              //       _setDestination(
-              //           37.7749, -122.4194); // Example: San Francisco, CA
-              //     },
-              //     child: Text('Set Destination'),
-              //   ),
-              // ),
-            ),
-          ),
-        ],
-      ),
-
-
-    );
+    prefs.setStringList('alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
   }
-  // void _showCustomBottomSheet(BuildContext context) {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     isScrollControlled: true,
-  //     builder: (BuildContext context) {
-  //       return Padding(
-  //         padding: EdgeInsets.only(
-  //           bottom: MediaQuery.of(context).viewInsets.bottom,
-  //         ),
-  //         child: Material(
-  //           elevation: 5,
-  //           borderRadius: BorderRadius.circular(30),
-  //           child: Container(
-  //             height: 300,
-  //             width: double.infinity,
-  //             decoration: BoxDecoration(
-  //               color: Colors.transparent,
-  //               border: Border.all(color: Colors.black12),
-  //               borderRadius: BorderRadius.circular(30),
-  //             ),
-  //             child: Column(
-  //               children: [
-  //                 SizedBox(
-  //                   height: 20,
-  //                 ),
-  //                 Row(
-  //                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-  //                   children: [
-  //
-  //                     Column(
-  //                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-  //                       children: [
-  //                         GestureDetector(
-  //                           onTap: (){
-  //
-  //                           },
-  //                             child: Icon(CupertinoIcons.up_arrow,size: 20,)),
-  //                         Text("details"),
-  //                       ],
-  //                     ),
-  //                     Column(
-  //                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-  //                       children: [
-  //                         GestureDetector(
-  //                             onTap:(){
-  //
-  //           },
-  //                     child: Icon(Icons.close,size: 20,)),
-  //                         Text("cancel"),
-  //                       ],
-  //                     ),
-  //                     ElevatedButton(
-  //                       onPressed: () {
-  //                         // Add your button press logic here
-  //                       },
-  //                       style: ElevatedButton.styleFrom(
-  //                         backgroundColor: Color(0xffFFEF9A9A), // Set the background color here
-  //                       ),
-  //                       child: Text('Save'),
-  //                     ),
-  //                     ElevatedButton(
-  //                       onPressed: () {
-  //                         // Add your button press logic here
-  //                       },
-  //                       style: ElevatedButton.styleFrom(
-  //                         backgroundColor: Color(0xffFFEF9A9A), // Set the background color here
-  //                       ),
-  //                       child: Text('Start'),
-  //                     ),
-  //
-  //
-  //                   ],
-  //                 ),
-  //                 Row(
-  //                   children: [
-  //
-  //
-  //                   ],
-  //                 ),
-  //                 // Add more widgets as needed
-  //               ],
-  //             ),
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
   void _showCustomBottomSheet(BuildContext context)async {
-    List<AlarmDetails> alarms = [];
-    TextEditingController alramnamecontroller = TextEditingController();
     TextEditingController notescontroller = TextEditingController();
+    // Initialize the TextEditingController with the default value
+    TextEditingController alramnamecontroller = TextEditingController(text:  "Welcome",);
+    // if (!_handletap) {
+    //
+    //   // Show a snackbar if a destination is not selected
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(
+    //       content: Text('Please select a destination on the map.'),
+    //     ),
+    //   );
+    //   return;
+    // }
+    loadData();
+
+    notescontroller.clear();
+    List<AlarmDetails> alarms = [];
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     List<String>? alarmsJson = prefs.getStringList('alarms');
@@ -511,7 +303,7 @@ class _MyHomePageState extends State<MyHomePage> {
             elevation: 5,
             borderRadius: BorderRadius.circular(30),
             child: Container(
-              height: 350,
+              height: 450,
               width: double.infinity,
               decoration: BoxDecoration(
                 color: Colors.transparent,
@@ -524,18 +316,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              // Add your details logic here
-                            },
-                            child: Icon(CupertinoIcons.up_arrow, size: 20),
-                          ),
-                          Text("Details"),
-                        ],
-                      ),
+
                       Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
@@ -570,55 +351,33 @@ class _MyHomePageState extends State<MyHomePage> {
                       //   child: Text('Save'),
                       // ),
                       ElevatedButton(
-                        onPressed: () async {
-                          setState(() {
-                            AlarmDetails newAlarm = AlarmDetails(
-                              alarmName: alramnamecontroller.text,
-                              notes: notescontroller.text,
-                              locationRadius: radius,
-                              isAlarmOn: true,
-                            );
-                            alarms.add(newAlarm);
-                          });
-                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                        onPressed: () {
+                          int index = alarms.indexWhere((alarm) =>
+                          alarm.alarmName == alramnamecontroller.text);
+                          if (index != -1) { // Check if the alarm name exists in the list
+                            setState(() {
+                              alarms[index].alarmName = alramnamecontroller.text;
+                            });
+                          }
 
-                          List<Map<String, dynamic>> alarmsJson = alarms.map((alarm) => alarm.toJson()).toList();
-
-                          await prefs.setStringList('alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
-
-                          loadData();
-
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => MyAlarmsPage(
-                                alarmDetails: AlarmDetails(
-                                  alarmName: alramnamecontroller.text,
-                                  notes: notescontroller.text,
-                                  locationRadius: radius,
-                                  isAlarmOn: true,
-                                ), alarmName: alramnamecontroller, notes: notescontroller, locationRadius: radius, isAlarmOn: true,
-                              ),
-                            ),
-                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xffFFEF9A9A),
                         ),
                         child: Text("Save"),
-                        // Rest of the code...
                       ),
 
 
-                      ElevatedButton(
-                        onPressed: () {
-                          // Add your start logic here
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xffFFEF9A9A),
-                        ),
-                        child: Text('Start'),
-                      ),
+
+                      // ElevatedButton(
+                      //   onPressed: () {
+                      //     // Add your start logic here
+                      //   },
+                      //   style: ElevatedButton.styleFrom(
+                      //     backgroundColor: Color(0xffFFEF9A9A),
+                      //   ),
+                      //   child: Text('Start'),
+                      // ),
                     ],
                   ),
                   SizedBox(height: 20),
@@ -626,39 +385,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Text("Alarm rings"),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Icon(CupertinoIcons.arrow_right_circle_fill,size: 20,color: Colors.red,),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Text("on entry"),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Icon(CupertinoIcons.arrow_left_circle_fill,size: 20,color: Colors.red,),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Text("on exit"
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
+
                       Column(
                         children: [
                           MeterCalculatorWidget(callback: updateradiusvalue),
@@ -666,74 +393,78 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     ],
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Column(
-                        children: [
-                          Text("Alarm Name:"),
-                          SizedBox(height: 10),
-                          Container(
-                            height: 50,
-                            width: 100,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: Colors.black12),
+                      Text("Alarm Name:",style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
+                          fontSize: 18
+                      ),),
+                      SizedBox(height: 10),
+                      Container(
+                        height: 50,
+                        width: 300,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.black12),
 
-                            ),child: Padding(
-                            padding: const EdgeInsets.only(left: 10.0),
-                            child: TextField(
-                              controller: alramnamecontroller,
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              decoration: InputDecoration(
-                                hintText: "Alarm name",
-                                border: InputBorder.none,
-                                enabledBorder: InputBorder.none,
-                              ),
-                            ),
+                        ),child: Padding(
+                        padding: const EdgeInsets.only(left: 10.0),
+                        child: TextField(
+                          controller: alramnamecontroller,
+
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w500,
                           ),
+                          decoration: InputDecoration(
+                            hintText: "Alarm name",
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
                           ),
-                        ],
+                        ),
                       ),
+                      ),
+                      SizedBox(height: 20),
 
-                      Column(
-                        children: [
-                          Text("Notes:"),
-                          SizedBox(height: 10),
-                          Container(
-                            height: 50,
-                            width: 100,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: Colors.black12),
+                      Text("Notes:",style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
+                          fontSize: 18
+                      ),),
+                      SizedBox(height: 10),
+                      Container(
+                        height: 50,
+                        width: 300,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.black12),
 
-                            ),child: Padding(
-                            padding: const EdgeInsets.only(left: 10.0),
-                            child: TextField(
-                              controller: notescontroller,
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              decoration: InputDecoration(
-                                hintText: "Notes",
-                                border: InputBorder.none,
-                                enabledBorder: InputBorder.none,
-                              ),
-                            ),
+                        ),child: Padding(
+                        padding: const EdgeInsets.only(left: 10.0),
+                        child: TextField(
+                          controller: notescontroller,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w500,
                           ),
+                          decoration: InputDecoration(
+                            hintText: "Notes",
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
                           ),
-                        ],
-                      )
+                        ),
+                      ),
+                      ),
+                      SizedBox(height: 20),
                     ],
-                  )
+                  ),
+
                 ],
               ),
             ),
@@ -743,384 +474,205 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('My Alarms'),
+      ),
+      body: ListView.builder(
+        itemCount: alarms.length,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: const EdgeInsets.only(top: 20.0,left: 16,right: 16),
+            child: Material(
+              elevation: 3,
+              borderRadius: BorderRadius.circular(10),
+              child: GestureDetector(
+                onTap: (){
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context)=>Track(
+                        alarm:alarms[index],
+                      ))
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: Colors.black12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              "${alarms[index].alarmName}",
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              overflow: TextOverflow.ellipsis, // Add this line
+                            ),
+                          ),
+
+                          Padding(
+                            padding: const EdgeInsets.only(left: 20.0),
+                            child: Icon(Icons.location_on,size: 30,color: Colors.orange,),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 20),
+
+                            child: Text(currentLocation == null ? '' : 'hu',
+                              style: TextStyle(
+                                fontSize: 18,color: Colors.black,fontWeight: FontWeight.w500,
+
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      Text("${alarms[index].notes}",style: TextStyle(
+                        fontSize: 18,color: Colors.black54,fontWeight: FontWeight.w500,
+
+                      ),),
+                      // SizedBox(
+                      //   height: 15,
+                      // ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Column(
+                            children: [
+                              GestureDetector(
+                                  onTap: (){
+
+                                    setState(() {
+                                      alarms.removeAt(index);
+                                    });
+                                    saveData();
+                                  },
 
 
-  placesAutoCompleteTextField() {
-    return Container(
-      // padding: EdgeInsets.symmetric(horizontal: 10),
-      child: GooglePlaceAutoCompleteTextField(
-        textEditingController: controller,
-        googleAPIKey: "AIzaSyA3byIibe-X741Bw5rfEzOHZEKuWdHvCbw",
-        inputDecoration: InputDecoration(
-          hintText: "Search your location",
-          border: InputBorder.none,
-          enabledBorder: InputBorder.none,
-        ),
-        debounceTime: 400,
-        countries: ["in", "fr"],
-        isLatLngRequired: true,
-        getPlaceDetailWithLatLng: (Prediction prediction) {
-          print("placeDetails" + prediction.lat.toString());
-        },
+                                  child: Icon(Icons.delete,size: 28,color: Colors.black,)),
+                              SizedBox(
+                                height: 15,
+                              ),
+                              Text("Delete",style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 15,
+                                color: Colors.black45,
+                              ),),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              GestureDetector(
+                                  onTap:(){
+                                    _showCustomBottomSheet(context);
+                                  },
+                                  child: Icon(Icons.edit,size: 28,color: Colors.black,)),
+                              SizedBox(
+                                height: 15,
+                              ),
+                              Text("edit",style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 15,
+                                color: Colors.black45,
+                              ),),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
 
-        itemClick: (Prediction prediction) {
-          controller.text = prediction.description ?? "";
-          controller.selection = TextSelection.fromPosition(
-              TextPosition(offset: prediction.description?.length ?? 0));
-        },
-        seperatedBuilder: Divider(),
-        containerHorizontalPadding: 10,
+                                  bool newFavoriteStatus = !alarms[index].isFavourite;
+                                  updateFavoriteStatus(index, newFavoriteStatus);
+                                },
+                                child:
+                                Icon(
+                                  alarms[index].isFavourite ? Icons.favorite : Icons.favorite_outline,
+                                  size: 26,
+                                  color: alarms[index].isFavourite ? Colors.red : Colors.black,
+                                ),),
+                              SizedBox(
+                                height: 15,
+                              ),
+                              Text("favourite",style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 15,
+                                color: Colors.black45,
+                              ),),
+                            ],
+                          ),
+                          Column(
+                            children: [
 
-        // OPTIONAL// If you want to customize list view item builder
-        itemBuilder: (context, index, Prediction prediction) {
-          return Container(
-            padding: EdgeInsets.all(10),
-            child: Row(
-              children: [
-                Icon(Icons.location_on),
-                SizedBox(
-                  width: 7,
+
+
+                              // Icon(Icons.pin_drop,size: 26,color: Colors.black,),
+                              Image.asset("assets/pin drop.png",height: 30,width: 30,),
+                              SizedBox(
+                                height: 15,
+                              ),
+                              Text("Pin",style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 15,
+                                color: Colors.black45,
+                              ),),
+                            ],
+                          ),
+                          Switch(
+                            value: alarms[index].isEnabled,
+                            onChanged: (value) {
+                              setState(() {
+                                alarms[index].isEnabled = value;
+                                // _controller.value = alarms.where((alarm) => alarm.isEnabled).isNotEmpty;
+                                saveData();
+                              });
+                            },
+                          ),
+                          // AdvancedSwitch(
+                          //   width: 32,
+                          //   height: 16,
+                          //   controller: ValueNotifier<bool>(false),
+                          // ),
+                          // Column(
+                          //   children: [
+                          //
+                          //
+                          //
+                          //      Icon(Icons.swi,size: 26,color: Colors.black,),
+                          //
+                          //     SizedBox(
+                          //       height: 15,
+                          //     ),
+                          //     Text("Pin",style: TextStyle(
+                          //       fontWeight: FontWeight.w500,
+                          //       fontSize: 15,
+                          //       color: Colors.black45,
+                          //     ),),
+                          //   ],
+                          // ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-                Expanded(child: Text("${prediction.description ?? ""}"))
-              ],
+              ),
             ),
           );
         },
-
-        isCrossBtnShown: true,
-
-        // default 600 ms ,
       ),
     );
   }
-  // _handleTap(LatLng point) {
-  //   setState(() { _markers.
-  //     _markers.add(Marker(
-  //       markerId: MarkerId(point.toString()),
-  //       position: point,
-  //       infoWindow: InfoWindow(
-  //         title: 'I am a marker',
-  //       ),
-  //       icon:
-  //       BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor),
-  //     ));
-  //   });
-  // }
-
-
-//   void _setDestination(double latitude, double longitude) {
-//     LatLng destination = LatLng(latitude, longitude);
-//
-//     if (mapController != null) {
-//       mapController!.animateCamera(CameraUpdate.newLatLng(destination));
-//     }
-//   }
-// }
-
-
-//
-// import 'package:flutter/material.dart';
-// import 'package:google_maps_flutter/google_maps_flutter.dart';
-// import 'package:google_places_flutter/google_places_flutter.dart';
-// import 'package:google_places_flutter/model/prediction.dart';
-// import 'package:location/location.dart' as location;
-// import 'package:geocoding/geocoding.dart' as geocoding;
-//
-// class MyHomePage extends StatefulWidget {
-//   MyHomePage({Key? key, this.title}) : super(key: key);
-//
-//   final String? title;
-//
-//   @override
-//   _MyHomePageState createState() => _MyHomePageState();
-// }
-//
-// class _MyHomePageState extends State<MyHomePage> {
-//   TextEditingController controller = TextEditingController();
-//   GoogleMapController? mapController;
-//   location.LocationData? currentLocation;
-//   location.Location _locationService = location.Location();
-//   bool _isCameraMoving = true;
-//   final LatLng _defaultLocation = const LatLng(13.067439, 80.237617); // Default location
-//   Set<Circle> _circles = {};
-//   BitmapDescriptor? _destinationIcon;
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     _requestLocationPermission();
-//     _loadCustomIcons();
-//   }
-//
-//   Future<void> _requestLocationPermission() async {
-//     bool serviceEnabled = await _locationService.serviceEnabled();
-//     if (!serviceEnabled) {
-//       serviceEnabled = await _locationService.requestService();
-//       if (!serviceEnabled) {
-//         return;
-//       }
-//     }
-//
-//     location.PermissionStatus permissionStatus = await _locationService.hasPermission();
-//     if (permissionStatus == location.PermissionStatus.denied) {
-//       permissionStatus = await _locationService.requestPermission();
-//       if (permissionStatus != location.PermissionStatus.granted) {
-//         return;
-//       }
-//     }
-//
-//     _locationService.onLocationChanged.listen((location.LocationData newLocation) {
-//       if (_isCameraMoving) return;
-//
-//       setState(() {
-//         currentLocation = newLocation;
-//       });
-//
-//       if (mapController != null) {
-//         mapController!.animateCamera(CameraUpdate.newLatLng(
-//           LatLng(newLocation.latitude!, newLocation.longitude!),
-//         ));
-//       }
-//     });
-//   }
-//
-//   Future<void> _loadCustomIcons() async {
-//     _destinationIcon = await BitmapDescriptor.fromAssetImage(
-//       ImageConfiguration(devicePixelRatio: 2.5),
-//       'assets/custom_pin.png', // Replace with your image file
-//     );
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: Stack(
-//         children: [
-//           GoogleMap(
-//             mapType: MapType.satellite,
-//             myLocationButtonEnabled: false,
-//             zoomControlsEnabled: false,
-//             initialCameraPosition: CameraPosition(
-//               zoom: 15,
-//               target: _defaultLocation,
-//             ),
-//             onMapCreated: (GoogleMapController controller) {
-//               mapController = controller;
-//             },
-//             markers: {
-//               Marker(
-//                 markerId: MarkerId("_currentLocation"),
-//                 icon: BitmapDescriptor.defaultMarker,
-//                 position: currentLocation != null
-//                     ? LatLng(currentLocation!.latitude!, currentLocation!.longitude!)
-//                     : _defaultLocation,
-//               ),
-//               Marker(
-//                 markerId: MarkerId("_destination"),
-//                 icon: _destinationIcon ?? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-//                 position: LatLng(0.0, 0.0), // Replace with the actual coordinates
-//               ),
-//             },
-//             circles: _circles,
-//             onCameraMoveStarted: () {
-//               setState(() {
-//                 _isCameraMoving = true;
-//               });
-//             },
-//             onCameraIdle: () {
-//               setState(() {
-//                 _isCameraMoving = false;
-//               });
-//             },
-//           ),
-//           Positioned(
-//             top: 200,
-//             left: 19,
-//             right: 16,
-//             child: Container(
-//               height: 50,
-//               decoration: BoxDecoration(
-//                 color: Colors.white,
-//                 border: Border.all(
-//                   color: Colors.black,
-//                 ),
-//                 borderRadius: BorderRadius.circular(10),
-//               ),
-//               child: placesAutoCompleteTextField(),
-//             ),
-//           ),
-//           Align(
-//             alignment: Alignment.bottomCenter,
-//             child: ElevatedButton(
-//               onPressed: () {
-//                 _setDestination(37.7749, -122.4194); // Example: San Francisco, CA
-//               },
-//               child: Text('Set Destination'),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-//
-//   placesAutoCompleteTextField() {
-//     return Container(
-//       child: GooglePlaceAutoCompleteTextField(
-//         textEditingController: controller,
-//         googleAPIKey: "AIzaSyA3byIibe-X741Bw5rfEzOHZEKuWdHvCbw",
-//         inputDecoration: InputDecoration(
-//           hintText: "Search your location",
-//           border: InputBorder.none,
-//           enabledBorder: InputBorder.none,
-//         ),
-//         debounceTime: 400,
-//         countries: ["in", "fr"],
-//         isLatLngRequired: true,
-//         getPlaceDetailWithLatLng: (Prediction prediction) {
-//           print("placeDetails" + prediction.lat.toString());
-//         },
-//         itemClick: (Prediction prediction) async {
-//           double latitude = prediction.lat as double;
-//           double longitude = prediction.lng as double;
-//
-//           setState(() {
-//              // Clear existing circles
-//             _circles.add(Circle(
-//               circleId: CircleId("circle_1"),
-//               center: LatLng(latitude, longitude),
-//               radius: 500, // Radius in meters
-//               fillColor: Colors.red.withOpacity(0.3),
-//               strokeWidth: 10,
-//             ));
-//           });
-//
-//           controller.text = prediction.description ?? "";
-//           controller.selection = TextSelection.fromPosition(
-//               TextPosition(offset: prediction.description?.length ?? 0));
-//         },
-//         seperatedBuilder: Divider(),
-//         containerHorizontalPadding: 10,
-//         itemBuilder: (context, index, Prediction prediction) {
-//           return Container(
-//             padding: EdgeInsets.all(10),
-//             child: Row(
-//               children: [
-//                 Icon(Icons.location_on),
-//                 SizedBox(
-//                   width: 7,
-//                 ),
-//                 Expanded(child: Text("${prediction.description ?? ""}"))
-//               ],
-//             ),
-//           );
-//         },
-//         isCrossBtnShown: true,
-//       ),
-//     );
-//   }
-//
-//   void _setDestination(double latitude, double longitude) {
-//     LatLng destination = LatLng(latitude, longitude);
-//
-//     if (mapController != null) {
-//       mapController!.animateCamera(CameraUpdate.newLatLng(destination));
-//     }
-//   }
-// }
-  _handleTap(LatLng point) {
-    setState(() {
-      _target = point;
-
-      // // Convert the set to a list
-      // List<Marker> markerList = _markers.toList();
-      //
-      // // Remove the last added marker, if any
-      // if (markerList.isNotEmpty) {
-      //   markerList.removeLast();
-      // }
-      //
-      // // Add a new marker
-      // markerList.add(Marker(
-      //   markerId: MarkerId(point.toString()),
-      //   position: point,
-      //   infoWindow: InfoWindow(
-      //     title: 'I am a marker',
-      //   ),
-      //   icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueMagenta),
-      // ));
-      //
-      // // Convert the list back to a set
-      // _markers = markerList.toSet();
-    });
-  }
-
-
 }
-
-
-
-
-
-
-class MeterCalculatorWidget extends StatefulWidget {
-  final Function(double) callback;
-
-  const MeterCalculatorWidget({super.key, required this.callback});
-
-
-
-  @override
-  _MeterCalculatorWidgetState createState() => _MeterCalculatorWidgetState();
-}
-
-class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
-  double _radius = 20;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          Text(
-            'Meters',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SliderTheme(
-                data: SliderTheme.of(context).copyWith(
-                  thumbShape: RoundSliderThumbShape(
-                    enabledThumbRadius: 15.0, // Set your desired thumb radius
-                  ),
-                ),
-                child: Slider(
-                  activeColor: Colors.red,
-
-                  value: _radius,
-                  divisions: 20,
-                  min: 20,
-                  max: 1000, // Set your maximum radius value here
-                  onChanged: (value) {
-                    setState(() {
-                      _radius = value.roundToDouble(); // Round the value to the nearest integer
-                    });
-                    widget.callback(value);
-                  },
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 10),
-          Text('Radius: ${_radius.round()} meters'), // Display the rounded value
-        ],
-      ),
-
-    );
-  }
-}
-
-
-

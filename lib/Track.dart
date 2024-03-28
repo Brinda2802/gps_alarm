@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/widgets.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,6 +20,7 @@ import 'Track.dart';
 import 'Track.dart';
 
 int id = 0;
+const int notificationId = 123;
 
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -34,7 +37,7 @@ class Track extends StatefulWidget {
 
 class _TrackState extends State<Track> {
 
-
+  bool isAnimated=false;
   bool _notificationsEnabled = false;
 
   TextEditingController controller = TextEditingController();
@@ -60,13 +63,14 @@ class _TrackState extends State<Track> {
 
     loadData();
     markLocation();
+
+
     // Initialize the notification plugin
 
   }
   double degreesToRadians(double degrees) {
     return degrees * math.pi / 180;
   }
-
   // Calculate distance between two LatLng points
   double calculateDistance(LatLng point1, LatLng point2) {
     const double earthRadius = 6371000; // meters
@@ -89,6 +93,9 @@ class _TrackState extends State<Track> {
     if (currentLocation != null) {
       log("checking alarm");
       for (var alarm in alarms) {
+        if(alarm.isEnabled==false){
+          continue;
+        }
         double distance = calculateDistance(
           LatLng(currentLocation!.latitude!, currentLocation!.longitude!),
           LatLng(alarm.lat, alarm.lng),
@@ -269,7 +276,6 @@ class _TrackState extends State<Track> {
       }
     });
   }
-
   Future<void> loadData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -285,7 +291,6 @@ class _TrackState extends State<Track> {
 
     setState(() {});
   }
-
   Future<void> _isAndroidPermissionGranted() async {
     if (Platform.isAndroid) {
       final bool granted = await flutterLocalNotificationsPlugin
@@ -299,7 +304,6 @@ class _TrackState extends State<Track> {
       });
     }
   }
-
   Future<void> _requestPermissions() async {
     if (Platform.isAndroid) {
       final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
@@ -314,7 +318,6 @@ class _TrackState extends State<Track> {
     }
   }
   bool _isNotificationShown=false;
-
   Future<void> _showNotification(AlarmDetails alarm) async {
    // Exit if notification already shown
     if (_isNotificationShown) return; // Exit if notification already shown
@@ -328,6 +331,13 @@ class _TrackState extends State<Track> {
         channelDescription: 'your channel description',
         importance: Importance.max,
         priority: Priority.high,
+        actions: [
+          AndroidNotificationAction(
+
+            "23",
+            'Dismiss',
+          ),
+        ],
         sound: RawResourceAndroidNotificationSound('pachainirame'),
         ticker: 'ticker');
     const NotificationDetails notificationDetails =
@@ -338,8 +348,6 @@ class _TrackState extends State<Track> {
      // Exit if notification already shown
 
   }
-
-
   Future<void> _requestLocationPermission() async {
     bool serviceEnabled = await _locationService.serviceEnabled();
     if (!serviceEnabled) {
@@ -358,9 +366,10 @@ class _TrackState extends State<Track> {
       }
       _startLocationUpdates();
     }
-    LatLng? _current = const LatLng(
+    LatLng? _current =  LatLng(
         13.067439, 80.237617);
-    LatLng? _target = null;
+    LatLng? _target =  LatLng(
+        13.067439, 80.237617);
     log("location 1");
     _locationService.onLocationChanged.listen((
         location.LocationData newLocation) async {
@@ -386,15 +395,66 @@ class _TrackState extends State<Track> {
 
       await markLocation();
 
-      if (mapController != null) {
-        mapController!.animateCamera(CameraUpdate.newLatLng(
-          LatLng(newLocation.latitude!, newLocation.longitude!),
-        ));
+      // if (mapController != null) {
+      //
+      //   mapController!.animateCamera(CameraUpdate.newLatLng(
+      //     LatLng(newLocation.latitude!, newLocation.longitude!),
+      //   ));
+      // }
+      if (mapController != null && !isAnimated ) {
+        isAnimated = true;
+        // Calculate bounds containing both markers
+        LatLngBounds bounds = LatLngBounds(
+          southwest: _calculateMarkerBounds(_current, _target).southwest,
+          northeast: _calculateMarkerBounds(_current, _target).northeast,
+        );
+        // Animate camera to fit both markers with some padding
+        double padding = 0.05 ; // Adjust padding as needed
+        CameraUpdate cameraUpdate = CameraUpdate.newLatLngBounds(
+          padLatLngBounds(bounds,3),padding
+        );
+
+        await mapController!.animateCamera(cameraUpdate);
       }
-print("alarm ring");
+
+      print("alarm ring");
       checkAlarm();
     });
     log("location 2");
+  }
+  LatLngBounds padLatLngBounds(LatLngBounds bounds, double padding) {
+    double southWestLat = bounds.southwest.latitude - padding;
+    double southWestLng = bounds.southwest.longitude - padding;
+    double northEastLat = bounds.northeast.latitude + padding;
+    double northEastLng = bounds.northeast.longitude + padding;
+
+    return LatLngBounds(
+      southwest: LatLng(southWestLat, southWestLng),
+      northeast: LatLng(northEastLat, northEastLng),
+    );
+  }
+  LatLngBounds _calculateMarkerBounds(LatLng? marker1, LatLng? marker2) {
+    double southWestLat = double.infinity, southWestLng = double.infinity;
+    double northEastLat = double.negativeInfinity, northEastLng = double.negativeInfinity;
+
+    if (marker1 != null) {
+      southWestLat = math.min(southWestLat, marker1.latitude);
+      southWestLng = math.min(southWestLng, marker1.longitude);
+      northEastLat = math.max(northEastLat, marker1.latitude);
+      northEastLng = math.max(northEastLng, marker1.longitude);
+    }
+
+    if (marker2 != null) {
+      southWestLat = math.min(southWestLat, marker2.latitude);
+      southWestLng = math.min(southWestLng, marker2.longitude);
+      northEastLat = math.max(northEastLat, marker2.latitude);
+      northEastLng = math.max(northEastLng, marker2.longitude);
+    }
+
+    return LatLngBounds(
+      southwest: LatLng(southWestLat, southWestLng),
+      northeast: LatLng(northEastLat, northEastLng),
+    );
   }
   void _startLocationUpdates() {
     // Listen for location changes
@@ -415,9 +475,29 @@ print("alarm ring");
 
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
+  Future<void> _goToCurrentLocation() async {
+    if (currentLocation == null) {
+      // Request location permission if needed
+      await _requestLocationPermission();
+      // await _startLocationUpdates();
+      return; // Wait for location to be updated
+    }
+
+    if (mapController != null) {
+      await mapController!.animateCamera(
+        CameraUpdate.newLatLngZoom(
+          LatLng(currentLocation!.latitude!, currentLocation!.longitude!),
+          15.0, // Adjust zoom level as needed
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    double height=MediaQuery.of(context).size.height;
+    double width=MediaQuery.of(context).size.height;
+
     return Scaffold(
 
 body:  Stack(
@@ -451,30 +531,41 @@ body:  Stack(
     },
 
   ),
-    Padding(
-      padding: const EdgeInsets.only(left: 280.0,top: 500),
-      child: FloatingActionButton(
+    Positioned(
+      right: 24,bottom: 120,
+      // padding:  EdgeInsets.only(top:height/1.68,left: 280),
+      child:IconButton.filledTonal(
+
+        onPressed: _goToCurrentLocation,
+        icon: Icon(Icons.my_location),
+        // child: Icon(Icons.my_location),
+      ),
+    ),
+    Positioned(
+      bottom: 72,right: 24,
+      // padding: const EdgeInsets.only(left: 280.0,top: 500),
+      child: IconButton.filledTonal(
         onPressed: () {
           mapController?.animateCamera(
             CameraUpdate.zoomIn(),
           );
         },
-        child: Icon(Icons.add),
+       icon: Icon(Icons.add),
       ),
     ),
+    Positioned(
+      bottom: 24,right: 24,
 
-    Padding(
-      padding: const EdgeInsets.only(left: 280.0,top: 600),
-      child: FloatingActionButton(
+      // padding: const EdgeInsets.only(left: 280.0,top: 600),
+      child: IconButton.filledTonal(
         onPressed: () {
           mapController?.animateCamera(
             CameraUpdate.zoomOut(),
           );
         },
-        child: Icon(Icons.remove),
+        icon: Icon(Icons.remove),
       ),
     ),
-
   ],
 ),
 
@@ -485,7 +576,4 @@ body:  Stack(
 
 
   }
-
-
-
 }

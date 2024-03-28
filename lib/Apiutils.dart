@@ -7,16 +7,22 @@ class AlarmDetails {
   bool isFavourite;
   double lat;
   double lng;
+  bool isEnabled = false;
 
-  AlarmDetails({
+
+
+  AlarmDetails( {
     required this.id,
     required this.alarmName,
     required this.notes,
     required this.locationRadius,
-    required this.isAlarmOn,
+    required this. isEnabled,
+    // required this.isAlarmOn,
+    this.isAlarmOn = true,
     required this.isFavourite,
     required this.lat,
     required this.lng,
+
 
   });
 
@@ -24,9 +30,10 @@ class AlarmDetails {
   factory AlarmDetails.fromJson(Map<String, dynamic> json) {
     return AlarmDetails(
       alarmName: json['alarmName'],
+     
       notes: json['notes'],
       locationRadius: json['locationRadius'].toDouble(),
-      isAlarmOn: json['isAlarmOn'], isFavourite: json['isFavourite'], lat: json['lat'], lng: json['lng'], id: json['id'],
+      isAlarmOn: json['isAlarmOn'], isFavourite: json['isFavourite'], lat: json['lat'], lng: json['lng'], id: json['id'], isEnabled: json['isEnabled'] ?? false,
     );
   }
 
@@ -41,6 +48,7 @@ class AlarmDetails {
       'lat':lat,
       'lng':lng,
       'id':id,
+      'isEnabled': isEnabled,
     };
   }
 }
