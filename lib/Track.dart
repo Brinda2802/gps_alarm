@@ -28,14 +28,25 @@ FlutterLocalNotificationsPlugin();
 
 class Track extends StatefulWidget {
   final AlarmDetails? alarm;
+  //final String selectedRingtone;
 
-  const Track({super.key, this.alarm});
+
+
+  const Track({super.key, this.alarm,  });
 
   @override
   State<Track> createState() => _TrackState();
 }
 
 class _TrackState extends State<Track> {
+  late String ringtonePath;
+  late String selectedRingtone;
+
+  Future<void> _loadSelectedRingtone() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    selectedRingtone = prefs.getString('selectedRingtone')!;
+  }
+
 
   bool isAnimated=false;
   bool _notificationsEnabled = false;
@@ -56,7 +67,7 @@ class _TrackState extends State<Track> {
   void initState() {
     super.initState();
     _requestLocationPermission();
-
+    String ringtonePath = 'assets/ringtones/selectedRingtone';
     _isAndroidPermissionGranted();
     _requestPermissions();
 
@@ -325,22 +336,35 @@ class _TrackState extends State<Track> {
     // ... rest of your notification code ...
 
     _isNotificationShown = true;
+     String ringtonePath = 'assets/ringtones/selectedRingtone';// Construct the path
 
-    const AndroidNotificationDetails androidNotificationDetails =
-    AndroidNotificationDetails('your channel id', 'your channel name',
+     AndroidNotificationDetails androidNotificationDetails =
+    AndroidNotificationDetails(
+        'your channel id', 'your channel name',
         channelDescription: 'your channel description',
         importance: Importance.max,
         priority: Priority.high,
         actions: [
-          AndroidNotificationAction(
-
-            "23",
-            'Dismiss',
-          ),
+          AndroidNotificationAction("23", 'Dismiss',),
         ],
-        sound: RawResourceAndroidNotificationSound('pachainirame'),
+        sound: RawResourceAndroidNotificationSound(ringtonePath), // Use the constructed path
         ticker: 'ticker');
-    const NotificationDetails notificationDetails =
+
+    // const AndroidNotificationDetails androidNotificationDetails =
+    // AndroidNotificationDetails('your channel id', 'your channel name',
+    //     channelDescription: 'your channel description',
+    //     importance: Importance.max,
+    //     priority: Priority.high,
+    //     actions: [
+    //       AndroidNotificationAction(
+    //
+    //         "23",
+    //         'Dismiss',
+    //       ),
+    //     ],
+    //     sound: RawResourceAndroidNotificationSound('pachainirame'),
+    //     ticker: 'ticker');
+     NotificationDetails notificationDetails =
     NotificationDetails(android: androidNotificationDetails);
     await flutterLocalNotificationsPlugin.show(
         id++, alarm.alarmName, "Reached your place", notificationDetails,
