@@ -276,9 +276,8 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
                       //   ),
                       //   child: Text('Save'),
                       // ),
-                      ElevatedButton(
+                      FilledButton(
                         onPressed: () async {
-
                           setState(() {
                             alarms[index].alarmName = alramnamecontroller.text;
                             alarms[index].notes = notescontroller.text;
@@ -290,9 +289,7 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
                           Navigator.of(context).pop();
 
                         },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xffFFEF9A9A),
-                        ),
+
                         child: Text("Save"),
                       ),
                     ],
@@ -302,7 +299,6 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-
                       Column(
                         children: [
                           MeterCalculatorWidget(callback: updateradiusvalue),
@@ -381,7 +377,6 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
                       SizedBox(height: 20),
                     ],
                   ),
-
                 ],
               ),
             ),
@@ -455,7 +450,7 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xffFFEF9A9A),
+       // backgroundColor: Color(0xffFFEF9A9A),
         title: Text('My Alarms'),
       ),
       body: ListView.builder(

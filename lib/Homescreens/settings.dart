@@ -23,7 +23,7 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
-  final AudioPlayer _audioPlayer = AudioPlayer();
+  late  final AudioPlayer _audioPlayer = AudioPlayer();
 
 
   double radius=0;
@@ -54,9 +54,10 @@ class _SettingsState extends State<Settings> {
       )).toList(),
       onChanged: (value) {
         setState(() {
+          print(value);
           selectedRingtone = value;
           _saveSelectedRingtone();
-          _playRingtone(selectedRingtone!);
+           _playRingtone(selectedRingtone!);
           // Use selectedRingtone to play the ringtone or set notification sound
         });
       },
@@ -74,8 +75,8 @@ class _SettingsState extends State<Settings> {
   Future<void> _loadRingtones() async {
     try {
       if (listFileExists) {  // Check if list.txt exists (optional)
-        ringtones = await rootBundle.loadString('assets/ringtone/list.txt').then(
-              (data) => data.split('\n'),
+        ringtones = await rootBundle.loadString('assets/list.txt').then(
+              (data) => data.split(','),
         );
       } else {
         // Handle the case where list.txt is missing (optional)
@@ -90,11 +91,30 @@ class _SettingsState extends State<Settings> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('selectedRingtone', selectedRingtone!);
   }
+  // Future<void> _playRingtone(String ringtone) async {
+  //   // Replace 'assets/ringtones/' with your actual path if different
+  //   final ringtonePath = 'ringtone/$ringtone';
+  //   print("$ringtone");
+  //   try {
+  //     await _audioPlayer.setSource(AssetSource(ringtonePath));
+  //     print("$ringtone");
+  //     print("is successfull ");
+  //   } catch (e) {
+  //     if (e is PlatformException) {
+  //       print('Audio playback error: ${e.message}'); // Log the entire error message
+  //     } else {
+  //       print('Unexpected error: $e');
+  //     }
+  //   }
+  //
+  // }
   Future<void> _playRingtone(String ringtone) async {
-    // Replace 'assets/ringtones/' with your actual path if different
-    final ringtonePath = 'assets/ringtone/$ringtone';
+    // Ensure assets/alarm_ringtones/ is the correct path
+    final ringtonePath = '$ringtone';
     try {
-      await _audioPlayer.play(UrlSource(ringtonePath));
+      await _audioPlayer.play(AssetSource(ringtonePath));
+      // await _audioPlayer.setSource(AssetSource(ringtonePath));
+      // await _audioPlayer.resume(); // Start playing the ringtone
     } catch (e) {
       if (e is PlatformException) {
         print('Audio playback error: ${e.message}'); // Log the entire error message
@@ -102,13 +122,29 @@ class _SettingsState extends State<Settings> {
         print('Unexpected error: $e');
       }
     }
-
   }
   @override
-  void initState() {
+  @override
+  void dispose() {
+    super.dispose();
+    _audioPlayer.stop(); // Stop the audio player when the widget is disposed
+  }
+  void initState()  {
     super.initState();
     _loadSelectedUnit();
     _loadRingtones();
+    _buildRingtoneDropdown();
+
+
+
+    // Set the release mode to keep the source after playback has completed.
+
+
+    // Start the player as soon as the app is displayed.
+    // WidgetsBinding.instance.addPostFrameCallback((_) async {
+    //   await _audioPlayer.setSource(AssetSource( "ringtone/$ringtones"));
+    //   await _audioPlayer.resume();
+    // });
     // Load selected unit when the widget initializes
   }
   // Method to load the selected unit from shared preferences
@@ -352,9 +388,7 @@ class _SettingsState extends State<Settings> {
           //   ),
           // ),
 
-          SizedBox(
-            height: 20,
-          ),
+
           // MeterCalculatorWidget(callback: updateradiusvalue),
           // Expanded(child: _buildRingtoneDropdown()),
           // DropdownButton<String>(
@@ -370,7 +404,7 @@ class _SettingsState extends State<Settings> {
           // ),
 
 Padding(
-  padding: const EdgeInsets.all(8.0),
+  padding: const EdgeInsets.all(4.0),
   child: Container(
     child: _buildRingtoneDropdown(),
   ),

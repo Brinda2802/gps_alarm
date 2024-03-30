@@ -179,8 +179,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: Color(0xff4345b4))
+      ),
       debugShowCheckedModeBanner: false,
-      home:Splashscreen(),
+      home:Homescreen(),
     );
   }
 }
@@ -245,8 +249,8 @@ class _SplashscreenState extends State<Splashscreen> {
         ),
         child: Center(
           child: Image.asset(
-            "assets/mapimage.png",
-            height: 700,
+            "assets/applogo.png",
+            height: 300,
             width: 300,
           ),
         ),

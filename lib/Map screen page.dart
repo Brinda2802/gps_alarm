@@ -235,11 +235,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Row(
               children: [
                 Image.asset("assets/mapimage.png",height: 100,width: 100,),
-                Text('GPS ALARM',style: TextStyle(
-                  color: CupertinoColors.black,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 18,
-                ),),
+                Text('GPS ALARM',style: Theme.of(context).textTheme.titleLarge),
               ],
             ),
             Divider(),
@@ -652,14 +648,11 @@ class _MyHomePageState extends State<MyHomePage> {
                       //   ),
                       //   child: Text('Save'),
                       // ),
-                      ElevatedButton(
+                      FilledButton(
                         onPressed: () {
                           saveAlarm(context); // Call the saveAlarm function
                         },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xffFFEF9A9A),
-                        ),
-                        child: Text("Save"),
+                        child: Text("Set"),
                       ),
 
 

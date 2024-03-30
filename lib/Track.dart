@@ -41,16 +41,12 @@ class Track extends StatefulWidget {
 class _TrackState extends State<Track> {
   late String ringtonePath;
   late String selectedRingtone;
-
   Future<void> _loadSelectedRingtone() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     selectedRingtone = prefs.getString('selectedRingtone')!;
   }
-
-
   bool isAnimated=false;
   bool _notificationsEnabled = false;
-
   TextEditingController controller = TextEditingController();
   GoogleMapController? mapController;
   location.LocationData? currentLocation;
@@ -58,7 +54,6 @@ class _TrackState extends State<Track> {
   bool _isCameraMoving = true;
   final LatLng _defaultLocation = const LatLng(
       13.067439, 80.237617); // Default location
-
   TextEditingController searchController = TextEditingController();
   List<AlarmDetails> alarms = [];
   Set<Marker> _markers={};
@@ -130,7 +125,6 @@ class _TrackState extends State<Track> {
       throw Exception('Could not launch $url');
     }
   }
-
   // Future markLocation() async {
   //   Marker? current;
   //   ByteData byteData = await rootBundle.load('assets/locationimage.png');
@@ -336,7 +330,7 @@ class _TrackState extends State<Track> {
     // ... rest of your notification code ...
 
     _isNotificationShown = true;
-     String ringtonePath = 'assets/ringtones/selectedRingtone';// Construct the path
+     String ringtonePath = 'assets/$selectedRingtone';// Construct the path
 
      AndroidNotificationDetails androidNotificationDetails =
     AndroidNotificationDetails(
@@ -364,9 +358,9 @@ class _TrackState extends State<Track> {
     //     ],
     //     sound: RawResourceAndroidNotificationSound('pachainirame'),
     //     ticker: 'ticker');
-     NotificationDetails notificationDetails =
-    NotificationDetails(android: androidNotificationDetails);
-    await flutterLocalNotificationsPlugin.show(
+        NotificationDetails notificationDetails =
+        NotificationDetails(android: androidNotificationDetails);
+        await flutterLocalNotificationsPlugin.show(
         id++, alarm.alarmName, "Reached your place", notificationDetails,
         payload: 'item x');
      // Exit if notification already shown
