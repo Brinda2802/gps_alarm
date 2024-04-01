@@ -24,10 +24,7 @@ class Settings extends StatefulWidget {
 
 class _SettingsState extends State<Settings> {
   late  final AudioPlayer _audioPlayer = AudioPlayer();
-
-
   double radius=0;
-
   updateradiusvalue(value){
     setState(() {
       radius=value;
@@ -52,17 +49,17 @@ class _SettingsState extends State<Settings> {
         value: ringtone,
         child: Text(ringtone.split('/').last), // Display only filename
       )).toList(),
-      onChanged: (value) {
-        setState(() {
-          print(value);
-          selectedRingtone = value;
-          _saveSelectedRingtone();
-           _playRingtone(selectedRingtone!);
-          // Use selectedRingtone to play the ringtone or set notification sound
-        });
+      onChanged: (String? value) {
+        if (value != null) { // Handle null selection gracefully
+          setState(() {
+            selectedRingtone = value;
+            _saveSelectedRingtone(value); // Persist selection
+            _playRingtone(selectedRingtone!); // Play or set notification sound
+          });
+        }
       },
-      hint: Text('Select Ringtones'),
-      style: TextStyle(
+      hint: const Text('Select Ringtone'), // Use const for immutability
+      style: const TextStyle( // Use const for immutability
         color: Colors.black,
         fontSize: 18,
       ),
@@ -72,6 +69,7 @@ class _SettingsState extends State<Settings> {
       ),
     );
   }
+
   Future<void> _loadRingtones() async {
     try {
       if (listFileExists) {  // Check if list.txt exists (optional)
@@ -87,10 +85,15 @@ class _SettingsState extends State<Settings> {
       print("Error loading ringtones: $e");
     }
   }
-  void _saveSelectedRingtone() async {
+  Future<void> _saveSelectedRingtone(String ringtone) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('selectedRingtone', selectedRingtone!);
+    await prefs.setString('selectedRingtone', ringtone);
   }
+
+  // void _saveSelectedRingtone(String value) async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   await prefs.setString('selectedRingtone', selectedRingtone!);
+  // }
   // Future<void> _playRingtone(String ringtone) async {
   //   // Replace 'assets/ringtones/' with your actual path if different
   //   final ringtonePath = 'ringtone/$ringtone';
@@ -123,7 +126,7 @@ class _SettingsState extends State<Settings> {
       }
     }
   }
-  @override
+
   @override
   void dispose() {
     super.dispose();
@@ -148,12 +151,6 @@ class _SettingsState extends State<Settings> {
     // Load selected unit when the widget initializes
   }
   // Method to load the selected unit from shared preferences
-  void _loadSelectedUnit() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _selectedUnit = prefs.getString('selectedUnit');
-    });
-  }
   // Method to save the selected unit to shared preferences
   void _saveSelectedUnit(String newValue) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -162,6 +159,15 @@ class _SettingsState extends State<Settings> {
       _selectedUnit = newValue;
     });
   }
+  Future _loadSelectedUnit() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _selectedUnit = prefs.getString('selectedUnit');
+      _imperial=(_selectedUnit == 'Imperial system (mi/ft)');
+      radius=_imperial?1.24:2000;
+    });
+  }
+
   Future<void> _launchInBrowser(Uri url) async {
     if (!await launchUrl(
       url,
@@ -173,6 +179,7 @@ class _SettingsState extends State<Settings> {
   Future<void>? _launched;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
+  bool _imperial=false;
   Widget build(BuildContext context) {
     final Uri toLaunch =
     Uri(scheme: 'https', host: 'www.google.com');
@@ -201,7 +208,7 @@ class _SettingsState extends State<Settings> {
               title: Text('Track'),
               onTap: () {
                 Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context)=>Track())
+                    MaterialPageRoute(builder: (context)=>Track(selectedRingtone:"$selectedRingtone"   ))
                 );
                 // Handle item 1 tap
               },
@@ -327,7 +334,6 @@ class _SettingsState extends State<Settings> {
               fontWeight: FontWeight.w600,
             ),),
           ),
-
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: DropdownButton<String>(
@@ -409,8 +415,23 @@ Padding(
     child: _buildRingtoneDropdown(),
   ),
 ),
-
-
+          Divider(),Padding(
+            padding: const EdgeInsets.only(left: 20.0),
+            child: Text('Radius',style: TextStyle(
+              color: Colors.orange,
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+            ),),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Container(
+              child: MeterCalculatorWidget(callback:updateradiusvalue,),
+            ),
+          ),
           Divider(),
         ],
       ),
@@ -444,6 +465,86 @@ Padding(
 
 
 }
+class MeterCalculatorWidget extends StatefulWidget {
+  final Function(double) callback;
+
+  const MeterCalculatorWidget({
+    Key? key,
+    required this.callback,
+
+  }) : super(key: key);
+
+  @override
+  _MeterCalculatorWidgetState createState() => _MeterCalculatorWidgetState();
+}
+
+class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
+  String? _selectedUnit;
+  double _radius = 200;
+  bool _imperial=false;
+  @override
+  void initState() {
+    _loadSelectedUnit();
+    // TODO: implement initState
+    super.initState();
+  }
+  Future _loadSelectedUnit() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _selectedUnit = prefs.getString('selectedUnit');
+      _imperial=(_selectedUnit == 'Imperial system (mi/ft)');
+      _radius=_imperial?1.24:2000;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    print(_selectedUnit);
+    print(_radius);
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          Text(
+            'Radius',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                  thumbShape: RoundSliderThumbShape(
+                    enabledThumbRadius: 15.0, // Set your desired thumb radius
+                  ),
+                ),
+                child: Slider(
+
+                  activeColor: Colors.red,
+                  value: _radius,
+                  divisions:100,
+                  min:  _imperial?0.05:50,
+                  max: _imperial?5.05:5050, // Set your maximum radius value here
+                  onChanged: (value) {
+                    setState(() {
+                      _radius = double.parse(value.toStringAsFixed(2)); // Round the value to the nearest integer
+                    });
+                    widget.callback(value);
+                  },
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 10),
+          Text(' $_radius ${_imperial ? 'miles' : 'meters'}'),
+          // Display the rounded value with the appropriate unit based on the selected system
+        ],
+      ),
+    );
+  }
+}
+
 
 
 

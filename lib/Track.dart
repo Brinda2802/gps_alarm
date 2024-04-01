@@ -28,11 +28,14 @@ FlutterLocalNotificationsPlugin();
 
 class Track extends StatefulWidget {
   final AlarmDetails? alarm;
+  final String?selectedRingtone;
+
+
   //final String selectedRingtone;
 
 
 
-  const Track({super.key, this.alarm,  });
+   const Track({super.key, this.alarm,   this.selectedRingtone,  });
 
   @override
   State<Track> createState() => _TrackState();
@@ -41,9 +44,18 @@ class Track extends StatefulWidget {
 class _TrackState extends State<Track> {
   late String ringtonePath;
   late String selectedRingtone;
+  void _saveSelectedRingtone() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('selectedRingtone', selectedRingtone!);
+  }
   Future<void> _loadSelectedRingtone() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    selectedRingtone = prefs.getString('selectedRingtone')!;
+    final prefs = await SharedPreferences.getInstance();
+    final savedRingtone = prefs.getString('selectedRingtone')??"alarm6.mp3";
+    if (savedRingtone != null) {
+      setState(() {
+        selectedRingtone = savedRingtone;
+      });
+    }
   }
   bool isAnimated=false;
   bool _notificationsEnabled = false;
@@ -62,11 +74,10 @@ class _TrackState extends State<Track> {
   void initState() {
     super.initState();
     _requestLocationPermission();
-    String ringtonePath = 'assets/ringtones/selectedRingtone';
     _isAndroidPermissionGranted();
     _requestPermissions();
-
-
+    _loadSelectedRingtone();
+    _saveSelectedRingtone();
     loadData();
     markLocation();
 
@@ -330,33 +341,34 @@ class _TrackState extends State<Track> {
     // ... rest of your notification code ...
 
     _isNotificationShown = true;
-     String ringtonePath = 'assets/$selectedRingtone';// Construct the path
-
+    _loadSelectedRingtone();
+print("Ringtone:" +selectedRingtone.replaceAll(".mp3", ""));
      AndroidNotificationDetails androidNotificationDetails =
-    AndroidNotificationDetails(
-        'your channel id', 'your channel name',
+    AndroidNotificationDetails('your channel id', 'your channel name',
         channelDescription: 'your channel description',
         importance: Importance.max,
         priority: Priority.high,
         actions: [
-          AndroidNotificationAction("23", 'Dismiss',),
+          AndroidNotificationAction(
+            "23",
+            'Dismiss',
+          ),
         ],
-        sound: RawResourceAndroidNotificationSound(ringtonePath), // Use the constructed path
-        ticker: 'ticker');
+        sound: RawResourceAndroidNotificationSound(selectedRingtone.replaceAll(".mp3", "")),
 
-    // const AndroidNotificationDetails androidNotificationDetails =
-    // AndroidNotificationDetails('your channel id', 'your channel name',
+        ticker: 'ticker');
+   // String ringtonePath = 'assets/$selectedRingtone'; // Construct the path
+
+    // AndroidNotificationDetails androidNotificationDetails =
+    // AndroidNotificationDetails(
+    //     'your channel id', 'your channel name',
     //     channelDescription: 'your channel description',
     //     importance: Importance.max,
     //     priority: Priority.high,
     //     actions: [
-    //       AndroidNotificationAction(
-    //
-    //         "23",
-    //         'Dismiss',
-    //       ),
+    //       AndroidNotificationAction("23", 'Dismiss',),
     //     ],
-    //     sound: RawResourceAndroidNotificationSound('pachainirame'),
+    //     sound: RawResourceAndroidNotificationSound(selectedRingtone), // Use the constructed path
     //     ticker: 'ticker');
         NotificationDetails notificationDetails =
         NotificationDetails(android: androidNotificationDetails);
@@ -395,6 +407,7 @@ class _TrackState extends State<Track> {
       if (_isCameraMoving) return;
 
       setState(() {
+
         if (newLocation.latitude != null && newLocation.longitude != null) {
           _current = LatLng(newLocation.latitude!, newLocation.longitude!);
         }

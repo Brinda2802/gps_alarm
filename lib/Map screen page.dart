@@ -21,6 +21,7 @@ import 'package:google_places_flutter/google_places_flutter.dart';
 import 'package:google_places_flutter/model/prediction.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitiled/Homescreens/settings.dart';
+import 'package:untitiled/search%20place%20screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -275,7 +276,7 @@ class _MyHomePageState extends State<MyHomePage> {
               title: Text('Settings'),
               onTap: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context)=>Settings())
+                  MaterialPageRoute(builder: (context)=>settingstate())
                 );
                 // Handle item 2 tap
               },
@@ -947,15 +948,6 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 
-
-
-
-
-
-
-
-
-
 // class MeterCalculatorWidget extends StatefulWidget {
 //   final Function(double) callback;
 //
@@ -1030,7 +1022,6 @@ class MeterCalculatorWidget extends StatefulWidget {
 
 class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
   String? _selectedUnit;
-
   double _radius = 200;
   bool _imperial=false;
   @override
