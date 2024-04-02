@@ -140,7 +140,7 @@ class _SettingsState extends State<Settings> {
     _loadRingtones();
     _buildRingtoneDropdown();
     _loadRadiusData();
-    //_saveSelectedUnit(_selectedUnit!);
+
 
 
     // Set the release mode to keep the source after playback has completed.
@@ -409,7 +409,7 @@ class _SettingsState extends State<Settings> {
               }).toList(),
             ),
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 10),
           Divider(),
           SizedBox(
             height: 20,
@@ -454,22 +454,20 @@ class _SettingsState extends State<Settings> {
           //   }).toList(),
           // ),
           Padding(
-  padding: const EdgeInsets.all(4.0),
+  padding: const EdgeInsets.all(10.0),
   child: Container(
     child: _buildRingtoneDropdown(),
   ),
 ),
           Divider(),Padding(
-            padding: const EdgeInsets.only(left: 20.0),
+            padding: const EdgeInsets.all(20.0),
             child: Text('Radius',style: TextStyle(
               color: Colors.orange,
               fontSize: 20,
               fontWeight: FontWeight.w600,
             ),),
           ),
-          SizedBox(
-            height: 10,
-          ),
+
       // Padding(
       //   padding: const EdgeInsets.all(4.0),
       //   child: Container(
@@ -520,7 +518,7 @@ class _SettingsState extends State<Settings> {
       //     ),
       //   ),),
           Padding(
-            padding: const EdgeInsets.all(4.0),
+            padding: const EdgeInsets.all(16.0),
             child: Container(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

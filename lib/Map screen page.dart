@@ -27,7 +27,7 @@ import 'package:uuid/uuid.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import 'Apiutils.dart';
-import 'Homescreens/save alarm pages.dart';
+import 'Homescreens/save_alarm_page.dart';
 import 'Track.dart';
 import 'package:url_launcher/link.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -396,25 +396,24 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
 
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        leading: InkWell(
-            onTap: (){
-              _scaffoldKey.currentState?.openDrawer();
-            },
-
-
-            child: Icon(Icons.menu,size: 25,color: Colors.black,)),
-        centerTitle: true,
-        title: Text(
-          textAlign: TextAlign.center,
-          _appBarTitle,
-          overflow: TextOverflow.ellipsis,
-          maxLines: 1,
-        ),
-      ),
+      // appBar: AppBar(
+      //  // backgroundColor: Colors.transparent,
+      //   automaticallyImplyLeading: false,
+      //   leading: InkWell(
+      //       onTap: (){
+      //         _scaffoldKey.currentState?.openDrawer();
+      //       },
+      //
+      //
+      //       child: Icon(Icons.menu,size: 25,color: Colors.black,)),
+      //   centerTitle: true,
+      //
+      // ),
       body: Stack(
         children: [
+
+
+
           GoogleMap(
 
             mapType: MapType.normal,
@@ -445,22 +444,25 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           Positioned(
             top: 50,
-            left: 19,
-            right: 16,
+            left: 70,
+            right: 20,
             child:
-            Material(
-              elevation: 20,
-              borderRadius: BorderRadius.circular(10),
-              child: Container(
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(
-                    color: Colors.black,
-                  ),
-                  borderRadius: BorderRadius.circular(10),
-                ), child: placesAutoCompleteTextField(),),
-            ),
+            // Material(
+            //
+            //   child: Container(
+            //
+            //     height: 50,
+            //     decoration: BoxDecoration(
+            //       color: Colors.white,
+            //
+            //       borderRadius: BorderRadius.circular(30),
+            //     ),
+            //     child:
+            //
+
+              placesAutoCompleteTextField(),),
+
+
 
             //   child: Center(
             //     child: Padding(
@@ -482,9 +484,9 @@ class _MyHomePageState extends State<MyHomePage> {
             //     ),
             //   ),
             // ),
-          ),
+
           Padding(
-            padding: const EdgeInsets.only(top: 100.0,left: 140),
+            padding: const EdgeInsets.only(top: 100.0,left: 100),
             child: Container(
               height: 30,
               width: 200,
@@ -531,6 +533,10 @@ class _MyHomePageState extends State<MyHomePage> {
               icon: Icon(Icons.remove),
             ),
           ),
+          Positioned(
+            top: 50,left: 15,
+              child: IconButton(
+                onPressed: () { _scaffoldKey.currentState?.openDrawer(); }, icon: Icon(Icons.menu),)),
           // Padding(
           //   padding: const EdgeInsets.only(top:500.0),
           //   child: Center(
@@ -825,82 +831,97 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   placesAutoCompleteTextField() {
-    return Container(
-      // padding: EdgeInsets.symmetric(horizontal: 10),
-      child: GooglePlaceAutoCompleteTextField(
-        textEditingController: controller,
-        googleAPIKey: "AIzaSyA3byIibe-X741Bw5rfEzOHZEKuWdHvCbw",
-        inputDecoration: InputDecoration(
-          hintText: "Alarm location",
-          border: InputBorder.none,
-          suffixIcon: Icon(Icons.search,size: 25,color: Colors.black26,),
-          enabledBorder: InputBorder.none,
-        ),
-        debounceTime: 400,
-        countries: ["in", "fr"],
-        isLatLngRequired: true,
-        getPlaceDetailWithLatLng: (Prediction prediction) async {
+    return Material(
 
-          print("placeDetails" + prediction.lat.toString());
-          print("placeDetails - Lat: ${prediction.lat}, Lng: ${prediction.lng}");
-          double lat = double.parse(prediction.lat!);
-          double lng = double.parse(prediction.lng!);
+      borderRadius: BorderRadius.circular(30.0),
+      child: Container(
+
+
+        // padding: EdgeInsets.symmetric(horizontal: 10),
+        child: GooglePlaceAutoCompleteTextField(
+          textEditingController: controller,
+          googleAPIKey: "AIzaSyA3byIibe-X741Bw5rfEzOHZEKuWdHvCbw",
+          // boxDecoration: BoxDecoration(
+          //   borderRadius: BorderRadius.circular(double.infinity),
+          // ),
+          boxDecoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(30.0), // Adjust the radius as needed
+           // border: Border.all(color: Colors.black26), // Add border color
+          ),
+          inputDecoration: InputDecoration(
+
+            hintText: "Alarm location",
+            border: InputBorder.none,
+            suffixIcon: Icon(Icons.search,size: 25,color: Colors.black,),
+            enabledBorder: InputBorder.none,
+          ),
+          debounceTime: 400,
+          countries: ["in", "fr"],
+          isLatLngRequired: true,
+          getPlaceDetailWithLatLng: (Prediction prediction) async {
+
+            print("placeDetails" + prediction.lat.toString());
+            print("placeDetails - Lat: ${prediction.lat}, Lng: ${prediction.lng}");
+            double lat = double.parse(prediction.lat!);
+            double lng = double.parse(prediction.lng!);
+            //
+            // // Call _handleTap to add a marker at the selected location
+            await _handleTap(LatLng(lat,lng ));
+
+
+            if (mapController != null) {
+              mapController!.animateCamera(CameraUpdate.newLatLng(
+                LatLng(lat, lng),
+              ));
+            }
+          },
+
+          // itemClick: (Prediction prediction) async {
+          //   print(prediction.lat);
+          //   print(prediction.lng);
           //
-          // // Call _handleTap to add a marker at the selected location
-          await _handleTap(LatLng(lat,lng ));
+          //  await _handleTap(LatLng(prediction.lat as double, prediction.lng as double));
+          //   controller.text = prediction.description ?? "";
+          //   controller.selection = TextSelection.fromPosition(
+          //       TextPosition(offset: prediction.description?.length ?? 0));
+          // },
+          itemClick: (Prediction prediction) async {
+            // Extract the latitude and longitude from the prediction
 
+            print("enter");
 
-          if (mapController != null) {
-            mapController!.animateCamera(CameraUpdate.newLatLng(
-              LatLng(lat, lng),
-            ));
-          }
-        },
-
-        // itemClick: (Prediction prediction) async {
-        //   print(prediction.lat);
-        //   print(prediction.lng);
-        //
-        //  await _handleTap(LatLng(prediction.lat as double, prediction.lng as double));
-        //   controller.text = prediction.description ?? "";
-        //   controller.selection = TextSelection.fromPosition(
-        //       TextPosition(offset: prediction.description?.length ?? 0));
-        // },
-        itemClick: (Prediction prediction) async {
-          // Extract the latitude and longitude from the prediction
-
-          print("enter");
-
-          // Set the text field value to the prediction description
-          controller.text = prediction.description ?? "";
-          controller.selection = TextSelection.fromPosition(
-              TextPosition(offset: prediction.description?.length ?? 0));
-        },
+            // Set the text field value to the prediction description
+            controller.text = prediction.description ?? "";
+            controller.selection = TextSelection.fromPosition(
+                TextPosition(offset: prediction.description?.length ?? 0));
+          },
 
 
 
-        seperatedBuilder: Divider(),
-        containerHorizontalPadding: 10,
+          seperatedBuilder: Divider(),
+          containerHorizontalPadding: 10,
 
-        // OPTIONAL// If you want to customize list view item builder
-        itemBuilder: (context, index, Prediction prediction) {
-          return Container(
-            padding: EdgeInsets.all(10),
-            child: Row(
-              children: [
-                Icon(Icons.location_on),
-                SizedBox(
-                  width: 7,
-                ),
-                Expanded(child: Text("${prediction.description ?? ""}"))
-              ],
-            ),
-          );
-        },
+          // OPTIONAL// If you want to customize list view item builder
+          itemBuilder: (context, index, Prediction prediction) {
+            return Container(
+              padding: EdgeInsets.all(10),
+              child: Row(
+                children: [
+                  Icon(Icons.location_on),
+                  SizedBox(
+                    width: 7,
+                  ),
+                  Expanded(child: Text("${prediction.description ?? ""}"))
+                ],
+              ),
+            );
+          },
 
-        isCrossBtnShown: true,
+          isCrossBtnShown: true,
 
-        // default 600 ms ,
+          // default 600 ms ,
+        ),
       ),
     );
   }

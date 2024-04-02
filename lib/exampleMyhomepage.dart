@@ -14,7 +14,7 @@ import 'package:location/location.dart';
 import 'package:location/location.dart' as location;
 import 'package:geocoding/geocoding.dart' as geocoding;
 
-import 'Homescreens/save alarm pages.dart';
+import 'Homescreens/save_alarm_page.dart';
 import 'Map screen page.dart';
 
 class exampleMyHomePage extends StatefulWidget {
@@ -601,7 +601,7 @@ class AlarmDetails {
 // import 'package:shared_preferences/shared_preferences.dart';
 //
 // import 'Apiutils.dart';
-// import 'Homescreens/save alarm pages.dart';
+// import 'Homescreens/save_alarm_page.dart';
 //
 //
 //

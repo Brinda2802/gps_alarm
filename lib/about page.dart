@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'Homescreens/save alarm pages.dart';
+import 'Homescreens/save_alarm_page.dart';
 import 'Homescreens/settings.dart';
 import 'Track.dart';
 
