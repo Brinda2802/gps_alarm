@@ -301,7 +301,7 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
                     children: [
                       Column(
                         children: [
-                          MeterCalculatorWidget(callback: updateradiusvalue),
+                          MeterCalculatorWidget(callback: updateradiusvalue, ),
                         ],
                       ),
                     ],

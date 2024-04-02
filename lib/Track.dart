@@ -81,7 +81,6 @@ class _TrackState extends State<Track> {
     loadData();
     markLocation();
 
-
     // Initialize the notification plugin
 
   }
@@ -242,6 +241,8 @@ class _TrackState extends State<Track> {
             await markLocation();
           },
         ));
+        print("locationradius:" +widget.alarm!.locationRadius.toString());
+
 
         // Add circle for alarm
         _circles.add(Circle(

@@ -10,7 +10,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:file_picker/file_picker.dart';
 
-
 import '../Map screen page.dart';
 import '../Track.dart';
 
@@ -24,7 +23,10 @@ class Settings extends StatefulWidget {
 
 class _SettingsState extends State<Settings> {
   late  final AudioPlayer _audioPlayer = AudioPlayer();
+  bool _isMetricSystem = true;
   double radius=0;
+  double meterRadius = 100; // Initial value for meter radius
+  double milesRadius = 0.31;
   updateradiusvalue(value){
     setState(() {
       radius=value;
@@ -137,7 +139,8 @@ class _SettingsState extends State<Settings> {
     _loadSelectedUnit();
     _loadRingtones();
     _buildRingtoneDropdown();
-
+    _loadRadiusData();
+    //_saveSelectedUnit(_selectedUnit!);
 
 
     // Set the release mode to keep the source after playback has completed.
@@ -161,13 +164,27 @@ class _SettingsState extends State<Settings> {
   }
   Future _loadSelectedUnit() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+
     setState(() {
       _selectedUnit = prefs.getString('selectedUnit');
       _imperial=(_selectedUnit == 'Imperial system (mi/ft)');
       radius=_imperial?1.24:2000;
     });
   }
+  Future<void> _loadRadiusData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      meterRadius = prefs.getDouble('meterRadius') ?? 0.0;
+      milesRadius = prefs.getDouble('milesRadius') ?? 0.0;
+    });
+  }
 
+  Future<void> _saveRadiusData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('meterRadius', meterRadius);
+    await prefs.setDouble('milesRadius', milesRadius);
+
+  }
   Future<void> _launchInBrowser(Uri url) async {
     if (!await launchUrl(
       url,
@@ -334,12 +351,43 @@ class _SettingsState extends State<Settings> {
               fontWeight: FontWeight.w600,
             ),),
           ),
+          // Padding(
+          //   padding: const EdgeInsets.all(10.0),
+          //   child: DropdownButton<String>(
+          //     value: _selectedUnit,
+          //     onChanged: (newValue) {
+          //       _saveSelectedUnit(newValue!); // Save the selected unit
+          //     },
+          //     hint: Text('Select Unit'),
+          //     style: TextStyle(
+          //       color: Colors.black,
+          //       fontSize: 18,
+          //     ),
+          //     underline: Container(
+          //       height: 2,
+          //       color: Colors.transparent,
+          //     ),
+          //     icon: Icon(Icons.arrow_drop_down),
+          //     iconSize: 36,
+          //     isExpanded: true,
+          //     items: _units.map((unit) {
+          //       return DropdownMenuItem<String>(
+          //         value: unit,
+          //         child: Text(unit),
+          //       );
+          //     }).toList(),
+          //   ),
+          // ),
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: DropdownButton<String>(
               value: _selectedUnit,
               onChanged: (newValue) {
-                _saveSelectedUnit(newValue!); // Save the selected unit
+                setState(() {
+                  _selectedUnit = newValue; // Update the selected unit
+                  _isMetricSystem = newValue == 'Metric system (m/km)'; // Update the metric system flag
+                  _saveSelectedUnit(newValue!); // Save the selected unit
+                });
               },
               hint: Text('Select Unit'),
               style: TextStyle(
@@ -362,9 +410,6 @@ class _SettingsState extends State<Settings> {
             ),
           ),
           SizedBox(height: 20),
-
-
-
           Divider(),
           SizedBox(
             height: 20,
@@ -408,8 +453,7 @@ class _SettingsState extends State<Settings> {
           //     );
           //   }).toList(),
           // ),
-
-Padding(
+          Padding(
   padding: const EdgeInsets.all(4.0),
   child: Container(
     child: _buildRingtoneDropdown(),
@@ -426,13 +470,116 @@ Padding(
           SizedBox(
             height: 10,
           ),
+      // Padding(
+      //   padding: const EdgeInsets.all(4.0),
+      //   child: Container(
+      //     child: Column(
+      //       crossAxisAlignment: CrossAxisAlignment.start,
+      //       children: [
+      //         // Visibility widget for the Meter slider
+      //         Visibility(
+      //           visible: _isMetricSystem, // Show only if metric system is selected
+      //           child: Column(
+      //             crossAxisAlignment: CrossAxisAlignment.start,
+      //             children: [
+      //               Text('Radius in Meter', style: TextStyle(fontSize: 16)),
+      //               Slider(
+      //                 min: 0,
+      //                 max: 10000, // Adjust max value according to your requirement
+      //                 value: radius,
+      //                 onChanged: (double value) {
+      //                   setState(() {
+      //                     radius = value;
+      //                   });
+      //                 },
+      //               ),
+      //             ],
+      //           ),
+      //         ),
+      //         // Visibility widget for the Miles slider
+      //         Visibility(
+      //           visible: !_isMetricSystem, // Show only if imperial system is selected
+      //           child: Column(
+      //             crossAxisAlignment: CrossAxisAlignment.start,
+      //             children: [
+      //               Text('Radius in Miles', style: TextStyle(fontSize: 16)),
+      //               Slider(
+      //                 min: 0,
+      //                 max: 10, // Adjust max value according to your requirement
+      //                 value: radius / 1609.34,
+      //                 onChanged: (double value) {
+      //                   setState(() {
+      //                     radius = value * 1609.34;
+      //                   });
+      //                 },
+      //               ),
+      //             ],
+      //           ),
+      //         ),
+      //       ],
+      //     ),
+      //   ),),
           Padding(
             padding: const EdgeInsets.all(4.0),
             child: Container(
-              child: MeterCalculatorWidget(callback:updateradiusvalue,),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Visibility widget for the Meter slider
+                  Visibility(
+                    visible: _isMetricSystem, // Show only if metric system is selected
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Radius in Meter', style: TextStyle(fontSize: 16)),
+                        Slider(
+                          min: 0,
+                          max: 10000, // Adjust max value according to your requirement
+                          value: meterRadius,
+                          onChanged: (double value) {
+                            setState(() {
+                              meterRadius = double.parse(value.toStringAsFixed(2));
+                            });
+                            _saveRadiusData();
+                          },
+                        ),
+                        Text('Meters Radius: ${meterRadius.toStringAsFixed(_imperial ? 2:0)}', style: TextStyle(fontSize: 16)),
+                        // Text('Meter Radius: ${meterRadius.toStringAsFixed(2)}', style: TextStyle(fontSize: 16)),
+                      ],
+                    ),
+                  ),
+                  // Visibility widget for the Miles slider
+                  Visibility(
+                    visible: !_isMetricSystem, // Show only if imperial system is selected
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Radius in Miles', style: TextStyle(fontSize: 16)),
+                        Slider(
+                          min: 0,
+                          max: 10, // Adjust max value according to your requirement
+                          value: milesRadius,
+                          onChanged: (double value) {
+                            setState(() {
+                              milesRadius = double.parse(value.toStringAsFixed(2));
+
+                            });
+                            _saveRadiusData();
+                          },
+                        ),
+                        // Text(milesRadius.toStringAsFixed(_imperial ? 2:0)+' ${_imperial ? 'miles' : 'meters'}'),
+                        Text('Miles Radius: ${milesRadius.toStringAsFixed(_imperial ? 2:0)}', style: TextStyle(fontSize: 16)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
+
+
           Divider(),
+
         ],
       ),
     );
@@ -465,85 +612,9 @@ Padding(
 
 
 }
-class MeterCalculatorWidget extends StatefulWidget {
-  final Function(double) callback;
 
-  const MeterCalculatorWidget({
-    Key? key,
-    required this.callback,
 
-  }) : super(key: key);
 
-  @override
-  _MeterCalculatorWidgetState createState() => _MeterCalculatorWidgetState();
-}
-
-class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
-  String? _selectedUnit;
-  double _radius = 200;
-  bool _imperial=false;
-  @override
-  void initState() {
-    _loadSelectedUnit();
-    // TODO: implement initState
-    super.initState();
-  }
-  Future _loadSelectedUnit() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _selectedUnit = prefs.getString('selectedUnit');
-      _imperial=(_selectedUnit == 'Imperial system (mi/ft)');
-      _radius=_imperial?1.24:2000;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    print(_selectedUnit);
-    print(_radius);
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          Text(
-            'Radius',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SliderTheme(
-                data: SliderTheme.of(context).copyWith(
-                  thumbShape: RoundSliderThumbShape(
-                    enabledThumbRadius: 15.0, // Set your desired thumb radius
-                  ),
-                ),
-                child: Slider(
-
-                  activeColor: Colors.red,
-                  value: _radius,
-                  divisions:100,
-                  min:  _imperial?0.05:50,
-                  max: _imperial?5.05:5050, // Set your maximum radius value here
-                  onChanged: (value) {
-                    setState(() {
-                      _radius = double.parse(value.toStringAsFixed(2)); // Round the value to the nearest integer
-                    });
-                    widget.callback(value);
-                  },
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 10),
-          Text(' $_radius ${_imperial ? 'miles' : 'meters'}'),
-          // Display the rounded value with the appropriate unit based on the selected system
-        ],
-      ),
-    );
-  }
-}
 
 
 

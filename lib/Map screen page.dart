@@ -50,6 +50,16 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  double meterRadius = 100; // Initial value for meter radius
+  double milesRadius = 0.31;
+  Future<void> _loadRadiusData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      meterRadius = prefs.getDouble('meterRadius') ?? 0.0;
+      milesRadius = prefs.getDouble('milesRadius') ?? 0.0;
+    });
+  }
+
   var latlong;
   double radius=0;
   Future<void> _goToCurrentLocation() async {
@@ -70,6 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
   updateradiusvalue(value){
+    print("value:"+value.toString());
     setState(() {
       radius=value;
     });
@@ -95,6 +106,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     _requestLocationPermission();
     alramnamecontroller.text="Welcome";
+    _loadRadiusData();
 
 
 
@@ -276,7 +288,7 @@ class _MyHomePageState extends State<MyHomePage> {
               title: Text('Settings'),
               onTap: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context)=>settingstate())
+                  MaterialPageRoute(builder: (context)=>Settings())
                 );
                 // Handle item 2 tap
               },
@@ -677,7 +689,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
                       Column(
                         children: [
-                          MeterCalculatorWidget(callback: updateradiusvalue),
+                          MeterCalculatorWidget(
+                            callback: updateradiusvalue,
+
+                          )
+
                         ],
                       ),
                     ],
@@ -776,14 +792,14 @@ class _MyHomePageState extends State<MyHomePage> {
       );
       return; // Exit the function without saving the data
     }
-
+    print("locationradius:" +radius.toString(),);
 
     setState(() {
 
       AlarmDetails newAlarm = AlarmDetails(
         alarmName: alramnamecontroller.text,
         notes: notescontroller.text,
-        locationRadius: radius,
+        locationRadius:  radius,
         isAlarmOn: true, isFavourite: false, lat: _target!.latitude, lng: _target!.longitude, id:Uuid().v4(), isEnabled: true,
       );
       alarms.add(newAlarm);
@@ -1007,13 +1023,91 @@ class _MyHomePageState extends State<MyHomePage> {
 //     );
 //   }
 // }
+// class MeterCalculatorWidget extends StatefulWidget {
+//   final Function(double) callback;
+//
+//   const MeterCalculatorWidget({
+//     Key? key,
+//     required this.callback,
+//
+//   }) : super(key: key);
+//
+//   @override
+//   _MeterCalculatorWidgetState createState() => _MeterCalculatorWidgetState();
+// }
+//
+// class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
+//   String? _selectedUnit;
+//   double _radius = 200;
+//   bool _imperial=false;
+//   @override
+//   void initState() {
+//     _loadSelectedUnit();
+//     // TODO: implement initState
+//     super.initState();
+//   }
+//   Future _loadSelectedUnit() async {
+//     SharedPreferences prefs = await SharedPreferences.getInstance();
+//     setState(() {
+//       _selectedUnit = prefs.getString('selectedUnit');
+//       _imperial=(_selectedUnit == 'Imperial system (mi/ft)');
+//       _radius=_imperial?1.24:2000;
+//     });
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     print(_selectedUnit);
+//     print(_radius);
+//
+//     return Padding(
+//       padding: const EdgeInsets.all(16.0),
+//       child: Column(
+//         children: [
+//           Text(
+//             'Radius',
+//             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+//           ),
+//           SizedBox(height: 10),
+//           Row(
+//             mainAxisAlignment: MainAxisAlignment.center,
+//             children: [
+//               SliderTheme(
+//                 data: SliderTheme.of(context).copyWith(
+//                   thumbShape: RoundSliderThumbShape(
+//                     enabledThumbRadius: 15.0, // Set your desired thumb radius
+//                   ),
+//                 ),
+//                 child: Slider(
+//                   activeColor: Colors.red,
+//                   value: _radius,
+//                   divisions:100,
+//                   min:  _imperial?0.05:50,
+//                   max: _imperial?5.05:5050, // Set your maximum radius value here
+//                   onChanged: (value) {
+//                     setState(() {
+//                       _radius = double.parse(value.toStringAsFixed(2)); // Round the value to the nearest integer
+//                     });
+//                     widget.callback(value);
+//                   },
+//                 ),
+//               ),
+//             ],
+//           ),
+//           SizedBox(height: 10),
+//           Text(' $_radius ${_imperial ? 'miles' : 'meters'}'),
+//           // Display the rounded value with the appropriate unit based on the selected system
+//         ],
+//       ),
+//     );
+//   }
+// }
 class MeterCalculatorWidget extends StatefulWidget {
   final Function(double) callback;
 
   const MeterCalculatorWidget({
     Key? key,
     required this.callback,
-
   }) : super(key: key);
 
   @override
@@ -1021,29 +1115,30 @@ class MeterCalculatorWidget extends StatefulWidget {
 }
 
 class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
-  String? _selectedUnit;
   double _radius = 200;
-  bool _imperial=false;
+  bool _imperial = false;
+
   @override
   void initState() {
     _loadSelectedUnit();
-    // TODO: implement initState
     super.initState();
   }
-  Future _loadSelectedUnit() async {
+
+  Future<void> _loadSelectedUnit() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? selectedUnit = prefs.getString('selectedUnit');
+    double meterdefault = prefs.getDouble('meterRadius')?? 2000;
+    double milesdefault = prefs.getDouble('milesRadius')?? 1.04;
+  print(meterdefault);
+  print(milesdefault);
     setState(() {
-      _selectedUnit = prefs.getString('selectedUnit');
-      _imperial=(_selectedUnit == 'Imperial system (mi/ft)');
-      _radius=_imperial?1.24:2000;
+      _imperial = (selectedUnit == 'Imperial system (mi/ft)');
+      _radius = _imperial ? milesdefault : meterdefault;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    print(_selectedUnit);
-    print(_radius);
-
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -1059,33 +1154,34 @@ class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
               SliderTheme(
                 data: SliderTheme.of(context).copyWith(
                   thumbShape: RoundSliderThumbShape(
-                    enabledThumbRadius: 15.0, // Set your desired thumb radius
+                    enabledThumbRadius: 15.0,
                   ),
                 ),
                 child: Slider(
                   activeColor: Colors.red,
                   value: _radius,
-                  divisions:100,
-                  min:  _imperial?0.05:50,
-                  max: _imperial?5.05:5050, // Set your maximum radius value here
+                  divisions: 100,
+                  min: _imperial ? 0.05 : 50,
+                  max: _imperial ? 5.05 : 5050,
                   onChanged: (value) {
+                    print("metercalculatedvalue:"+value.toString());
                     setState(() {
-                      _radius = double.parse(value.toStringAsFixed(2)); // Round the value to the nearest integer
+                      _radius = double.parse(value.toStringAsFixed(2));
                     });
-                    widget.callback(value);
+                    widget.callback(_imperial? (value * 1609.34):value);
                   },
                 ),
               ),
             ],
           ),
           SizedBox(height: 10),
-          Text(' $_radius ${_imperial ? 'miles' : 'meters'}'),
-          // Display the rounded value with the appropriate unit based on the selected system
+          Text(_radius.toStringAsFixed(_imperial ? 2:0)+' ${_imperial ? 'miles' : 'meters'}'),
         ],
       ),
     );
   }
 }
+
 
 
 
