@@ -6,11 +6,13 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as location;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Apiutils.dart';
 import 'Homescreens/homescreen.dart';
+import 'Homescreens/save_alarm_page.dart';
 import 'Track.dart';
 
 
@@ -181,10 +183,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Color(0xff4345b4))
+        colorScheme: ColorScheme.fromSeed(seedColor: Color(0xff4345b4)),
+        textTheme: GoogleFonts.robotoFlexTextTheme(),
       ),
       debugShowCheckedModeBanner: false,
-      home:Homescreen(),
+      home:MyAlarmsPage(),
     );
   }
 }

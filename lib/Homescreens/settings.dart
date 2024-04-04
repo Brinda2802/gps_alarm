@@ -4,14 +4,18 @@ import 'package:audioplayers/audioplayers.dart'; // Add this line
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:untitiled/Homescreens/save%20alarm%20pages.dart';
+import 'package:untitiled/Homescreens/save_alarm_page.dart';
+
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:file_picker/file_picker.dart';
 
 import '../Map screen page.dart';
 import '../Track.dart';
+import '../about page.dart';
+import '../example mapscreen page.dart';
 
 
 class Settings extends StatefulWidget {
@@ -60,11 +64,8 @@ class _SettingsState extends State<Settings> {
           });
         }
       },
-      hint: const Text('Select Ringtone'), // Use const for immutability
-      style: const TextStyle( // Use const for immutability
-        color: Colors.black,
-        fontSize: 18,
-      ),
+      hint:  Text('Select Ringtone',style:Theme.of(context).textTheme.bodyMedium,), // Use const for immutability
+
       underline: Container(
         height: 2,
         color: Colors.transparent,
@@ -138,7 +139,7 @@ class _SettingsState extends State<Settings> {
     super.initState();
     _loadSelectedUnit();
     _loadRingtones();
-    _buildRingtoneDropdown();
+    // _buildRingtoneDropdown();
     _loadRadiusData();
 
 
@@ -153,8 +154,6 @@ class _SettingsState extends State<Settings> {
     // });
     // Load selected unit when the widget initializes
   }
-  // Method to load the selected unit from shared preferences
-  // Method to save the selected unit to shared preferences
   void _saveSelectedUnit(String newValue) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('selectedUnit', newValue);
@@ -178,7 +177,6 @@ class _SettingsState extends State<Settings> {
       milesRadius = prefs.getDouble('milesRadius') ?? 0.0;
     });
   }
-
   Future<void> _saveRadiusData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setDouble('meterRadius', meterRadius);
@@ -194,132 +192,116 @@ class _SettingsState extends State<Settings> {
     }
   }
   Future<void>? _launched;
+  int screenIndex=2;
+  final Uri toLaunch =
+  Uri(scheme: 'https', host: 'www.cylog.org', path: 'headers/');
+  void handleScreenChanged(int index) {
+    switch (index) {
+      case 0: // Alarm List
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => MyAlarmsPage()));
+        // Replace with your AlarmListPage widget
+        break;
+      case 1: // Alarm List
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => MyHomePage()));
+
+        // Replace with your AlarmListPage widget
+        break;
+
+      case 2: // Saved Alarms
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => Settings())); // Replace with your SavedAlarmsPage widget
+        break;
+      case 3:
+        final RenderBox box = context.findRenderObject() as RenderBox;
+        Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
+        Share.share(
+          'Check out my awesome app: ! Download it from the app store: ',
+          subject: 'Share this amazing app!',
+          sharePositionOrigin: dummyRect,
+        );
+        break;
+      case 4:
+
+        _launchInBrowser(toLaunch);
+
+
+        break;
+      case 5:
+
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => About()));
+
+        break;
+
+    }
+  }
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   bool _imperial=false;
   Widget build(BuildContext context) {
-    final Uri toLaunch =
-    Uri(scheme: 'https', host: 'www.google.com');
+
     return Scaffold(
       key: _scaffoldKey,
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            SizedBox(
-              height: 40,
-            ),
-            Row(
-              children: [
-                Image.asset("assets/mapimage.png",height: 100,width: 100,),
-                Text('GPS ALARM',style: TextStyle(
-                  color: CupertinoColors.black,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 18,
-                ),),
-              ],
-            ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.track_changes),
-              title: Text('Track'),
-              onTap: () {
-                Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context)=>Track(selectedRingtone:"$selectedRingtone"   ))
-                );
-                // Handle item 1 tap
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.alarm),
-              title: Text('Set a alarm'),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context)=>MyHomePage())
-                );
-                // Handle item 2 tap
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.alarm_on_outlined),
-              title: Text('Saved Alarm'),
-              onTap: () {
-                Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context)=>
-                        MyAlarmsPage(
+      drawer: NavigationDrawer(
+        onDestinationSelected: (int index) {
+          handleScreenChanged(index); // Assuming you have a handleScreenChanged function
+        },
+        selectedIndex: screenIndex,
+        children: <Widget>[
+          SizedBox(
+            height: 32,
+          ),
+          NavigationDrawerDestination(
 
+            icon: Icon(Icons.alarm_on_outlined), // Adjust size as needed
+            label: Text('Saved Alarms'),
+            // Set selected based on screenIndex
+          ),
+          NavigationDrawerDestination(
+            icon: Icon(Icons.alarm),
+            label: Text('Set a Alarm'),
+            // Set selected based on screenIndex
+          ),
+          NavigationDrawerDestination(
+            icon: Icon(Icons.settings_outlined),
+            label: Text('Settings'),
+            // Set selected based on screenIndex
+          ),
+          Divider(),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
+            child: Text(
+              'Communicate', // Assuming this is the header
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+          ),
+          NavigationDrawerDestination(
+            icon: Icon(Icons.share_outlined),
+            label: Text('Share'),
 
-                        )));
-                // Handle item 2 tap
-              },
+            // Set selected based on screenIndex
+          ),
+          NavigationDrawerDestination(
+            icon: Icon(Icons.rate_review_outlined),
+            label: Text('Rate/Review'),
+            // Set selected based on screenIndex
+          ),
+          Divider(),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
+            child: Text(
+              'App', // Assuming this is the header
+              style: Theme.of(context).textTheme.titleSmall,
             ),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Settings'),
-              onTap: () {
-                Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context)=>Settings())
-                );
-                // Handle item 2 tap
-              },
-            ),
-            Divider(),
-            Padding(
-              padding: const EdgeInsets.only(left: 15.0),
-              child: Text('Communicate',style: TextStyle(
-                color: Colors.orange,
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-              ),),
-            ),
-            ListTile(
-              leading: Icon(Icons.share),
-              title: Text('Share'),
-              onTap: () {
-                // Handle item 2 tap
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.feedback),
-              title: Text('Feedback'),
-              onTap: () {
-                setState(() {
-                  _launched = _launchInBrowser(toLaunch);
-                });
-                // _launchInBrowser(toLaunch);
-                // Handle item 2 tap
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.rate_review),
-              title: Text('Rate/Review'),
-              onTap: () {
-                setState(() {
-                  _launched = _launchInBrowser(toLaunch);
-                });
-                // Handle item 2 tap
-              },
-            ),
-            Divider(),
-            Padding(
-              padding: const EdgeInsets.only(left: 15.0),
-              child: Text('App',style: TextStyle(
-                color: Colors.orange,
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-              ),),
-            ),
-            ListTile(
-              leading: Icon(Icons.error),
-              title: Text('About'),
-              onTap: () {
-                // Handle item 2 tap
-              },
-            ),
-
-            // Add more list items as needed
-          ],
-        ),
+          ),
+          NavigationDrawerDestination(
+            icon: Icon(Icons.error_outline_outlined),
+            label: Text('About'),
+            // Set selected based on screenIndex
+          ),
+        ],
       ),
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -327,60 +309,25 @@ class _SettingsState extends State<Settings> {
             onTap: (){
               _scaffoldKey.currentState?.openDrawer();
             },
-
-
             child: Icon(Icons.menu,size: 25,color: Colors.black,)),
         centerTitle: true,
         title: Text(
           textAlign: TextAlign.center,
           "Settings",
-
         ),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            height: 20,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 20.0),
-            child: Text('Units',style: TextStyle(
-              color: Colors.orange,
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-            ),),
-          ),
-          // Padding(
-          //   padding: const EdgeInsets.all(10.0),
-          //   child: DropdownButton<String>(
-          //     value: _selectedUnit,
-          //     onChanged: (newValue) {
-          //       _saveSelectedUnit(newValue!); // Save the selected unit
-          //     },
-          //     hint: Text('Select Unit'),
-          //     style: TextStyle(
-          //       color: Colors.black,
-          //       fontSize: 18,
-          //     ),
-          //     underline: Container(
-          //       height: 2,
-          //       color: Colors.transparent,
-          //     ),
-          //     icon: Icon(Icons.arrow_drop_down),
-          //     iconSize: 36,
-          //     isExpanded: true,
-          //     items: _units.map((unit) {
-          //       return DropdownMenuItem<String>(
-          //         value: unit,
-          //         child: Text(unit),
-          //       );
-          //     }).toList(),
-          //   ),
-          // ),
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: DropdownButton<String>(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: 20,
+            ),
+            Text('Units',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            DropdownButton<String>(
               value: _selectedUnit,
               onChanged: (newValue) {
                 setState(() {
@@ -390,16 +337,12 @@ class _SettingsState extends State<Settings> {
                 });
               },
               hint: Text('Select Unit'),
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 18,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium,
               underline: Container(
                 height: 2,
                 color: Colors.transparent,
               ),
               icon: Icon(Icons.arrow_drop_down),
-              iconSize: 36,
               isExpanded: true,
               items: _units.map((unit) {
                 return DropdownMenuItem<String>(
@@ -408,120 +351,26 @@ class _SettingsState extends State<Settings> {
                 );
               }).toList(),
             ),
-          ),
-          SizedBox(height: 10),
-          Divider(),
-          SizedBox(
-            height: 20,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 20.0),
-            child: Text('Alarm',style: TextStyle(
-              color: Colors.orange,
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-            ),),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          // Padding(
-          //   padding: const EdgeInsets.only(left: 20.0),
-          //   child: GestureDetector(
-          //     onTap: (){
-          //       // _pickRingtone();
-          //     },
-          //     child: Text('Default Radius',style: TextStyle(
-          //       color: Colors.blueGrey,
-          //       fontSize: 16,
-          //       fontWeight: FontWeight.w600,
-          //     ),),
-          //   ),
-          // ),
-
-
-          // MeterCalculatorWidget(callback: updateradiusvalue),
-          // Expanded(child: _buildRingtoneDropdown()),
-          // DropdownButton<String>(
-          //
-          //   value: _selectedUnit, // Selected unit
-          //   onChanged: _onUnitChanged, // Method to handle dropdown value change
-          //   items: _units.map((unit) {
-          //     return DropdownMenuItem<String>(
-          //       value: unit,
-          //       child: Text(unit),
-          //     );
-          //   }).toList(),
-          // ),
-          Padding(
-  padding: const EdgeInsets.all(10.0),
-  child: Container(
-    child: _buildRingtoneDropdown(),
-  ),
-),
-          Divider(),Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Text('Radius',style: TextStyle(
-              color: Colors.orange,
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-            ),),
-          ),
-
-      // Padding(
-      //   padding: const EdgeInsets.all(4.0),
-      //   child: Container(
-      //     child: Column(
-      //       crossAxisAlignment: CrossAxisAlignment.start,
-      //       children: [
-      //         // Visibility widget for the Meter slider
-      //         Visibility(
-      //           visible: _isMetricSystem, // Show only if metric system is selected
-      //           child: Column(
-      //             crossAxisAlignment: CrossAxisAlignment.start,
-      //             children: [
-      //               Text('Radius in Meter', style: TextStyle(fontSize: 16)),
-      //               Slider(
-      //                 min: 0,
-      //                 max: 10000, // Adjust max value according to your requirement
-      //                 value: radius,
-      //                 onChanged: (double value) {
-      //                   setState(() {
-      //                     radius = value;
-      //                   });
-      //                 },
-      //               ),
-      //             ],
-      //           ),
-      //         ),
-      //         // Visibility widget for the Miles slider
-      //         Visibility(
-      //           visible: !_isMetricSystem, // Show only if imperial system is selected
-      //           child: Column(
-      //             crossAxisAlignment: CrossAxisAlignment.start,
-      //             children: [
-      //               Text('Radius in Miles', style: TextStyle(fontSize: 16)),
-      //               Slider(
-      //                 min: 0,
-      //                 max: 10, // Adjust max value according to your requirement
-      //                 value: radius / 1609.34,
-      //                 onChanged: (double value) {
-      //                   setState(() {
-      //                     radius = value * 1609.34;
-      //                   });
-      //                 },
-      //               ),
-      //             ],
-      //           ),
-      //         ),
-      //       ],
-      //     ),
-      //   ),),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Container(
+            Divider(),
+            SizedBox(
+              height: 20,
+            ),
+            Text('Alarm',
+              style:Theme.of(context).textTheme.titleLarge, ),
+            Container(
+              child: _buildRingtoneDropdown(),
+            ),
+            Divider(),
+            SizedBox(
+              height: 20,
+            ),
+            Text('Radius',style: Theme.of(context).textTheme.titleLarge, ),
+            SizedBox(
+              height: 10,
+            ),
+            Container(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+
                 children: [
                   // Visibility widget for the Meter slider
                   Visibility(
@@ -529,7 +378,7 @@ class _SettingsState extends State<Settings> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Radius in Meter', style: TextStyle(fontSize: 16)),
+                        Text('Radius in Meter', style: Theme.of(context).textTheme.bodyMedium,),
                         Slider(
                           min: 0,
                           max: 10000, // Adjust max value according to your requirement
@@ -541,7 +390,7 @@ class _SettingsState extends State<Settings> {
                             _saveRadiusData();
                           },
                         ),
-                        Text('Meters Radius: ${meterRadius.toStringAsFixed(_imperial ? 2:0)}', style: TextStyle(fontSize: 16)),
+                        Text('Meters Radius: ${meterRadius.toStringAsFixed(_imperial ? 2:0)}', style: Theme.of(context).textTheme.bodyMedium,),
                         // Text('Meter Radius: ${meterRadius.toStringAsFixed(2)}', style: TextStyle(fontSize: 16)),
                       ],
                     ),
@@ -573,12 +422,11 @@ class _SettingsState extends State<Settings> {
                 ],
               ),
             ),
-          ),
-
-
-          Divider(),
-
-        ],
+            SizedBox(
+              height: 10,
+            ),
+          ],
+        ),
       ),
     );
   }

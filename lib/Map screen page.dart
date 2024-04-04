@@ -107,9 +107,6 @@ class _MyHomePageState extends State<MyHomePage> {
     _requestLocationPermission();
     alramnamecontroller.text="Welcome";
     _loadRadiusData();
-
-
-
     loadData();
 
   }
@@ -227,174 +224,275 @@ class _MyHomePageState extends State<MyHomePage> {
       throw Exception('Could not launch $url');
     }
   }
-
   String _appBarTitle = '';
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  int screenIndex=1;
+  void handleScreenChanged(int index) {
+    switch (index) {
+      case 0: // Alarm List
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => MyAlarmsPage()));
+        // Replace with your AlarmListPage widget
+        break;
+      case 1: // Alarm List
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => MyHomePage()));
+
+        // Replace with your AlarmListPage widget
+        break;
+
+      case 2: // Saved Alarms
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => Settings())); // Replace with your SavedAlarmsPage widget
+        break;
+      case 3:
+        final RenderBox box = context.findRenderObject() as RenderBox;
+        Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
+        Share.share(
+          'Check out my awesome app: ! Download it from the app store: ',
+          subject: 'Share this amazing app!',
+          sharePositionOrigin: dummyRect,
+        );
+        break;
+      case 4:
+
+        _launchInBrowser(toLaunch);
 
 
+        break;
+      case 5:
+
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => About()));
+
+        break;
+
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final Uri toLaunch =
     Uri(scheme: 'https', host: 'www.google.com');
     return Scaffold(
       key: _scaffoldKey,
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            SizedBox(
-              height: 40,
-            ),
-            Row(
-              children: [
-                Image.asset("assets/mapimage.png",height: 100,width: 100,),
-                Text('GPS ALARM',style: Theme.of(context).textTheme.titleLarge),
-              ],
-            ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.track_changes),
-              title: Text('Alarm List'),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context)=>Track())
-                );
-                // Handle item 1 tap
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.alarm),
-              title: Text('Set a alarm'),
-              onTap: () {
-                Navigator.of(context).pop();
-                // Handle item 2 tap
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.alarm_on_outlined),
-              title: Text('Saved Alarm'),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context)=>
-                    MyAlarmsPage(
+      drawer: NavigationDrawer(
+        onDestinationSelected: (int index) {
+          handleScreenChanged(index); // Assuming you have a handleScreenChanged function
+        },
+        selectedIndex: screenIndex,
+        children: <Widget>[
+          SizedBox(
+            height: 32,
+          ),
+          NavigationDrawerDestination(
 
+            icon: Icon(Icons.alarm_on_outlined), // Adjust size as needed
+            label: Text('Saved Alarms'),
+            // Set selected based on screenIndex
+          ),
+          NavigationDrawerDestination(
+            icon: Icon(Icons.alarm),
+            label: Text('Set a Alarm'),
+            // Set selected based on screenIndex
+          ),
+          NavigationDrawerDestination(
+            icon: Icon(Icons.settings_outlined),
+            label: Text('Settings'),
+            // Set selected based on screenIndex
+          ),
+          Divider(),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
+            child: Text(
+              'Communicate', // Assuming this is the header
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+          ),
+          NavigationDrawerDestination(
+            icon: Icon(Icons.share_outlined),
+            label: Text('Share'),
 
-                    )));
-                // Handle item 2 tap
-              },
+            // Set selected based on screenIndex
+          ),
+          NavigationDrawerDestination(
+            icon: Icon(Icons.rate_review_outlined),
+            label: Text('Rate/Review'),
+            // Set selected based on screenIndex
+          ),
+          Divider(),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
+            child: Text(
+              'App', // Assuming this is the header
+              style: Theme.of(context).textTheme.titleSmall,
             ),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Settings'),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context)=>Settings())
-                );
-                // Handle item 2 tap
-              },
-            ),
-            Divider(),
-            Padding(
-              padding: const EdgeInsets.only(left: 15.0),
-              child: Text('Communicate',style: TextStyle(
-                color: Colors.orange,
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-              ),),
-            ),
-            ListTile(
-              leading: Icon(Icons.share),
-              title: Text('Share'),
-              onTap: () async {
-                final RenderBox box = context.findRenderObject() as RenderBox;
-                Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
-                Share.share(
-                  'Check out my awesome app: ! Download it from the app store: ',
-                  subject: 'Share this amazing app!',
-                  sharePositionOrigin: dummyRect,
-                );
-              },
-            ),
-          // Row(
-          //   children: [
-          //     IconButton(
-          //       icon: Icon(Icons.share),
-          //       onPressed: () async {
-          //         final RenderBox box = context.findRenderObject() as RenderBox;
-          //         Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
-          //         Share.share(
-          //           'Check out my awesome app: ! Download it from the app store: ',
-          //           subject: 'Share this amazing app!',
-          //           sharePositionOrigin: dummyRect,
-          //         );
-          //       },
-          //     ),
-          //     SizedBox(
-          //       width: 10,
-          //     ),
-          //     InkWell(
-          //       onTap: () async {
-          //         final RenderBox box = context.findRenderObject() as RenderBox;
-          //         Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
-          //         Share.share(
-          //           'Check out my awesome app: ! Download it from the app store: ',
-          //           subject: 'Share this amazing app!',
-          //           sharePositionOrigin: dummyRect,
-          //         );
-          //       },
-          //       child: Text("Share",style: TextStyle(
-          //         fontWeight: FontWeight.w400,
-          //         fontSize: 16,
-          //
-          //       ),),
-          //     ),
-          //   ],
-          // ),
-
-            ListTile(
-              leading: Icon(Icons.feedback),
-              title: Text('Feedback'),
-              onTap: () {
-                setState(() {
-                  _launched = _launchInBrowser(toLaunch);
-                });
-                 // _launchInBrowser(toLaunch);
-                // Handle item 2 tap
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.rate_review),
-              title: Text('Rate/Review'),
-              onTap: () {
-                setState(() {
-                  _launched = _launchInBrowser(toLaunch);
-                });
-                // Handle item 2 tap
-              },
-            ),
-            Divider(),
-            Padding(
-              padding: const EdgeInsets.only(left: 15.0),
-              child: Text('App',style: TextStyle(
-                color: Colors.orange,
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-              ),),
-            ),
-            ListTile(
-              leading: Icon(Icons.error),
-              title: Text('About'),
-              onTap: () {
-                Navigator.of(context).push(
-                 MaterialPageRoute(builder: (context)=>About())
-                );// Handle item 2 tap
-              },
-            ),
-
-            // Add more list items as needed
+          ),
+          NavigationDrawerDestination(
+            icon: Icon(Icons.error_outline_outlined),
+            label: Text('About'),
+            // Set selected based on screenIndex
+          ),
         ],
-        ),
       ),
+
+      // Drawer(
+      //  child:
+      //   ListView(
+      //     padding: EdgeInsets.zero,
+      //     children: <Widget>[
+      //       SizedBox(
+      //         height: 40,
+      //       ),
+      //       Row(
+      //         children: [
+      //           Image.asset("assets/mapimage.png",height: 100,width: 100,),
+      //           Text('GPS ALARM',style: Theme.of(context).textTheme.titleLarge),
+      //         ],
+      //       ),
+      //       Divider(),
+      //       ListTile(
+      //         leading: Icon(Icons.track_changes),
+      //         title: Text('Alarm List'),
+      //         onTap: () {
+      //           Navigator.of(context).push(
+      //               MaterialPageRoute(builder: (context)=>Track())
+      //           );
+      //           // Handle item 1 tap
+      //         },
+      //       ),
+      //       ListTile(
+      //         leading: Icon(Icons.alarm),
+      //         title: Text('Set a alarm'),
+      //         onTap: () {
+      //           Navigator.of(context).pop();
+      //           // Handle item 2 tap
+      //         },
+      //       ),
+      //       ListTile(
+      //         leading: Icon(Icons.alarm_on_outlined),
+      //         title: Text('Saved Alarm'),
+      //         onTap: () {
+      //           Navigator.of(context).push(
+      //               MaterialPageRoute(builder: (context)=>
+      //                   MyAlarmsPage(
+      //
+      //
+      //                   )));
+      //           // Handle item 2 tap
+      //         },
+      //       ),
+      //       ListTile(
+      //         leading: Icon(Icons.settings),
+      //         title: Text('Settings'),
+      //         onTap: () {
+      //           Navigator.of(context).push(
+      //               MaterialPageRoute(builder: (context)=>Settings())
+      //           );
+      //           // Handle item 2 tap
+      //         },
+      //       ),
+      //       Divider(),
+      //       Padding(
+      //         padding: const EdgeInsets.only(left: 15.0),
+      //         child: Text('Communicate',style: TextStyle(
+      //           color: Colors.orange,
+      //           fontSize: 15,
+      //           fontWeight: FontWeight.w500,
+      //         ),),
+      //       ),
+      //       ListTile(
+      //         leading: Icon(Icons.share),
+      //         title: Text('Share'),
+      //         onTap: () async {
+      //           final RenderBox box = context.findRenderObject() as RenderBox;
+      //           Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
+      //           Share.share(
+      //             'Check out my awesome app: ! Download it from the app store: ',
+      //             subject: 'Share this amazing app!',
+      //             sharePositionOrigin: dummyRect,
+      //           );
+      //         },
+      //       ),
+      //       // Row(
+      //       //   children: [
+      //       //     IconButton(
+      //       //       icon: Icon(Icons.share),
+      //       //       onPressed: () async {
+      //       //         final RenderBox box = context.findRenderObject() as RenderBox;
+      //       //         Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
+      //       //         Share.share(
+      //       //           'Check out my awesome app: ! Download it from the app store: ',
+      //       //           subject: 'Share this amazing app!',
+      //       //           sharePositionOrigin: dummyRect,
+      //       //         );
+      //       //       },
+      //       //     ),
+      //       //     SizedBox(
+      //       //       width: 10,
+      //       //     ),
+      //       //     InkWell(
+      //       //       onTap: () async {
+      //       //         final RenderBox box = context.findRenderObject() as RenderBox;
+      //       //         Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
+      //       //         Share.share(
+      //       //           'Check out my awesome app: ! Download it from the app store: ',
+      //       //           subject: 'Share this amazing app!',
+      //       //           sharePositionOrigin: dummyRect,
+      //       //         );
+      //       //       },
+      //       //       child: Text("Share",style: TextStyle(
+      //       //         fontWeight: FontWeight.w400,
+      //       //         fontSize: 16,
+      //       //
+      //       //       ),),
+      //       //     ),
+      //       //   ],
+      //       // ),
+      //
+      //       ListTile(
+      //         leading: Icon(Icons.feedback),
+      //         title: Text('Feedback'),
+      //         onTap: () {
+      //           setState(() {
+      //             _launched = _launchInBrowser(toLaunch);
+      //           });
+      //           // _launchInBrowser(toLaunch);
+      //           // Handle item 2 tap
+      //         },
+      //       ),
+      //       ListTile(
+      //         leading: Icon(Icons.rate_review),
+      //         title: Text('Rate/Review'),
+      //         onTap: () {
+      //           setState(() {
+      //             _launched = _launchInBrowser(toLaunch);
+      //           });
+      //           // Handle item 2 tap
+      //         },
+      //       ),
+      //       Divider(),
+      //       Padding(
+      //         padding: const EdgeInsets.only(left: 15.0),
+      //         child: Text('App',style: TextStyle(
+      //           color: Colors.orange,
+      //           fontSize: 15,
+      //           fontWeight: FontWeight.w500,
+      //         ),),
+      //       ),
+      //       ListTile(
+      //         leading: Icon(Icons.error),
+      //         title: Text('About'),
+      //         onTap: () {
+      //           Navigator.of(context).push(
+      //               MaterialPageRoute(builder: (context)=>About())
+      //           );// Handle item 2 tap
+      //         },
+      //       ),
+      //
+      //       // Add more list items as needed
+      //     ],
+      //   ),
+      // ),
 
       // appBar: AppBar(
       //  // backgroundColor: Colors.transparent,
@@ -411,9 +509,6 @@ class _MyHomePageState extends State<MyHomePage> {
       // ),
       body: Stack(
         children: [
-
-
-
           GoogleMap(
 
             mapType: MapType.normal,
@@ -568,11 +663,8 @@ class _MyHomePageState extends State<MyHomePage> {
           // ),
         ],
       ),
-
-
     );
   }
-
   void _showCustomBottomSheet(BuildContext context)async {
     if (!_handletap) {
 
@@ -775,7 +867,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       SizedBox(height: 20),
                     ],
                   ),
-
                 ],
               ),
             ),
@@ -829,7 +920,6 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-
   placesAutoCompleteTextField() {
     return Material(
 
@@ -925,7 +1015,6 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-
   _handleTap(LatLng point) async {
 
     _handletap=true;

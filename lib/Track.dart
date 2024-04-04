@@ -4,6 +4,8 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:untitiled/Map%20screen%20page.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,8 +18,11 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'Apiutils.dart';
+import 'Homescreens/save_alarm_page.dart';
+import 'Homescreens/settings.dart';
 import 'Track.dart';
 import 'Track.dart';
+import 'about page.dart';
 
 int id = 0;
 const int notificationId = 123;
@@ -507,6 +512,8 @@ print("Ringtone:" +selectedRingtone.replaceAll(".mp3", ""));
 
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
+  final Uri toLaunch =
+  Uri(scheme: 'https', host: 'www.cylog.org', path: 'headers/');
   Future<void> _goToCurrentLocation() async {
     if (currentLocation == null) {
       // Request location permission if needed
@@ -524,14 +531,141 @@ print("Ringtone:" +selectedRingtone.replaceAll(".mp3", ""));
       );
     }
   }
+  void handleScreenChanged(int index) {
+    switch (index) {
+      case 0: // Alarm List
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => MyAlarmsPage()));
+        // Replace with your AlarmListPage widget
+        break;
+      case 1: // Alarm List
 
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => MyHomePage()));
+        // Replace with your AlarmListPage widget
+        break;
+      case 2:
+        Navigator.of(context).pop();// Saved Alarms
+        // Replace with your SavedAlarmsPage widget
+        break;
+      case 3: // Saved Alarms
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => Settings())); // Replace with your SavedAlarmsPage widget
+        break;
+      case 4:
+
+        final RenderBox box = context.findRenderObject() as RenderBox;
+        Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
+        Share.share(
+          'Check out my awesome app: ! Download it from the app store: ',
+          subject: 'Share this amazing app!',
+          sharePositionOrigin: dummyRect,
+        );
+
+
+        break;
+      case 5:
+
+        _launchInBrowser(toLaunch);
+
+
+        break;
+      case 6:
+
+        _launchInBrowser(toLaunch);
+
+
+        break;
+      case 7:
+
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => About()));
+
+        break;
+
+    }
+    setState(() {
+      screenIndex = index; // Update selected index
+    });
+  }
+  int screenIndex=0;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
     double height=MediaQuery.of(context).size.height;
     double width=MediaQuery.of(context).size.height;
 
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: NavigationDrawer(
+        onDestinationSelected: (int index) {
+          handleScreenChanged(index); // Assuming you have a handleScreenChanged function
+        },
+        selectedIndex: screenIndex,
+        children: <Widget>[
+          SizedBox(
+            height: 32,
+          ),
+          NavigationDrawerDestination(
 
+            icon: Icon(Icons.alarm_on_outlined), // Adjust size as needed
+            label: Text('Saved Alarms'),
+            // Set selected based on screenIndex
+          ),
+          NavigationDrawerDestination(
+            icon: Icon(Icons.alarm),
+            label: Text('Set a Alarm'),
+            // Set selected based on screenIndex
+          ),
+          NavigationDrawerDestination(
+            icon: Icon(Icons.location_on_outlined),
+            label: Text('Alarm List'),
+            // Set selected based on screenIndex
+          ),
+          NavigationDrawerDestination(
+            icon: Icon(Icons.settings_outlined),
+            label: Text('Settings'),
+            // Set selected based on screenIndex
+          ),
+          Divider(),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
+            child: Text(
+              'Communicate', // Assuming this is the header
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+          ),
+          NavigationDrawerDestination(
+            icon: Icon(Icons.share_outlined),
+            label: Text('Share'),
+
+            // Set selected based on screenIndex
+          ),
+          NavigationDrawerDestination(
+            icon: Icon(Icons.feedback_outlined),
+            label: Text('Feedback'),
+            // Set selected based on screenIndex
+          ),
+          NavigationDrawerDestination(
+            icon: Icon(Icons.rate_review_outlined),
+            label: Text('Rate/Review'),
+            // Set selected based on screenIndex
+          ),
+          Divider(),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
+            child: Text(
+              'App', // Assuming this is the header
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+          ),
+          NavigationDrawerDestination(
+            icon: Icon(Icons.error_outline_outlined),
+            label: Text('About'),
+            // Set selected based on screenIndex
+          ),
+        ],
+      ),
 body:  Stack(
   children: [
 
@@ -598,6 +732,10 @@ body:  Stack(
         icon: Icon(Icons.remove),
       ),
     ),
+    Positioned(
+        top: 50,left: 15,
+        child: IconButton(
+          onPressed: () { _scaffoldKey.currentState?.openDrawer(); }, icon: Icon(Icons.menu),)),
   ],
 ),
 
