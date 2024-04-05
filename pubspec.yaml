@@ -59,6 +59,8 @@ dependencies:
   google_fonts: any
   lottie: any
   flutter_email_sender: ^6.0.2
+  background_location: ^0.13.0
+  geolocator: ^11.0.0
 
 
 

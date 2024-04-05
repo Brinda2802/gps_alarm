@@ -126,7 +126,7 @@ class _TrackState extends State<Track> {
         if (distance <= alarm.locationRadius) {
           log('triggering');
           // Alarm is triggered
-          _showNotification(alarm);
+
           break; // Exit loop after triggering the first alarm
         }
       }
@@ -340,50 +340,50 @@ class _TrackState extends State<Track> {
     }
   }
   bool _isNotificationShown=false;
-  Future<void> _showNotification(AlarmDetails alarm) async {
-   // Exit if notification already shown
-    if (_isNotificationShown) return; // Exit if notification already shown
-
-    // ... rest of your notification code ...
-
-    _isNotificationShown = true;
-    _loadSelectedRingtone();
-print("Ringtone:" +selectedRingtone.replaceAll(".mp3", ""));
-     AndroidNotificationDetails androidNotificationDetails =
-    AndroidNotificationDetails('your channel id', 'your channel name',
-        channelDescription: 'your channel description',
-        importance: Importance.max,
-        priority: Priority.high,
-        actions: [
-          AndroidNotificationAction(
-            "23",
-            'Dismiss',
-          ),
-        ],
-        sound: RawResourceAndroidNotificationSound(selectedRingtone.replaceAll(".mp3", "")),
-
-        ticker: 'ticker');
-   // String ringtonePath = 'assets/$selectedRingtone'; // Construct the path
-
-    // AndroidNotificationDetails androidNotificationDetails =
-    // AndroidNotificationDetails(
-    //     'your channel id', 'your channel name',
-    //     channelDescription: 'your channel description',
-    //     importance: Importance.max,
-    //     priority: Priority.high,
-    //     actions: [
-    //       AndroidNotificationAction("23", 'Dismiss',),
-    //     ],
-    //     sound: RawResourceAndroidNotificationSound(selectedRingtone), // Use the constructed path
-    //     ticker: 'ticker');
-        NotificationDetails notificationDetails =
-        NotificationDetails(android: androidNotificationDetails);
-        await flutterLocalNotificationsPlugin.show(
-        id++, alarm.alarmName, "Reached your place", notificationDetails,
-        payload: 'item x');
-     // Exit if notification already shown
-
-  }
+  //   Future<void> _showNotification(AlarmDetails alarm) async {
+//    // Exit if notification already shown
+//     if (_isNotificationShown) return; // Exit if notification already shown
+//
+//     // ... rest of your notification code ...
+//
+//     _isNotificationShown = true;
+//     _loadSelectedRingtone();
+// print("Ringtone:" +selectedRingtone.replaceAll(".mp3", ""));
+//      AndroidNotificationDetails androidNotificationDetails =
+//     AndroidNotificationDetails('your channel id', 'your channel name',
+//         channelDescription: 'your channel description',
+//         importance: Importance.max,
+//         priority: Priority.high,
+//         actions: [
+//           AndroidNotificationAction(
+//             "23",
+//             'Dismiss',
+//           ),
+//         ],
+//         sound: RawResourceAndroidNotificationSound(selectedRingtone.replaceAll(".mp3", "")),
+//
+//         ticker: 'ticker');
+//    // String ringtonePath = 'assets/$selectedRingtone'; // Construct the path
+//
+//     // AndroidNotificationDetails androidNotificationDetails =
+//     // AndroidNotificationDetails(
+//     //     'your channel id', 'your channel name',
+//     //     channelDescription: 'your channel description',
+//     //     importance: Importance.max,
+//     //     priority: Priority.high,
+//     //     actions: [
+//     //       AndroidNotificationAction("23", 'Dismiss',),
+//     //     ],
+//     //     sound: RawResourceAndroidNotificationSound(selectedRingtone), // Use the constructed path
+//     //     ticker: 'ticker');
+//         NotificationDetails notificationDetails =
+//         NotificationDetails(android: androidNotificationDetails);
+//         await flutterLocalNotificationsPlugin.show(
+//         id++, alarm.alarmName, "Reached your place", notificationDetails,
+//         payload: 'item x');
+//      // Exit if notification already shown
+//
+//   }
   Future<void> _requestLocationPermission() async {
     bool serviceEnabled = await _locationService.serviceEnabled();
     if (!serviceEnabled) {
@@ -592,9 +592,6 @@ print("Ringtone:" +selectedRingtone.replaceAll(".mp3", ""));
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
-    double height=MediaQuery.of(context).size.height;
-    double width=MediaQuery.of(context).size.height;
-
     return Scaffold(
       key: _scaffoldKey,
       drawer: NavigationDrawer(
