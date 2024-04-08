@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:math' as math;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -325,6 +324,8 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
 
     prefs.setStringList(
         'alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
+
+    prefs.reload();
   }
   int screenIndex=0;
   Future<void> _launchInBrowser(Uri url) async {

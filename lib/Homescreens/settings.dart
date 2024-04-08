@@ -1,21 +1,14 @@
-import 'dart:convert';
 import 'package:audioplayers/audioplayers.dart'; // Add this line
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitiled/Homescreens/save_alarm_page.dart';
-
 import 'package:url_launcher/url_launcher.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:file_picker/file_picker.dart';
-
 import '../Map screen page.dart';
-import '../Track.dart';
 import '../about page.dart';
-import '../example mapscreen page.dart';
+
 
 
 class Settings extends StatefulWidget {
@@ -46,32 +39,74 @@ class _SettingsState extends State<Settings> {
   // Dropdown options
   List<String> _units = ['Metric system (m/km)', 'Imperial system (mi/ft)'];
   String? selectedRingtone ;
+  // DropdownButton<String> _buildRingtoneDropdown() {
+  //   return
+  //     DropdownButton<String>(
+  //     value: selectedRingtone,
+  //     icon: const Icon(Icons.arrow_drop_down),
+  //     isExpanded: true, // Expand to fill available space
+  //     items: ringtones.map((ringtone) => DropdownMenuItem<String>(
+  //       value: ringtone,
+  //       child: Text(ringtone.split('/').last), // Display only filename
+  //     )).toList(),
+  //     onChanged: (String? value) async {
+  //       if (value != null) { // Handle null selection gracefully
+  //         setState(() {
+  //           selectedRingtone = value;
+  //           _saveSelectedRingtone(value);
+  //         }
+  //         );
+  //
+  //         _saveSelectedRingtone(value); // Persist selection
+  //         _playRingtone(selectedRingtone!); // Play or set notification sound
+  //
+  //         await flutterLocalNotificationsPlugin
+  //             .resolvePlatformSpecificImplementation<
+  //             AndroidFlutterLocalNotificationsPlugin>()
+  //             ?.deleteNotificationChannel("my_foreground");
+  //       }
+  //     },
+  //     hint:  Text('Select Ringtone',style:Theme.of(context).textTheme.bodyMedium,), // Use const for immutability
+  //
+  //     underline: Container(
+  //       height: 2,
+  //       color: Colors.transparent,
+  //     ),
+  //   );
+  // }
   DropdownButton<String> _buildRingtoneDropdown() {
     return DropdownButton<String>(
       value: selectedRingtone,
       icon: const Icon(Icons.arrow_drop_down),
-      isExpanded: true, // Expand to fill available space
+      isExpanded: true,
+
       items: ringtones.map((ringtone) => DropdownMenuItem<String>(
         value: ringtone,
-        child: Text(ringtone.split('/').last), // Display only filename
+        child: Text(ringtone.split('/').last),
       )).toList(),
-      onChanged: (String? value) {
-        if (value != null) { // Handle null selection gracefully
+      onChanged: (String? value) async {
+        if (value != null) {
           setState(() {
             selectedRingtone = value;
-            _saveSelectedRingtone(value); // Persist selection
-            _playRingtone(selectedRingtone!); // Play or set notification sound
+             // Save selected ringtone
           });
+          _saveSelectedRingtone(value);
+          _playRingtone(selectedRingtone!);
+
+          // await flutterLocalNotificationsPlugin
+          //     .resolvePlatformSpecificImplementation<
+          //     AndroidFlutterLocalNotificationsPlugin>()
+          //     ?.deleteNotificationChannel("my_foreground");
         }
       },
-      hint:  Text('Select Ringtone',style:Theme.of(context).textTheme.bodyMedium,), // Use const for immutability
-
+      hint: Text( "Select Ringtone", style: Theme.of(context).textTheme.bodyMedium),
       underline: Container(
         height: 2,
         color: Colors.transparent,
       ),
     );
   }
+
 
   Future<void> _loadRingtones() async {
     try {
@@ -87,11 +122,18 @@ class _SettingsState extends State<Settings> {
       // Handle error if list.txt is missing or inaccessible
       print("Error loading ringtones: $e");
     }
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      selectedRingtone=prefs.getString('selectedRingtone') ?? "alarm6.mp3";
+    });
   }
-  Future<void> _saveSelectedRingtone(String ringtone) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('selectedRingtone', ringtone);
-  }
+  // Future<void> _saveSelectedRingtone(String ringtone) async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   prefs.reload();
+  //   await prefs.setString('selectedRingtone', ringtone);
+  //   print(ringtone);
+  // }
 
   // void _saveSelectedRingtone(String value) async {
   //   final prefs = await SharedPreferences.getInstance();
@@ -114,6 +156,16 @@ class _SettingsState extends State<Settings> {
   //   }
   //
   // }
+  Future<void> _saveSelectedRingtone(String ringtone) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('selectedRingtone', ringtone);
+      print('Selected ringtone saved: $ringtone');
+    } catch (e) {
+      print('Error saving selected ringtone: $e');
+    }
+  }
+
   Future<void> _playRingtone(String ringtone) async {
     // Ensure assets/alarm_ringtones/ is the correct path
     final ringtonePath = '$ringtone';
@@ -141,18 +193,15 @@ class _SettingsState extends State<Settings> {
     _loadRingtones();
     // _buildRingtoneDropdown();
     _loadRadiusData();
-
-
-
     // Set the release mode to keep the source after playback has completed.
-
-
     // Start the player as soon as the app is displayed.
     // WidgetsBinding.instance.addPostFrameCallback((_) async {
     //   await _audioPlayer.setSource(AssetSource( "ringtone/$ringtones"));
     //   await _audioPlayer.resume();
     // });
     // Load selected unit when the widget initializes
+
+
   }
   void _saveSelectedUnit(String newValue) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -241,7 +290,6 @@ class _SettingsState extends State<Settings> {
   @override
   bool _imperial=false;
   Widget build(BuildContext context) {
-
     return Scaffold(
       key: _scaffoldKey,
       drawer: NavigationDrawer(

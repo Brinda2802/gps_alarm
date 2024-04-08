@@ -5,40 +5,26 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_places_flutter/google_places_flutter.dart';
 import 'package:google_places_flutter/model/prediction.dart';
-import 'package:location/location.dart';
 import 'package:location/location.dart' as location;
 import 'package:geocoding/geocoding.dart' as geocoding;
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:google_places_flutter/google_places_flutter.dart';
-import 'package:google_places_flutter/model/prediction.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitiled/Homescreens/settings.dart';
-import 'package:untitiled/search%20place%20screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-
 import 'Apiutils.dart';
 import 'Homescreens/save_alarm_page.dart';
-import 'Track.dart';
-import 'package:url_launcher/link.dart';
-import 'package:url_launcher/url_launcher.dart';
-
 import 'about page.dart';
 
 
-//
-// final Uri _url = Uri.parse('https://flutter.dev');
+
 class MyHomePage extends StatefulWidget {
-  // final Function(String, String, double, bool) onSave;
+
 
 
   final String? title;
@@ -48,7 +34,6 @@ class MyHomePage extends StatefulWidget {
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
-
 class _MyHomePageState extends State<MyHomePage> {
   double meterRadius = 100; // Initial value for meter radius
   double milesRadius = 0.31;
@@ -64,9 +49,9 @@ class _MyHomePageState extends State<MyHomePage> {
   double radius=0;
   Future<void> _goToCurrentLocation() async {
     if (currentLocation == null) {
-      // Request location permission if needed
+
       await _requestLocationPermission();
-      // await _startLocationUpdates();
+
       return; // Wait for location to be updated
     }
 
@@ -1073,145 +1058,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-
-// class MeterCalculatorWidget extends StatefulWidget {
-//   final Function(double) callback;
-//
-//   const MeterCalculatorWidget({super.key, required this.callback});
-//
-//
-//
-//   @override
-//   _MeterCalculatorWidgetState createState() => _MeterCalculatorWidgetState();
-// }
-//
-// class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
-//   double _radius = 200;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Padding(
-//       padding: const EdgeInsets.all(16.0),
-//       child: Column(
-//         children: [
-//           Text(
-//             'Radius',
-//             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-//           ),
-//           SizedBox(height: 10),
-//           Row(
-//             mainAxisAlignment: MainAxisAlignment.center,
-//             children: [
-//               SliderTheme(
-//                 data: SliderTheme.of(context).copyWith(
-//                   thumbShape: RoundSliderThumbShape(
-//                     enabledThumbRadius: 15.0, // Set your desired thumb radius
-//                   ),
-//                 ),
-//                 child: Slider(
-//                   activeColor: Colors.red,
-//
-//                   value: _radius,
-//                   divisions: 20,
-//                   min: 20,
-//                   max: 1000, // Set your maximum radius value here
-//                   onChanged: (value) {
-//                     setState(() {
-//                       _radius = value.roundToDouble(); // Round the value to the nearest integer
-//                     });
-//                     widget.callback(value);
-//                   },
-//                 ),
-//               ),
-//             ],
-//           ),
-//           SizedBox(height: 10),
-//           Text(' ${_radius.round()} meters'), // Display the rounded value
-//         ],
-//       ),
-//
-//     );
-//   }
-// }
-// class MeterCalculatorWidget extends StatefulWidget {
-//   final Function(double) callback;
-//
-//   const MeterCalculatorWidget({
-//     Key? key,
-//     required this.callback,
-//
-//   }) : super(key: key);
-//
-//   @override
-//   _MeterCalculatorWidgetState createState() => _MeterCalculatorWidgetState();
-// }
-//
-// class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
-//   String? _selectedUnit;
-//   double _radius = 200;
-//   bool _imperial=false;
-//   @override
-//   void initState() {
-//     _loadSelectedUnit();
-//     // TODO: implement initState
-//     super.initState();
-//   }
-//   Future _loadSelectedUnit() async {
-//     SharedPreferences prefs = await SharedPreferences.getInstance();
-//     setState(() {
-//       _selectedUnit = prefs.getString('selectedUnit');
-//       _imperial=(_selectedUnit == 'Imperial system (mi/ft)');
-//       _radius=_imperial?1.24:2000;
-//     });
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     print(_selectedUnit);
-//     print(_radius);
-//
-//     return Padding(
-//       padding: const EdgeInsets.all(16.0),
-//       child: Column(
-//         children: [
-//           Text(
-//             'Radius',
-//             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-//           ),
-//           SizedBox(height: 10),
-//           Row(
-//             mainAxisAlignment: MainAxisAlignment.center,
-//             children: [
-//               SliderTheme(
-//                 data: SliderTheme.of(context).copyWith(
-//                   thumbShape: RoundSliderThumbShape(
-//                     enabledThumbRadius: 15.0, // Set your desired thumb radius
-//                   ),
-//                 ),
-//                 child: Slider(
-//                   activeColor: Colors.red,
-//                   value: _radius,
-//                   divisions:100,
-//                   min:  _imperial?0.05:50,
-//                   max: _imperial?5.05:5050, // Set your maximum radius value here
-//                   onChanged: (value) {
-//                     setState(() {
-//                       _radius = double.parse(value.toStringAsFixed(2)); // Round the value to the nearest integer
-//                     });
-//                     widget.callback(value);
-//                   },
-//                 ),
-//               ),
-//             ],
-//           ),
-//           SizedBox(height: 10),
-//           Text(' $_radius ${_imperial ? 'miles' : 'meters'}'),
-//           // Display the rounded value with the appropriate unit based on the selected system
-//         ],
-//       ),
-//     );
-//   }
-// }
 class MeterCalculatorWidget extends StatefulWidget {
   final Function(double) callback;
 
@@ -1223,7 +1069,6 @@ class MeterCalculatorWidget extends StatefulWidget {
   @override
   _MeterCalculatorWidgetState createState() => _MeterCalculatorWidgetState();
 }
-
 class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
   double _radius = 200;
   bool _imperial = false;

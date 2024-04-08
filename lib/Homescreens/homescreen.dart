@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-
-import '../Firstpage.dart';
 import '../Map screen page.dart';
-import '../exampleMyhomepage.dart';
+
 
 class Homescreen extends StatefulWidget {
   const Homescreen({super.key});
