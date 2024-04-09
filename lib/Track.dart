@@ -411,9 +411,7 @@ class _TrackState extends State<Track> {
         location.LocationData newLocation) async {
       log("location changed");
       if (_isCameraMoving) return;
-
       setState(() {
-
         if (newLocation.latitude != null && newLocation.longitude != null) {
           _current = LatLng(newLocation.latitude!, newLocation.longitude!);
         }
