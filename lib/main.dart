@@ -307,6 +307,7 @@ import 'Apiutils.dart';
 import 'Homescreens/homescreen.dart';
 import 'package:geolocator/geolocator.dart';
 import 'Homescreens/save_alarm_page.dart';
+import 'Homescreens/settings.dart';
 
 
 const notificationChannelId = 'my_foreground';
@@ -538,7 +539,7 @@ class MyApp extends StatelessWidget {
         textTheme: GoogleFonts.robotoFlexTextTheme(),
       ),
       debugShowCheckedModeBanner: false,
-      home:MyAlarmsPage(),
+      home:Splashscreen(),
     );
   }
 }
@@ -550,40 +551,34 @@ class Splashscreen extends StatefulWidget {
 
 class _SplashscreenState extends State<Splashscreen> {
   // Simulate some initialization process (replace it with your actual initialization logic)
-  Future<void> _initializeApp() async {
-    await Future.delayed(Duration(seconds: 3)); // Simulating a 2-second initialization time
-  }
+
 
   @override
   void initState() {
     super.initState();
-    _initializeApp().then((_) {
-      // Initialization complete, navigate to the main screen
-      Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => Homescreen(), // Replace YourMainScreen with the actual main screen widget
-      ));
-    });
+    _checkUserStatus();
+  }
+  Future<void> _checkUserStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool hasSetSettings = prefs.getBool('hasSetSettings') ?? false; // Default to false if not set
+    print("hasSetSettings value: $hasSetSettings");
+    if (hasSetSettings) {
+      // User has set settings before, navigate to MyAlarmsPage
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => MyAlarmsPage()),
+      );
+    } else {
+      // User is setting settings for the first time, navigate to Settings page
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => Settings()),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.blue, Colors.purple],
-          ),
-        ),
-        child: Center(
-          child: Image.asset(
-            "assets/applogo.png",
-            height: 300,
-            width: 300,
-          ),
-        ),
-      ),
+
     );
   }
 }
