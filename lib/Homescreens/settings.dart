@@ -2,6 +2,7 @@ import 'package:audioplayers/audioplayers.dart'; // Add this line
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitiled/Homescreens/save_alarm_page.dart';
@@ -181,7 +182,25 @@ class _SettingsState extends State<Settings> {
       }
     }
   }
+  void _checkUserStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool hasSetSettings = prefs.getBool('hasSetSettings') ?? false;
 
+    if (hasSetSettings) {
+      // User has set settings before, navigate to MyAlarmsPage
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => MyAlarmsPage()),
+      );
+    } else {
+      // User is setting settings for the first time, stay on Settings page
+      // No need to navigate, user stays on Settings page
+    }
+  }
+
+  void _handleSettingsSet() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('hasSetSettings', true); // Set flag indicating settings have been set
+  }
   @override
   void dispose() {
     super.dispose();
@@ -193,6 +212,7 @@ class _SettingsState extends State<Settings> {
     _loadRingtones();
     // _buildRingtoneDropdown();
     _loadRadiusData();
+
     // Set the release mode to keep the source after playback has completed.
     // Start the player as soon as the app is displayed.
     // WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -200,6 +220,7 @@ class _SettingsState extends State<Settings> {
     //   await _audioPlayer.resume();
     // });
     // Load selected unit when the widget initializes
+
 
 
   }
@@ -472,6 +493,18 @@ class _SettingsState extends State<Settings> {
             ),
             SizedBox(
               height: 10,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 50.0,left: 120),
+              child: FilledButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context)=>MyAlarmsPage())
+                  );
+                   // Call the saveAlarm function
+                },
+                child: Text("Set"),
+              ),
             ),
           ],
         ),

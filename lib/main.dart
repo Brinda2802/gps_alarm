@@ -11,6 +11,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as location;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:untitiled/Homescreens/settings.dart';
 import 'package:uuid/uuid.dart';
 import 'Apiutils.dart';
 import 'Homescreens/homescreen.dart';
@@ -197,12 +198,6 @@ Future<void> onStart(ServiceInstance service) async {
                         Uuid().v4(),
                         'Dismiss',
                       ),
-                      // Stop action
-                      AndroidNotificationAction(
-                        'stop_action',
-                        'Stop',
-                      ),
-                      // Snooze action
                     ],
                   ),
                 ),
@@ -237,8 +232,8 @@ double calculateDistance(LatLng point1, LatLng point2) {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-
   @override
+
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
@@ -247,10 +242,13 @@ class MyApp extends StatelessWidget {
         textTheme: GoogleFonts.robotoFlexTextTheme(),
       ),
       debugShowCheckedModeBanner: false,
-      home:MyAlarmsPage(),
+      home:Splashscreen(),
     );
   }
+
 }
+
+
 
 class Splashscreen extends StatefulWidget {
   @override
@@ -259,22 +257,36 @@ class Splashscreen extends StatefulWidget {
 
 class _SplashscreenState extends State<Splashscreen> {
   // Simulate some initialization process (replace it with your actual initialization logic)
-  Future<void> _initializeApp() async {
-    await Future.delayed(Duration(seconds: 3)); // Simulating a 2-second initialization time
-  }
-
   @override
   void initState() {
     super.initState();
-    _initializeApp().then((_) {
-      // Initialization complete, navigate to the main screen
-      Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => Homescreen(), // Replace YourMainScreen with the actual main screen widget
-      ));
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      _checkUserStatus();
     });
   }
 
-  @override
+  void _checkUserStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool hasSetSettings = prefs.getBool('hasSetSettings') ?? false;
+
+    if (hasSetSettings) {
+      // User has set settings before, navigate to MyAlarmsPage
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => MyAlarmsPage()),
+      );
+    } else {
+      // User is setting settings for the first time, navigate to Settings page
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => Settings()),
+      );
+    }
+  }
+
+  void _handleSettingsSet() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('hasSetSettings', true); // Set flag indicating settings have been set
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(

@@ -682,178 +682,174 @@ class _MyHomePageState extends State<MyHomePage> {
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
-          child: Material(
-            elevation: 5,
-            borderRadius: BorderRadius.circular(30),
-            child: Container(
-              height: 450,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                border: Border.all(color: Colors.black12),
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Column(
-                children: [
-                  SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      // Column(
-                      //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      //   children: [
-                      //     GestureDetector(
-                      //       onTap: () {
-                      //         // Add your details logic here
-                      //       },
-                      //       child: Icon(CupertinoIcons.up_arrow, size: 20),
-                      //     ),
-                      //     Text("Details"),
-                      //   ],
-                      // ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).pop(); // Close the bottom sheet on cancel
-                            },
-                            child: Icon(Icons.close, size: 20),
-                          ),
-                          Text("Cancel"),
-                        ],
-                      ),
-                      // ElevatedButton(
-                      //   onPressed: () {
-                      //     setState(() {
-                      //       alarms.add(AlarmDetails(
-                      //         alarmName: alramnamecontroller.text,
-                      //         notes: notescontroller.text,
-                      //         locationRadius: radius,
-                      //         isAlarmOn: true,
-                      //       ));
-                      //     });
-                      //
-                      //     Navigator.of(context).push(
-                      //       MaterialPageRoute(builder: (context)=> MyAlarmsPage(alarmName: alramnamecontroller.text, notes: notescontroller.text, locationRadius: radius, isAlarmOn:true,))
-                      //     );
-                      //     // Add your save logic here
-                      //   },
-                      //   style: ElevatedButton.styleFrom(
-                      //     backgroundColor: Color(0xffFFEF9A9A),
-                      //   ),
-                      //   child: Text('Save'),
-                      // ),
-                      FilledButton(
+          child: Container(
+
+            height: 330,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              border: Border.all(color: Colors.black12),
+
+            ),
+            child: Column(
+              children: [
+                SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    // Column(
+                    //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    //   children: [
+                    //     GestureDetector(
+                    //       onTap: () {
+                    //         // Add your details logic here
+                    //       },
+                    //       child: Icon(CupertinoIcons.up_arrow, size: 20),
+                    //     ),
+                    //     Text("Details"),
+                    //   ],
+                    // ),
+                    // Column(
+                    //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    //   children: [
+                    //     GestureDetector(
+                    //       onTap: () {
+                    //         Navigator.of(context).pop(); // Close the bottom sheet on cancel
+                    //       },
+                    //       child: Icon(Icons.close, size: 20),
+                    //     ),
+                    //     Text("Cancel"),
+                    //   ],
+                    // ),
+                    // ElevatedButton(
+                    //   onPressed: () {
+                    //     setState(() {
+                    //       alarms.add(AlarmDetails(
+                    //         alarmName: alramnamecontroller.text,
+                    //         notes: notescontroller.text,
+                    //         locationRadius: radius,
+                    //         isAlarmOn: true,
+                    //       ));
+                    //     });
+                    //
+                    //     Navigator.of(context).push(
+                    //       MaterialPageRoute(builder: (context)=> MyAlarmsPage(alarmName: alramnamecontroller.text, notes: notescontroller.text, locationRadius: radius, isAlarmOn:true,))
+                    //     );
+                    //     // Add your save logic here
+                    //   },
+                    //   style: ElevatedButton.styleFrom(
+                    //     backgroundColor: Color(0xffFFEF9A9A),
+                    //   ),
+                    //   child: Text('Save'),
+                    // ),
+                    FilledButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Call the saveAlarm function
+                      },
+                      child: Text("Cancel"),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 120.0),
+                      child: FilledButton(
                         onPressed: () {
                           saveAlarm(context); // Call the saveAlarm function
                         },
                         child: Text("Set"),
                       ),
+                    ),
 
+                    // ElevatedButton(
+                    //   onPressed: () {
+                    //     // Add your start logic here
+                    //   },
+                    //   style: ElevatedButton.styleFrom(
+                    //     backgroundColor: Color(0xffFFEF9A9A),
+                    //   ),
+                    //   child: Text('Start'),
+                    // ),
+                  ],
+                ),
 
+                // Integrate the MeterCalculatorWidget
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
 
-                      // ElevatedButton(
-                      //   onPressed: () {
-                      //     // Add your start logic here
-                      //   },
-                      //   style: ElevatedButton.styleFrom(
-                      //     backgroundColor: Color(0xffFFEF9A9A),
-                      //   ),
-                      //   child: Text('Start'),
-                      // ),
-                    ],
-                  ),
-                  SizedBox(height: 20),
-                  // Integrate the MeterCalculatorWidget
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
+                    Column(
+                      children: [
+                        MeterCalculatorWidget(
+                          callback: updateradiusvalue,
 
-                      Column(
-                        children: [
-                          MeterCalculatorWidget(
-                            callback: updateradiusvalue,
+                        )
 
-                          )
+                      ],
+                    ),
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Alarm Name:", style: Theme.of(context).textTheme.titleMedium,),
 
-                        ],
-                      ),
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Alarm Name:",style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                        fontSize: 18
-                      ),),
-                      SizedBox(height: 10),
-                      Container(
-                        height: 50,
-                        width: 300,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.black12),
+                    Container(
+                      height: 50,
+                      width: 300,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.black12),
 
-                        ),child: Padding(
-                        padding: const EdgeInsets.only(left: 10.0),
-                        child: TextField(
-                          controller: alramnamecontroller,
+                      ),child: Padding(
+                      padding: const EdgeInsets.only(left: 10.0),
+                      child: TextField(
+                        controller: alramnamecontroller,
 
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.black,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: "Alarm name",
-                            border: InputBorder.none,
-                            enabledBorder: InputBorder.none,
-                          ),
-                        ),
-                      ),
-                      ),
-                      SizedBox(height: 20),
-
-                      Text("Notes:",style: TextStyle(
-                          fontWeight: FontWeight.w500,
+                        style: TextStyle(
+                          fontSize: 16,
                           color: Colors.black,
-                          fontSize: 18
-                      ),),
-                      SizedBox(height: 10),
-                      Container(
-                        height: 50,
-                        width: 300,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.black12),
-
-                        ),child: Padding(
-                        padding: const EdgeInsets.only(left: 10.0),
-                        child: TextField(
-                          controller: notescontroller,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.black,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: "Notes",
-                            border: InputBorder.none,
-                            enabledBorder: InputBorder.none,
-                          ),
+                          fontWeight: FontWeight.w500,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: "Alarm name",
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
                         ),
                       ),
+                    ),
+                    ),
+
+
+                    Text("Notes:",style: Theme.of(context).textTheme.titleMedium,),
+
+                    Container(
+                      height: 70,
+                      width: 300,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.black12),
+
+                      ),child: Padding(
+                      padding: const EdgeInsets.only(left: 10.0),
+                      child: TextField(
+                        controller: notescontroller,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: "Notes",
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                        ),
                       ),
-                      SizedBox(height: 20),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                    ),
+                    SizedBox(height: 20),
+                  ],
+                ),
+              ],
             ),
           ),
         );
@@ -1094,45 +1090,44 @@ class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          Text(
-            'Radius',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    return Column(
+      children: [
+        Row(
+
+          children: [
+            Text(
+              'Radius',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+
+
+            Padding(
+              padding: const EdgeInsets.only(left: 170.0),
+              child: Text(_radius.toStringAsFixed(_imperial ? 2:0)+' ${_imperial ? 'miles' : 'meters'}'),
+            ),
+          ],
+        ),
+
+        Container(
+          width: 310,
+          child: Slider (
+             // Adjust max value according to your requirement
+            value: _radius,
+            divisions: 100,
+            min: _imperial ? 0.05 : 50,
+            max: _imperial ? 5.05 : 5050,
+            onChanged: (value) {
+              print("metercalculatedvalue:"+value.toString());
+              setState(() {
+                _radius = double.parse(value.toStringAsFixed(2));
+              });
+              widget.callback(_imperial? (value * 1609.34):value);
+            },
           ),
-          SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SliderTheme(
-                data: SliderTheme.of(context).copyWith(
-                  thumbShape: RoundSliderThumbShape(
-                    enabledThumbRadius: 15.0,
-                  ),
-                ),
-                child: Slider(
-                  activeColor: Colors.red,
-                  value: _radius,
-                  divisions: 100,
-                  min: _imperial ? 0.05 : 50,
-                  max: _imperial ? 5.05 : 5050,
-                  onChanged: (value) {
-                    print("metercalculatedvalue:"+value.toString());
-                    setState(() {
-                      _radius = double.parse(value.toStringAsFixed(2));
-                    });
-                    widget.callback(_imperial? (value * 1609.34):value);
-                  },
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 10),
-          Text(_radius.toStringAsFixed(_imperial ? 2:0)+' ${_imperial ? 'miles' : 'meters'}'),
-        ],
-      ),
+        ),
+
+
+      ],
     );
   }
 }
