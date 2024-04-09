@@ -256,6 +256,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
   @override
   Widget build(BuildContext context) {
+        double height=MediaQuery.of(context).size.height;
+        double width=MediaQuery.of(context).size.width;
     final Uri toLaunch =
     Uri(scheme: 'https', host: 'www.google.com');
     return Scaffold(
@@ -320,178 +322,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
 
-      // Drawer(
-      //  child:
-      //   ListView(
-      //     padding: EdgeInsets.zero,
-      //     children: <Widget>[
-      //       SizedBox(
-      //         height: 40,
-      //       ),
-      //       Row(
-      //         children: [
-      //           Image.asset("assets/mapimage.png",height: 100,width: 100,),
-      //           Text('GPS ALARM',style: Theme.of(context).textTheme.titleLarge),
-      //         ],
-      //       ),
-      //       Divider(),
-      //       ListTile(
-      //         leading: Icon(Icons.track_changes),
-      //         title: Text('Alarm List'),
-      //         onTap: () {
-      //           Navigator.of(context).push(
-      //               MaterialPageRoute(builder: (context)=>Track())
-      //           );
-      //           // Handle item 1 tap
-      //         },
-      //       ),
-      //       ListTile(
-      //         leading: Icon(Icons.alarm),
-      //         title: Text('Set a alarm'),
-      //         onTap: () {
-      //           Navigator.of(context).pop();
-      //           // Handle item 2 tap
-      //         },
-      //       ),
-      //       ListTile(
-      //         leading: Icon(Icons.alarm_on_outlined),
-      //         title: Text('Saved Alarm'),
-      //         onTap: () {
-      //           Navigator.of(context).push(
-      //               MaterialPageRoute(builder: (context)=>
-      //                   MyAlarmsPage(
-      //
-      //
-      //                   )));
-      //           // Handle item 2 tap
-      //         },
-      //       ),
-      //       ListTile(
-      //         leading: Icon(Icons.settings),
-      //         title: Text('Settings'),
-      //         onTap: () {
-      //           Navigator.of(context).push(
-      //               MaterialPageRoute(builder: (context)=>Settings())
-      //           );
-      //           // Handle item 2 tap
-      //         },
-      //       ),
-      //       Divider(),
-      //       Padding(
-      //         padding: const EdgeInsets.only(left: 15.0),
-      //         child: Text('Communicate',style: TextStyle(
-      //           color: Colors.orange,
-      //           fontSize: 15,
-      //           fontWeight: FontWeight.w500,
-      //         ),),
-      //       ),
-      //       ListTile(
-      //         leading: Icon(Icons.share),
-      //         title: Text('Share'),
-      //         onTap: () async {
-      //           final RenderBox box = context.findRenderObject() as RenderBox;
-      //           Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
-      //           Share.share(
-      //             'Check out my awesome app: ! Download it from the app store: ',
-      //             subject: 'Share this amazing app!',
-      //             sharePositionOrigin: dummyRect,
-      //           );
-      //         },
-      //       ),
-      //       // Row(
-      //       //   children: [
-      //       //     IconButton(
-      //       //       icon: Icon(Icons.share),
-      //       //       onPressed: () async {
-      //       //         final RenderBox box = context.findRenderObject() as RenderBox;
-      //       //         Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
-      //       //         Share.share(
-      //       //           'Check out my awesome app: ! Download it from the app store: ',
-      //       //           subject: 'Share this amazing app!',
-      //       //           sharePositionOrigin: dummyRect,
-      //       //         );
-      //       //       },
-      //       //     ),
-      //       //     SizedBox(
-      //       //       width: 10,
-      //       //     ),
-      //       //     InkWell(
-      //       //       onTap: () async {
-      //       //         final RenderBox box = context.findRenderObject() as RenderBox;
-      //       //         Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
-      //       //         Share.share(
-      //       //           'Check out my awesome app: ! Download it from the app store: ',
-      //       //           subject: 'Share this amazing app!',
-      //       //           sharePositionOrigin: dummyRect,
-      //       //         );
-      //       //       },
-      //       //       child: Text("Share",style: TextStyle(
-      //       //         fontWeight: FontWeight.w400,
-      //       //         fontSize: 16,
-      //       //
-      //       //       ),),
-      //       //     ),
-      //       //   ],
-      //       // ),
-      //
-      //       ListTile(
-      //         leading: Icon(Icons.feedback),
-      //         title: Text('Feedback'),
-      //         onTap: () {
-      //           setState(() {
-      //             _launched = _launchInBrowser(toLaunch);
-      //           });
-      //           // _launchInBrowser(toLaunch);
-      //           // Handle item 2 tap
-      //         },
-      //       ),
-      //       ListTile(
-      //         leading: Icon(Icons.rate_review),
-      //         title: Text('Rate/Review'),
-      //         onTap: () {
-      //           setState(() {
-      //             _launched = _launchInBrowser(toLaunch);
-      //           });
-      //           // Handle item 2 tap
-      //         },
-      //       ),
-      //       Divider(),
-      //       Padding(
-      //         padding: const EdgeInsets.only(left: 15.0),
-      //         child: Text('App',style: TextStyle(
-      //           color: Colors.orange,
-      //           fontSize: 15,
-      //           fontWeight: FontWeight.w500,
-      //         ),),
-      //       ),
-      //       ListTile(
-      //         leading: Icon(Icons.error),
-      //         title: Text('About'),
-      //         onTap: () {
-      //           Navigator.of(context).push(
-      //               MaterialPageRoute(builder: (context)=>About())
-      //           );// Handle item 2 tap
-      //         },
-      //       ),
-      //
-      //       // Add more list items as needed
-      //     ],
-      //   ),
-      // ),
 
-      // appBar: AppBar(
-      //  // backgroundColor: Colors.transparent,
-      //   automaticallyImplyLeading: false,
-      //   leading: InkWell(
-      //       onTap: (){
-      //         _scaffoldKey.currentState?.openDrawer();
-      //       },
-      //
-      //
-      //       child: Icon(Icons.menu,size: 25,color: Colors.black,)),
-      //   centerTitle: true,
-      //
-      // ),
       body: Stack(
         children: [
           GoogleMap(
@@ -544,32 +375,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
 
-            //   child: Center(
-            //     child: Padding(
-            //       padding: const EdgeInsets.only(left: 20.0),
-            //       child: TypeAheadField(
-            //         suggestionsCallback: (pattern) async {
-            //           return await _fetchSuggestions(pattern);
-            //         },
-            //         itemBuilder: (context, suggestion) {
-            //           return ListTile(
-            //             title: Text(suggestion.description),
-            //           );
-            //         },
-            //         onSelected: (suggestion) {
-            //           searchController.text = suggestion.description;
-            //           _moveToLocation(suggestion.description);
-            //         },
-            //       ),
-            //     ),
-            //   ),
-            // ),
+
 
           Padding(
             padding: const EdgeInsets.only(top: 100.0,left: 100),
             child: Container(
-              height: 30,
-              width: 200,
+              height:height/ 25.2,
+              width:width/ 1.8,
               decoration: BoxDecoration(
                 color: Colors.white70,
                 border: Border.all(
@@ -617,40 +429,14 @@ class _MyHomePageState extends State<MyHomePage> {
             top: 50,left: 15,
               child: IconButton(
                 onPressed: () { _scaffoldKey.currentState?.openDrawer(); }, icon: Icon(Icons.menu),)),
-          // Padding(
-          //   padding: const EdgeInsets.only(top:500.0),
-          //   child: Center(
-          //     child: ElevatedButton(
-          //       onPressed: () {
-          //         _showCustomBottomSheet(context);
-          //       },
-          //       style: ElevatedButton.styleFrom(
-          //         backgroundColor: Color(0xffFFEF9A9A),
-          //       ),
-          //       child: Text('Set the alarm',style: TextStyle(
-          //         color: Colors.black,
-          //         fontSize: 15,
-          //         fontWeight: FontWeight.bold,
-          //       ),),
-          //     ),
-          //
-          //     // Align(
-          //     //   alignment: Alignment.bottomCenter,
-          //     //   child: ElevatedButton(
-          //     //     onPressed: () {
-          //     //       _setDestination(
-          //     //           37.7749, -122.4194); // Example: San Francisco, CA
-          //     //     },
-          //     //     child: Text('Set Destination'),
-          //     //   ),
-          //     // ),
-          //   ),
-          // ),
+
         ],
       ),
     );
   }
   void _showCustomBottomSheet(BuildContext context)async {
+    double height=MediaQuery.of(context).size.height;
+    double width=MediaQuery.of(context).size.width;
     if (!_handletap) {
 
       // Show a snackbar if a destination is not selected
@@ -684,64 +470,17 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           child: Container(
 
-            height: 330,
+            height: height/2.29090,
             width: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.transparent,
-              border: Border.all(color: Colors.black12),
 
-            ),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                SizedBox(height: 20),
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    // Column(
-                    //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    //   children: [
-                    //     GestureDetector(
-                    //       onTap: () {
-                    //         // Add your details logic here
-                    //       },
-                    //       child: Icon(CupertinoIcons.up_arrow, size: 20),
-                    //     ),
-                    //     Text("Details"),
-                    //   ],
-                    // ),
-                    // Column(
-                    //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    //   children: [
-                    //     GestureDetector(
-                    //       onTap: () {
-                    //         Navigator.of(context).pop(); // Close the bottom sheet on cancel
-                    //       },
-                    //       child: Icon(Icons.close, size: 20),
-                    //     ),
-                    //     Text("Cancel"),
-                    //   ],
-                    // ),
-                    // ElevatedButton(
-                    //   onPressed: () {
-                    //     setState(() {
-                    //       alarms.add(AlarmDetails(
-                    //         alarmName: alramnamecontroller.text,
-                    //         notes: notescontroller.text,
-                    //         locationRadius: radius,
-                    //         isAlarmOn: true,
-                    //       ));
-                    //     });
-                    //
-                    //     Navigator.of(context).push(
-                    //       MaterialPageRoute(builder: (context)=> MyAlarmsPage(alarmName: alramnamecontroller.text, notes: notescontroller.text, locationRadius: radius, isAlarmOn:true,))
-                    //     );
-                    //     // Add your save logic here
-                    //   },
-                    //   style: ElevatedButton.styleFrom(
-                    //     backgroundColor: Color(0xffFFEF9A9A),
-                    //   ),
-                    //   child: Text('Save'),
-                    // ),
+
                     FilledButton(
                       onPressed: () {
                         Navigator.of(context).pop(); // Call the saveAlarm function
@@ -771,20 +510,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
 
                 // Integrate the MeterCalculatorWidget
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
+                MeterCalculatorWidget(
+                  callback: updateradiusvalue,
 
-                    Column(
-                      children: [
-                        MeterCalculatorWidget(
-                          callback: updateradiusvalue,
-
-                        )
-
-                      ],
-                    ),
-                  ],
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -792,23 +520,19 @@ class _MyHomePageState extends State<MyHomePage> {
                     Text("Alarm Name:", style: Theme.of(context).textTheme.titleMedium,),
 
                     Container(
-                      height: 50,
-                      width: 300,
+                      height:height/ 15.12,
+                      width: width/1.2,
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(color: Colors.black12),
 
                       ),child: Padding(
-                      padding: const EdgeInsets.only(left: 10.0),
+                      padding:  EdgeInsets.only(left: width/36),
                       child: TextField(
                         controller: alramnamecontroller,
 
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.black,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: Theme.of(context).textTheme.bodyMedium,
                         decoration: InputDecoration(
                           hintText: "Alarm name",
                           border: InputBorder.none,
@@ -822,22 +546,18 @@ class _MyHomePageState extends State<MyHomePage> {
                     Text("Notes:",style: Theme.of(context).textTheme.titleMedium,),
 
                     Container(
-                      height: 70,
-                      width: 300,
+                      height: height/10.8,
+                      width:width/1.2,
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(color: Colors.black12),
 
                       ),child: Padding(
-                      padding: const EdgeInsets.only(left: 10.0),
+                      padding:  EdgeInsets.only(left: width/36),
                       child: TextField(
                         controller: notescontroller,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.black,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: Theme.of(context).textTheme.bodyMedium,
                         decoration: InputDecoration(
                           hintText: "Notes",
                           border: InputBorder.none,
@@ -846,7 +566,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     ),
                     ),
-                    SizedBox(height: 20),
+
                   ],
                 ),
               ],
@@ -1090,10 +810,12 @@ class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
 
   @override
   Widget build(BuildContext context) {
+    double height=MediaQuery.of(context).size.height;
+    double width=MediaQuery.of(context).size.width;
     return Column(
       children: [
         Row(
-
+mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Text(
               'Radius',
@@ -1102,14 +824,15 @@ class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
 
 
             Padding(
-              padding: const EdgeInsets.only(left: 170.0),
+              padding:  EdgeInsets.only(left:width/2.5714),
               child: Text(_radius.toStringAsFixed(_imperial ? 2:0)+' ${_imperial ? 'miles' : 'meters'}'),
             ),
           ],
         ),
 
         Container(
-          width: 310,
+          width:width/1.16129,
+
           child: Slider (
              // Adjust max value according to your requirement
             value: _radius,
