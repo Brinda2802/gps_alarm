@@ -1,3 +1,4 @@
+import 'package:flutter/painting.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:convert';
 import 'dart:developer';
@@ -481,7 +482,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
 
-                    FilledButton(
+                    OutlinedButton(
                       onPressed: () {
                         Navigator.of(context).pop(); // Call the saveAlarm function
                       },
@@ -615,8 +616,6 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => MyAlarmsPage(
-
-
         ),
       ),
     );
@@ -829,7 +828,6 @@ mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             ),
           ],
         ),
-
         Container(
           width:width/1.16129,
 
@@ -837,7 +835,7 @@ mainAxisAlignment: MainAxisAlignment.spaceEvenly,
              // Adjust max value according to your requirement
             value: _radius,
             divisions: 100,
-            min: _imperial ? 0.05 : 50,
+            min: _imperial ? 0.05 : 20,
             max: _imperial ? 5.05 : 5050,
             onChanged: (value) {
               print("metercalculatedvalue:"+value.toString());
@@ -848,8 +846,6 @@ mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             },
           ),
         ),
-
-
       ],
     );
   }

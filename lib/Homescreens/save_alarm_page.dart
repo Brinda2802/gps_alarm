@@ -40,11 +40,172 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
   bool isFavorite = false;
   List<AlarmDetails> alarms = [];
 
-  void _showCustomBottomSheet(BuildContext context, int index) async {
+  // void _showCustomBottomSheet(BuildContext context, int index) async {
+  //   TextEditingController alramnamecontroller =
+  //       TextEditingController(text: alarms[index].alarmName);
+  //   TextEditingController notescontroller =
+  //       TextEditingController(text: alarms[index].notes);
+  //
+  //   showModalBottomSheet(
+  //     context: context,
+  //     isScrollControlled: true,
+  //     builder: (BuildContext context) {
+  //       return Padding(
+  //         padding: EdgeInsets.only(
+  //           bottom: MediaQuery.of(context).viewInsets.bottom,
+  //         ),
+  //         child: Material(
+  //           elevation: 5,
+  //           borderRadius: BorderRadius.circular(30),
+  //           child: Container(
+  //
+  //             height: 450,
+  //             width: double.infinity,
+  //             decoration: BoxDecoration(
+  //               color: Colors.transparent,
+  //               border: Border.all(color: Colors.black12),
+  //               borderRadius: BorderRadius.circular(30),
+  //             ),
+  //
+  //
+  //             child: Column(
+  //               children: [
+  //                 SizedBox(height: 20),
+  //                 Row(
+  //                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //                   children: [
+  //                     Column(
+  //                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //                       children: [
+  //                         GestureDetector(
+  //                           onTap: () {
+  //                             Navigator.of(context)
+  //                                 .pop(); // Close the bottom sheet on cancel
+  //                           },
+  //                           child: Icon(Icons.close, size: 20),
+  //                         ),
+  //                         Text("Cancel"),
+  //                       ],
+  //                     ),
+  //                     FilledButton(
+  //                       onPressed: () async {
+  //                         setState(() {
+  //                           alarms[index].alarmName = alramnamecontroller.text;
+  //                           alarms[index].notes = notescontroller.text;
+  //                           alarms[index].locationRadius = radius;
+  //                         });
+  //
+  //                         saveData();
+  //                         loadData();
+  //                         Navigator.of(context).pop();
+  //                       },
+  //                       child: Text("Save"),
+  //                     ),
+  //                   ],
+  //                 ),
+  //                 SizedBox(height: 20),
+  //                 // Integrate the MeterCalculatorWidget
+  //                 Row(
+  //                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //                   children: [
+  //                     Column(
+  //                       children: [
+  //                         MeterCalculatorWidget(
+  //                           callback: updateradiusvalue,
+  //                         ),
+  //                       ],
+  //                     ),
+  //                   ],
+  //                 ),
+  //                 Column(
+  //                   crossAxisAlignment: CrossAxisAlignment.start,
+  //                   children: [
+  //                     Text(
+  //                       "Alarm Name:",
+  //                       style: TextStyle(
+  //                           fontWeight: FontWeight.w500,
+  //                           color: Colors.black,
+  //                           fontSize: 18),
+  //                     ),
+  //                     SizedBox(height: 10),
+  //                     Container(
+  //                       height: 50,
+  //                       width: 300,
+  //                       decoration: BoxDecoration(
+  //                         color: Colors.white,
+  //                         borderRadius: BorderRadius.circular(10),
+  //                         border: Border.all(color: Colors.black12),
+  //                       ),
+  //                       child: Padding(
+  //                         padding: const EdgeInsets.only(left: 10.0),
+  //                         child: TextField(
+  //                           controller: alramnamecontroller,
+  //                           style: TextStyle(
+  //                             fontSize: 16,
+  //                             color: Colors.black,
+  //                             fontWeight: FontWeight.w500,
+  //                           ),
+  //                           decoration: InputDecoration(
+  //                             hintText: "Alarm name",
+  //                             border: InputBorder.none,
+  //                             enabledBorder: InputBorder.none,
+  //                           ),
+  //                         ),
+  //                       ),
+  //                     ),
+  //                     SizedBox(height: 20),
+  //                     Text(
+  //                       "Notes:",
+  //                       style: TextStyle(
+  //                           fontWeight: FontWeight.w500,
+  //                           color: Colors.black,
+  //                           fontSize: 18),
+  //                     ),
+  //                     SizedBox(height: 10),
+  //                     Container(
+  //                       height: 50,
+  //                       width: 300,
+  //                       decoration: BoxDecoration(
+  //                         color: Colors.white,
+  //                         borderRadius: BorderRadius.circular(10),
+  //                         border: Border.all(color: Colors.black12),
+  //                       ),
+  //                       child: Padding(
+  //                         padding: const EdgeInsets.only(left: 10.0),
+  //                         child: TextField(
+  //                           controller: notescontroller,
+  //                           style: TextStyle(
+  //                             fontSize: 16,
+  //                             color: Colors.black,
+  //                             fontWeight: FontWeight.w500,
+  //                           ),
+  //                           decoration: InputDecoration(
+  //                             hintText: "Notes",
+  //                             border: InputBorder.none,
+  //                             enabledBorder: InputBorder.none,
+  //                           ),
+  //                         ),
+  //                       ),
+  //                     ),
+  //                     SizedBox(height: 20),
+  //                   ],
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
+  void _showCustomBottomSheet(BuildContext context, int index)async {
+    double height=MediaQuery.of(context).size.height;
+    double width=MediaQuery.of(context).size.width;
     TextEditingController alramnamecontroller =
-        TextEditingController(text: alarms[index].alarmName);
-    TextEditingController notescontroller =
-        TextEditingController(text: alarms[index].notes);
+          TextEditingController(text: alarms[index].alarmName);
+      TextEditingController notescontroller =
+          TextEditingController(text: alarms[index].notes);
+
 
     showModalBottomSheet(
       context: context,
@@ -54,151 +215,114 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
-          child: Material(
-            elevation: 5,
-            borderRadius: BorderRadius.circular(30),
-            child: Container(
+          child: Container(
 
-              height: 450,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                border: Border.all(color: Colors.black12),
-                borderRadius: BorderRadius.circular(30),
-              ),
+            height: height/2.29090,
+            width: double.infinity,
+
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+
+                    OutlinedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Call the saveAlarm function
+                      },
+                      child: Text("Cancel"),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 120.0),
+                      child: FilledButton(
+                                              onPressed: () async {
+                                                setState(() {
+                                                  alarms[index].alarmName = alramnamecontroller.text;
+                                                  alarms[index].notes = notescontroller.text;
+                                                  alarms[index].locationRadius = radius;
+                                                });
+
+                                                saveData();
+                                                loadData();
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: Text("Save"),
+                                            ),
+                    ),
 
 
-              child: Column(
-                children: [
-                  SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.of(context)
-                                  .pop(); // Close the bottom sheet on cancel
-                            },
-                            child: Icon(Icons.close, size: 20),
-                          ),
-                          Text("Cancel"),
-                        ],
-                      ),
-                      FilledButton(
-                        onPressed: () async {
-                          setState(() {
-                            alarms[index].alarmName = alramnamecontroller.text;
-                            alarms[index].notes = notescontroller.text;
-                            alarms[index].locationRadius = radius;
-                          });
+                  ],
+                ),
 
-                          saveData();
-                          loadData();
-                          Navigator.of(context).pop();
-                        },
-                        child: Text("Save"),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 20),
-                  // Integrate the MeterCalculatorWidget
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Column(
-                        children: [
-                          MeterCalculatorWidget(
-                            callback: updateradiusvalue,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Alarm Name:",
-                        style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black,
-                            fontSize: 18),
-                      ),
-                      SizedBox(height: 10),
-                      Container(
-                        height: 50,
-                        width: 300,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.black12),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 10.0),
-                          child: TextField(
-                            controller: alramnamecontroller,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            decoration: InputDecoration(
-                              hintText: "Alarm name",
-                              border: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                            ),
-                          ),
+                // Integrate the MeterCalculatorWidget
+                MeterCalculatorWidget(
+                  callback: updateradiusvalue,
+
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Alarm Name:", style: Theme.of(context).textTheme.titleMedium,),
+
+                    Container(
+                      height:height/ 15.12,
+                      width: width/1.2,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.black12),
+
+                      ),child: Padding(
+                      padding:  EdgeInsets.only(left: width/36),
+                      child: TextField(
+                        controller: alramnamecontroller,
+
+                        style: Theme.of(context).textTheme.bodyMedium,
+                        decoration: InputDecoration(
+                          hintText: "Alarm name",
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
                         ),
                       ),
-                      SizedBox(height: 20),
-                      Text(
-                        "Notes:",
-                        style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black,
-                            fontSize: 18),
-                      ),
-                      SizedBox(height: 10),
-                      Container(
-                        height: 50,
-                        width: 300,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.black12),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 10.0),
-                          child: TextField(
-                            controller: notescontroller,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            decoration: InputDecoration(
-                              hintText: "Notes",
-                              border: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                            ),
-                          ),
+                    ),
+                    ),
+
+
+                    Text("Notes:",style: Theme.of(context).textTheme.titleMedium,),
+
+                    Container(
+                      height: height/10.8,
+                      width:width/1.2,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.black12),
+
+                      ),child: Padding(
+                      padding:  EdgeInsets.only(left: width/36),
+                      child: TextField(
+                        controller: notescontroller,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                        decoration: InputDecoration(
+                          hintText: "Notes",
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
                         ),
                       ),
-                      SizedBox(height: 20),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                    ),
+
+                  ],
+                ),
+              ],
             ),
           ),
         );
       },
     );
   }
-
   double calculateDistance(LatLng point1, LatLng point2) {
     const double earthRadius = 6371000; // meters
     double lat1 = degreesToRadians(point1.latitude);
@@ -383,7 +507,6 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
   Uri(scheme: 'https', host: 'www.cylog.org', path: 'headers/');
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -630,7 +753,7 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton(
+         floatingActionButton: FloatingActionButton(
         child: Icon(CupertinoIcons.plus),
         onPressed: (){
           Navigator.of(context).push(

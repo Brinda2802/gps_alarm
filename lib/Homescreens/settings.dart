@@ -30,6 +30,8 @@ class _SettingsState extends State<Settings> {
       radius=value;
     });
   }
+
+
   List<String> ringtones = [
 
   ];
@@ -182,25 +184,53 @@ class _SettingsState extends State<Settings> {
       }
     }
   }
-  void _checkUserStatus() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool hasSetSettings = prefs.getBool('hasSetSettings') ?? false;
+  Future<void> _saveAllSettings() async {
+    await _selectedUnit;
+    await _saveSelectedRingtone(selectedRingtone!);
+    await _saveRadiusData();
 
-    if (hasSetSettings) {
-      // User has set settings before, navigate to MyAlarmsPage
-      Navigator.of(context).pushReplacement(
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('hasSetSettings', true);
+  }
+  void _handleSettingsSet() async {
+    if (_areAllFieldsFilled()) {
+      // Navigate to MyAlarmsPage only if all fields are filled
+      // and hasSetSettings is true
+      await _saveAllSettings();
+      Navigator.of(context).push(
         MaterialPageRoute(builder: (context) => MyAlarmsPage()),
       );
     } else {
-      // User is setting settings for the first time, stay on Settings page
-      // No need to navigate, user stays on Settings page
+      // Show popup if any fields are empty
+      showRequiredFieldsPopup();
     }
   }
-
-  void _handleSettingsSet() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool('hasSetSettings', true); // Set flag indicating settings have been set
+  void showRequiredFieldsPopup() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Required Fields"),
+          content: Text("Please fill in all the required fields."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the popup
+              },
+              child: Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
   }
+  bool _areAllFieldsFilled() {
+    return _selectedUnit != null &&
+        selectedRingtone != null &&
+        meterRadius != null &&
+        milesRadius != null;
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -212,18 +242,9 @@ class _SettingsState extends State<Settings> {
     _loadRingtones();
     // _buildRingtoneDropdown();
     _loadRadiusData();
-
-    // Set the release mode to keep the source after playback has completed.
-    // Start the player as soon as the app is displayed.
-    // WidgetsBinding.instance.addPostFrameCallback((_) async {
-    //   await _audioPlayer.setSource(AssetSource( "ringtone/$ringtones"));
-    //   await _audioPlayer.resume();
-    // });
-    // Load selected unit when the widget initializes
-
-
-
+    _handleSettingsSet();
   }
+
   void _saveSelectedUnit(String newValue) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('selectedUnit', newValue);
@@ -498,13 +519,10 @@ class _SettingsState extends State<Settings> {
               padding: const EdgeInsets.only(top: 50.0,left: 120),
               child: FilledButton(
                 onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context)=>MyAlarmsPage())
-                  );
-                   // Call the saveAlarm function
-                },
-                child: Text("Set"),
-              ),
+                  _handleSettingsSet();
+    },  child: Text("Set"),
+                // Call the saveAlarm functio
+                ),
             ),
           ],
         ),
