@@ -23,6 +23,7 @@ import 'Homescreens/settings.dart';
 import 'Track.dart';
 import 'Track.dart';
 import 'about page.dart';
+import 'main.dart';
 
 int id = 0;
 const int notificationId = 123;
@@ -92,7 +93,7 @@ class _TrackState extends State<Track> {
   double degreesToRadians(double degrees) {
     return degrees * math.pi / 180;
   }
-  // Calculate distance between two LatLng points
+  //Calculate distance between two LatLng points
   double calculateDistance(LatLng point1, LatLng point2) {
     const double earthRadius = 6371000; // meters
     double lat1 = degreesToRadians(point1.latitude);
@@ -109,6 +110,28 @@ class _TrackState extends State<Track> {
 
     return distance;
   }
+
+
+  // double calculateDistanceInKm(LatLng point1, LatLng point2) {
+  //   const double earthRadius = 6371000; // meters
+  //
+  //   double lat1 = degreesToRadians(point1.latitude);
+  //   double lat2 = degreesToRadians(point2.latitude);
+  //   double lon1 = degreesToRadians(point1.longitude);
+  //   double lon2 = degreesToRadians(point2.longitude);
+  //
+  //   double dLat = lat2 - lat1;
+  //   double dLon = lon2 - lon1;
+  //
+  //   double a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+  //       math.cos(lat1) * math.cos(lat2) * math.sin(dLon / 2) * math.sin(dLon / 2);
+  //   num c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
+  //   double distanceInMeters = earthRadius * c;
+  //
+  //   // Convert meters to kilometers and return the result
+  //   return distanceInMeters / 1000;
+  // }
+
   void checkAlarm() {
     // Check if current location is within any alarm radius
     if (currentLocation != null) {

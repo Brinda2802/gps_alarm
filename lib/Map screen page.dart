@@ -470,9 +470,8 @@ class _MyHomePageState extends State<MyHomePage> {
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
           child: Container(
-
             height: height/2.29090,
-            width: double.infinity,
+
 
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -829,8 +828,7 @@ mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           ],
         ),
         Container(
-          width:width/1.16129,
-
+        //  width:width/1.16129,
           child: Slider (
              // Adjust max value according to your requirement
             value: _radius,

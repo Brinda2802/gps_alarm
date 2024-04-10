@@ -421,10 +421,13 @@ class _SettingsState extends State<Settings> {
               value: _selectedUnit,
               onChanged: (newValue) {
                 setState(() {
-                  _selectedUnit = newValue; // Update the selected unit
-                  _isMetricSystem = newValue == 'Metric system (m/km)'; // Update the metric system flag
+                  _selectedUnit = newValue;
+                   // Update the selected unit
+                  // Update the metric system flag
                   _saveSelectedUnit(newValue!); // Save the selected unit
                 });
+
+                _isMetricSystem = newValue == 'Metric system (m/km)';
               },
               hint: Text('Select Unit'),
               style: Theme.of(context).textTheme.bodyMedium,
@@ -460,7 +463,6 @@ class _SettingsState extends State<Settings> {
             ),
             Container(
               child: Column(
-
                 children: [
                   // Visibility widget for the Meter slider
                   Visibility(
@@ -468,7 +470,15 @@ class _SettingsState extends State<Settings> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Radius in Meter', style: Theme.of(context).textTheme.bodyMedium,),
+                        Row(
+                          children: [
+                            Text('Radius in Meter', style: Theme.of(context).textTheme.bodyMedium,),
+                            SizedBox(
+                              width: 90,
+                            ),
+                            Text('Meters Radius: ${meterRadius.toStringAsFixed(_imperial ? 2:0)}', style: Theme.of(context).textTheme.bodyMedium,),
+                          ],
+                        ),
                         Slider(
                           min: 0,
                           max: 10000, // Adjust max value according to your requirement
@@ -480,7 +490,7 @@ class _SettingsState extends State<Settings> {
                             _saveRadiusData();
                           },
                         ),
-                        Text('Meters Radius: ${meterRadius.toStringAsFixed(_imperial ? 2:0)}', style: Theme.of(context).textTheme.bodyMedium,),
+
                         // Text('Meter Radius: ${meterRadius.toStringAsFixed(2)}', style: TextStyle(fontSize: 16)),
                       ],
                     ),
@@ -491,7 +501,15 @@ class _SettingsState extends State<Settings> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Radius in Miles', style: TextStyle(fontSize: 16)),
+                       Row(
+                         children: [
+                           Text('Radius in Miles', style: TextStyle(fontSize: 16)),
+                           Text('Miles Radius: ${milesRadius.toStringAsFixed(_imperial ? 2:0)}', style: Theme.of(context).textTheme.bodyMedium,),
+                         ],
+                       ),
+                        SizedBox(
+                          width: 90,
+                        ),
                         Slider(
                           min: 0,
                           max: 10, // Adjust max value according to your requirement
@@ -505,7 +523,7 @@ class _SettingsState extends State<Settings> {
                           },
                         ),
                         // Text(milesRadius.toStringAsFixed(_imperial ? 2:0)+' ${_imperial ? 'miles' : 'meters'}'),
-                        Text('Miles Radius: ${milesRadius.toStringAsFixed(_imperial ? 2:0)}', style: TextStyle(fontSize: 16)),
+                        //Text('Miles Radius: ${milesRadius.toStringAsFixed(_imperial ? 2:0)}', style: TextStyle(fontSize: 16)),
                       ],
                     ),
                   ),
@@ -516,7 +534,7 @@ class _SettingsState extends State<Settings> {
               height: 10,
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 50.0,left: 120),
+              padding:  EdgeInsets.only(top: 50.0,left: 120),
               child: FilledButton(
                 onPressed: () {
                   _handleSettingsSet();
