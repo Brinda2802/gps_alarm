@@ -473,6 +473,7 @@ Future<void> onStart(ServiceInstance service) async {
               final savedRingtone = prefs.getString('selectedRingtone') ?? "alarm6.mp3";
               print(savedRingtone);
               flutterLocalNotificationsPlugin.show(
+
                 notificationId,
                 alarm.alarmName,
                 'Reached your place',
@@ -483,6 +484,8 @@ Future<void> onStart(ServiceInstance service) async {
                     icon: 'ic_notification',
                     sound: RawResourceAndroidNotificationSound(savedRingtone.replaceAll(".mp3", "")),
                     priority: Priority.high,
+                    importance:Importance.max,
+                    ticker: 'ticker',
                     actions: [
                       // Dismiss action
                       AndroidNotificationAction(
@@ -494,8 +497,10 @@ Future<void> onStart(ServiceInstance service) async {
                         'stop_action',
                         'Stop',
                       ),
+
                       // Snooze action
-                    ],
+                 ],
+                    styleInformation: DefaultStyleInformation(true, true),
                   ),
                 ),
               );
@@ -551,8 +556,6 @@ class Splashscreen extends StatefulWidget {
 
 class _SplashscreenState extends State<Splashscreen> {
   // Simulate some initialization process (replace it with your actual initialization logic)
-
-
   @override
   void initState() {
     super.initState();

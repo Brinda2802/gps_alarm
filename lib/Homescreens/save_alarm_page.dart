@@ -323,26 +323,43 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
       },
     );
   }
-  double calculateDistance(LatLng point1, LatLng point2) {
-    const double earthRadius = 6371000; // meters
-    double lat1 = degreesToRadians(point1.latitude);
-    double lat2 = degreesToRadians(point2.latitude);
-    double lon1 = degreesToRadians(point1.longitude);
-    double lon2 = degreesToRadians(point2.longitude);
-    double dLat = lat2 - lat1;
-    double dLon = lon2 - lon1;
-
-    double a = math.sin(dLat / 2) * math.sin(dLat / 2) +
-        math.cos(lat1) *
-            math.cos(lat2) *
-            math.sin(dLon / 2) *
-            math.sin(dLon / 2);
-    double c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
-    double distance = earthRadius * c;
-
-    return distance / 1000;
-  }
-
+  // double calculateDistance(LatLng point1, LatLng point2) {
+  //   const double earthRadius = 6371000; // meters
+  //   double lat1 = degreesToRadians(point1.latitude);
+  //   double lat2 = degreesToRadians(point2.latitude);
+  //   double lon1 = degreesToRadians(point1.longitude);
+  //   double lon2 = degreesToRadians(point2.longitude);
+  //   double dLat = lat2 - lat1;
+  //   double dLon = lon2 - lon1;
+  //
+  //   double a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+  //       math.cos(lat1) *
+  //           math.cos(lat2) *
+  //           math.sin(dLon / 2) *
+  //           math.sin(dLon / 2);
+  //   double c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
+  //   double distance = earthRadius * c;
+  //
+  //   return distance / 1000;
+  // }
+  // double calculateDistanceInKm(LatLng point1, LatLng point2) {
+  //   const double earthRadius = 6371000; // meters
+  //
+  //   double lat1 = degreesToRadians(point1.latitude);
+  //   double lat2 = degreesToRadians(point2.latitude);
+  //   double lon1 = degreesToRadians(point1.longitude);
+  //   double lon2 = degreesToRadians(point2.longitude);
+  //
+  //   double dLat = lat2 - lat1;
+  //   double dLon = lon2 - lon1;
+  //
+  //   double a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+  //       math.cos(lat1) * math.cos(lat2) * math.sin(dLon / 2) * math.sin(dLon / 2);
+  //   num c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
+  //   double distanceInMeters = earthRadius * c;
+  //   // Convert meters to kilometers and return the result
+  //   return distanceInMeters / 1000;
+  // }
   @override
   void initState() {
     super.initState();
@@ -507,6 +524,8 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
   Uri(scheme: 'https', host: 'www.cylog.org', path: 'headers/');
   @override
   Widget build(BuildContext context) {
+    double height=MediaQuery.of(context).size.height;
+    double width=MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -520,7 +539,8 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
         selectedIndex: screenIndex,
         children: <Widget>[
           SizedBox(
-            height: 32,
+            //height: 32,
+            height:height/23.625,
           ),
           NavigationDrawerDestination(
 
@@ -589,12 +609,12 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
               ),
             ),
           ):Padding(
-        padding: const EdgeInsets.only(left: 8.0,right: 8),
+        padding:  EdgeInsets.only(left:width/45,right:width/45),
         child: ListView.separated(
           itemCount: alarms.length,
           separatorBuilder: (context, index) {
             return SizedBox(
-            height: 8,
+            height:height/94.5,
           );},
           itemBuilder: (context, index) {
             return GestureDetector(
@@ -678,26 +698,32 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
                                 ),
                                 Text(
                                   currentLocation != null
-                                      ? calculateDistance(
-                                      LatLng(currentLocation!.latitude,
-                                          currentLocation!.longitude),
-                                      LatLng(alarms[index].lat,
-                                          alarms[index].lng))
-                                      .toStringAsFixed(0)
-                                      : "3km",
-                                  style: TextStyle(
-                                    fontSize: 15,
-                            
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                                      ? (calculateDistance(
+                                      LatLng(currentLocation!.latitude, currentLocation!.longitude),
+                                       LatLng(alarms[index].lat, alarms[index].lng))
+                                      / 1000) // Divide by 1000 to convert meters to kilometers
+                                      .toStringAsFixed(0) // Adjust the precision as needed
+                                      : "3 km", // Default value if currentLocation is null
+                                  style: Theme.of(context).textTheme.bodyMedium,
                                 ),
+
+                                // Text(
+                                //   currentLocation != null
+                                //       ? calculateDistance(
+                                //       LatLng(currentLocation!.latitude,
+                                //           currentLocation!.longitude),
+                                //       LatLng(alarms[index].lat,
+                                //           alarms[index].lng))
+                                //       .toStringAsFixed(0)
+                                //       : "3km",
+                                //   style: TextStyle(
+                                //     fontSize: 15,
+                                //     fontWeight: FontWeight.w500,
+                                //   ),
+                                // ),
                                 Text(
                                   "km",
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    // color: Colors.green,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                                  style: Theme.of(context).textTheme.bodyMedium,
                                 ),
                               ],
                             ),

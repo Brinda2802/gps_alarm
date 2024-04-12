@@ -78,6 +78,8 @@ class _AboutState extends State<About> {
   @override
   int screenIndex=5;
   Widget build(BuildContext context) {
+    double height=MediaQuery.of(context).size.height;
+    double width=MediaQuery.of(context).size.width;
     final Uri toLaunch =
     Uri(scheme: 'https', host: 'www.google.com');
     return Scaffold(
@@ -172,7 +174,7 @@ class _AboutState extends State<About> {
               Text("However, here's a general idea of how you might use Naplarm based on the information provided Download and Install Naplarm: ",style: Theme.of(context).textTheme.titleMedium
               ),
                SizedBox(
-                 height: 40,
+                 height: height/18.9,
                ),
                Text(" 1.Set a location: Open the app and choose the desired destination for your map.\n \n 2.Pick Your Wake Up Style: Select a calming sound or vibration to wake you up gently at the end of your nap.\n  \n 3.Set Location-Based Reminder (Android Only): If you're using GPSalarm on Android and want a nap reminder based on your location,\nenable location services within the app and enter your destination.\n \n 4.For any remarks or support contact support@Qsyss.com",textAlign: TextAlign.left,
                  style: Theme.of(context).textTheme.bodyMedium,),
