@@ -1716,25 +1716,48 @@ class MeterCalculatorWidget extends StatefulWidget {
 class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
   double _radius = 200;
   bool _imperial = false;
+  double meterRadius = 100; // Initial value for meter radius
+  double milesRadius = 0.31;
 
   @override
   void initState() {
     _loadSelectedUnit();
+    _loadRadiusData();
     super.initState();
   }
-
+  Future<void> _loadRadiusData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      meterRadius = prefs.getDouble('meterRadius') ?? 0.0;
+      milesRadius = prefs.getDouble('milesRadius') ?? 0.0;
+    });
+  }
+  // Future<void> _loadSelectedUnit() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   String? selectedUnit = prefs.getString('selectedUnit');
+  //   double meterdefault = prefs.getDouble('meterRadius')?? 2000;
+  //   double milesdefault = prefs.getDouble('milesRadius')?? 1.04;
+  //   print("metersdefault:" +meterdefault.toString());
+  //   print("milesdefault:" +milesdefault.toString());
+  //   _loadRadiusData();
+  //   setState(() {
+  //     _imperial = (selectedUnit == 'Imperial system (mi/ft)');
+  //     _radius = _imperial ? milesdefault : meterdefault;
+  //   });
+  // }
   Future<void> _loadSelectedUnit() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? selectedUnit = prefs.getString('selectedUnit');
-    double meterdefault = prefs.getDouble('meterRadius')?? 2000;
-    double milesdefault = prefs.getDouble('milesRadius')?? 1.04;
-    print(meterdefault);
-    print(milesdefault);
+    double meterdefault = prefs.getDouble('meterRadius') ?? 2000;
+    double milesdefault = prefs.getDouble('milesRadius') ?? 1.04;
+    print("metersdefault:" + meterdefault.toString());
+    print("milesdefault:" + milesdefault.toString());
     setState(() {
       _imperial = (selectedUnit == 'Imperial system (mi/ft)');
       _radius = _imperial ? milesdefault : meterdefault;
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -1749,8 +1772,6 @@ class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
               'Radius',
               style: Theme.of(context).textTheme.titleMedium,
             ),
-
-
             Padding(
               padding:  EdgeInsets.only(left:width/2.5714),
               child:
@@ -1762,21 +1783,22 @@ class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
             ),
           ],
         ),
-
         Container(
           width:width/1.16129,
           child: Slider (
             // Adjust max value according to your requirement
             value: _radius,
             divisions: 100,
-            min: _imperial ? 0.05 : 50,
+            min: _imperial ? 0.10 : 0.10,
             max: _imperial ? 2.00 : 3000,
             onChanged: (value) {
               print("metercalculatedvalue:"+value.toString());
               setState(() {
                 _radius = double.parse(value.toStringAsFixed(2));
+                print("Radius:"+_radius.toString());
               });
               widget.callback(_imperial? (value * 1609.34):value);
+              print("callback:"+widget.callback.toString());
             },
           ),
         ),
