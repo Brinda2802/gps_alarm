@@ -364,6 +364,7 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
   void initState() {
     super.initState();
     loadData();
+    saveData();
   }
   // Future<void> sendEmail() async {
   //   final email = Email(
@@ -408,7 +409,6 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
       subject: 'feedback',
       recipients: ['brindhakarthi02@gmail.com'],
     );
-
     try {
       await FlutterEmailSender.send(email);
       // Your email sending code using mailer or flutter_email_sender
@@ -466,7 +466,7 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
     prefs.setStringList(
         'alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
 
-    prefs.reload();
+    //prefs.reload();
   }
   int screenIndex=0;
   Future<void> _launchInBrowser(Uri url) async {
@@ -506,18 +506,14 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
         );
         break;
         case 4:
-
           _launchInBrowser(toLaunch);
-
-
-        break;
+          break;
       case 5:
 
         Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => About()));
 
         break;
-
     }
   }
   final Uri toLaunch =
@@ -608,7 +604,8 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
                 ],
               ),
             ),
-          ):Padding(
+          ):
+      Padding(
         padding:  EdgeInsets.only(left:width/45,right:width/45),
         child: ListView.separated(
           itemCount: alarms.length,
@@ -644,7 +641,6 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
                           Switch(
                             // This bool value toggles the switch.
                             value: alarms[index].isEnabled,
-
                             onChanged: (value) {
                               setState(() {
                                 alarms[index].isEnabled = value;
@@ -707,20 +703,7 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
                                   style: Theme.of(context).textTheme.bodyMedium,
                                 ),
 
-                                // Text(
-                                //   currentLocation != null
-                                //       ? calculateDistance(
-                                //       LatLng(currentLocation!.latitude,
-                                //           currentLocation!.longitude),
-                                //       LatLng(alarms[index].lat,
-                                //           alarms[index].lng))
-                                //       .toStringAsFixed(0)
-                                //       : "3km",
-                                //   style: TextStyle(
-                                //     fontSize: 15,
-                                //     fontWeight: FontWeight.w500,
-                                //   ),
-                                // ),
+
                                 Text(
                                   "km",
                                   style: Theme.of(context).textTheme.bodyMedium,

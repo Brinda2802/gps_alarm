@@ -547,7 +547,7 @@ class _TrackState extends State<Track> {
       await mapController!.animateCamera(
         CameraUpdate.newLatLngZoom(
           LatLng(currentLocation!.latitude!, currentLocation!.longitude!),
-          15.0, // Adjust zoom level as needed
+          25.0, // Adjust zoom level as needed
         ),
       );
     }

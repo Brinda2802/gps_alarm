@@ -1658,6 +1658,10 @@ class _SettingsState extends State<Settings> {
                   ],
                 ),
               ),
+              // SizedBox(
+              //   height: height/75.6,
+              // ),
+              Text("The Minimum value must exceed 0.10",style: Theme.of(context).textTheme.bodySmall,),
               SizedBox(
                 height: height/75.6,
               ),
