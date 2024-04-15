@@ -1115,8 +1115,8 @@ class _SettingsState extends State<Settings> {
   late  final AudioPlayer _audioPlayer = AudioPlayer();
   bool _isMetricSystem = true;
   double radius=0;
-  double meterRadius = 100; // Initial value for meter radius
-  double milesRadius = 0.31;
+  double meterRadius = 0.1; // Initial value for meter radius
+  double milesRadius = 0.1;
   updateradiusvalue(value){
     setState(() {
       radius=value;
@@ -1174,7 +1174,6 @@ class _SettingsState extends State<Settings> {
       value: selectedRingtone,
       icon: const Icon(Icons.arrow_drop_down),
       isExpanded: true,
-
       items: ringtones.map((ringtone) => DropdownMenuItem<String>(
         value: ringtone,
         child: Text(ringtone.split('/').last),
@@ -1346,7 +1345,6 @@ class _SettingsState extends State<Settings> {
   }
   Future _loadSelectedUnit() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
     setState(() {
       _selectedUnit = prefs.getString('selectedUnit');
       _imperial=(_selectedUnit == 'Imperial system (mi/ft)');
@@ -1356,13 +1354,13 @@ class _SettingsState extends State<Settings> {
   Future<void> _loadRadiusData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      meterRadius = prefs.getDouble('meterRadius') ?? 0.0;
-      milesRadius = prefs.getDouble('milesRadius') ?? 0.0;
+      meterRadius = (prefs.getDouble('meterRadius') ?? 100) / 1000;
+      milesRadius = prefs.getDouble('milesRadius') ?? 0.10;
     });
   }
   Future<void> _saveRadiusData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setDouble('meterRadius', meterRadius);
+    await prefs.setDouble('meterRadius', meterRadius*1000);
     await prefs.setDouble('milesRadius', milesRadius);
 
   }
@@ -1602,13 +1600,14 @@ class _SettingsState extends State<Settings> {
                               SizedBox(
                                 width: width/2.1176470,
                               ),
-                              Text('${(meterRadius/1000).toStringAsFixed(_imperial ? 2:2)}', style: Theme.of(context).textTheme.bodyMedium,),
+                              Text('${(meterRadius).toStringAsFixed(_imperial ? 2:2)}', style: Theme.of(context).textTheme.bodyMedium,),
                               Text("km"),
                             ],
                           ),
                           Slider(
-                            min: 0,
-                            max: 3000, // Adjust max value according to your requirement
+                            divisions: 10,
+                            min: 0.1,
+                            max: 3, // Adjust max value according to your requirement
                             value: meterRadius,
                             onChanged: (double value) {
                               setState(() {
@@ -1640,13 +1639,14 @@ class _SettingsState extends State<Settings> {
                             ],
                           ),
                           Slider(
-                            min: 0,
+                            divisions: 10,
+                            min: 0.10,
                             max: 2, // Adjust max value according to your requirement
                             value: milesRadius,
                             onChanged: (double value) {
                               setState(() {
                                 milesRadius = double.parse(value.toStringAsFixed(2));
-        
+
                               });
                               _saveRadiusData();
                             },

@@ -988,6 +988,8 @@ class _MyHomePageState extends State<MyHomePage> {
     double meterdefault = prefs.getDouble('meterRadius') ?? 2000;
     double milesdefault = prefs.getDouble('milesRadius') ?? 1.04;
     setState(() {
+      meterRadius = prefs.getDouble('meterRadius') ?? 0.0;
+      milesRadius = prefs.getDouble('milesRadius') ?? 0.0;
       radius = (prefs.getString('selectedUnit') == 'Imperial system (mi/ft)') ? milesdefault : meterdefault;
     });
   }
@@ -1719,8 +1721,7 @@ class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
   double _radius = 200;
   bool _imperial = false;
   double meterRadius = 100; // Initial value for meter radius
-  double milesRadius = 0.31;
-
+  double milesRadius = 0.10;
   @override
   void initState() {
     _loadSelectedUnit();
@@ -1776,7 +1777,7 @@ class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
             // Adjust max value according to your requirement
             value: _radius,
             divisions: 100,
-            min: _imperial ? 0.10 : 0.10,
+            min: _imperial ? milesRadius: meterRadius,
             max: _imperial ? 2.00 : 3000,
             onChanged: (value) {
                 widget.callback(_imperial? (value * 1609.34):value);
