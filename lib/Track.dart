@@ -270,8 +270,6 @@ class _TrackState extends State<Track> {
           },
         ));
         print("locationradius:" +widget.alarm!.locationRadius.toString());
-
-
         // Add circle for alarm
         _circles.add(Circle(
           circleId: CircleId(widget.alarm!.id), // Use the same ID for the circle
@@ -515,7 +513,7 @@ class _TrackState extends State<Track> {
     );
   }
   void _startLocationUpdates() {
-    // Listen for location changes
+    // Listen for location cha
     _locationService.onLocationChanged.listen((location.LocationData newLocation) async {
       // Handle location updates
       // Update UI, trigger actions, etc.
@@ -686,8 +684,7 @@ class _TrackState extends State<Track> {
       ),
 body:  Stack(
   children: [
-
-  GoogleMap(
+    GoogleMap(
     circles: _circles,
     zoomGesturesEnabled: true,
     mapType: MapType.normal,
@@ -719,7 +716,6 @@ body:  Stack(
       right: 24,bottom: 120,
       // padding:  EdgeInsets.only(top:height/1.68,left: 280),
       child:IconButton.filledTonal(
-
         onPressed: _goToCurrentLocation,
         icon: Icon(Icons.my_location),
         // child: Icon(Icons.my_location),
@@ -756,9 +752,6 @@ body:  Stack(
           onPressed: () { _scaffoldKey.currentState?.openDrawer(); }, icon: Icon(Icons.menu),)),
   ],
 ),
-
-
-
 
     );
 

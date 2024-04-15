@@ -985,9 +985,10 @@ class _MyHomePageState extends State<MyHomePage> {
   double milesRadius = 0.31;
   Future<void> _loadRadiusData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    double meterdefault = prefs.getDouble('meterRadius') ?? 2000;
+    double milesdefault = prefs.getDouble('milesRadius') ?? 1.04;
     setState(() {
-      meterRadius = prefs.getDouble('meterRadius') ?? 0.0;
-      milesRadius = prefs.getDouble('milesRadius') ?? 0.0;
+      radius = (prefs.getString('selectedUnit') == 'Imperial system (mi/ft)') ? milesdefault : meterdefault;
     });
   }
 
@@ -1011,9 +1012,10 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
   updateradiusvalue(value){
-    print("value:"+value.toString());
+    print("updatevalue:"+value.toString());
     setState(() {
       radius=value;
+      print("updatevalue:"+value.toString());
     });
   }
   bool _hasCallSupport = false;
@@ -1722,7 +1724,7 @@ class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
   @override
   void initState() {
     _loadSelectedUnit();
-    _loadRadiusData();
+    // _loadRadiusData();
     super.initState();
   }
   Future<void> _loadRadiusData() async {
@@ -1732,19 +1734,6 @@ class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
       milesRadius = prefs.getDouble('milesRadius') ?? 0.0;
     });
   }
-  // Future<void> _loadSelectedUnit() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   String? selectedUnit = prefs.getString('selectedUnit');
-  //   double meterdefault = prefs.getDouble('meterRadius')?? 2000;
-  //   double milesdefault = prefs.getDouble('milesRadius')?? 1.04;
-  //   print("metersdefault:" +meterdefault.toString());
-  //   print("milesdefault:" +milesdefault.toString());
-  //   _loadRadiusData();
-  //   setState(() {
-  //     _imperial = (selectedUnit == 'Imperial system (mi/ft)');
-  //     _radius = _imperial ? milesdefault : meterdefault;
-  //   });
-  // }
   Future<void> _loadSelectedUnit() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? selectedUnit = prefs.getString('selectedUnit');
@@ -1757,8 +1746,6 @@ class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
       _radius = _imperial ? milesdefault : meterdefault;
     });
   }
-
-
   @override
   Widget build(BuildContext context) {
     double height=MediaQuery.of(context).size.height;
@@ -1792,20 +1779,22 @@ class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
             min: _imperial ? 0.10 : 0.10,
             max: _imperial ? 2.00 : 3000,
             onChanged: (value) {
+                widget.callback(_imperial? (value * 1609.34):value);
+                print("kmvalue:"+value.toString());
               print("metercalculatedvalue:"+value.toString());
               setState(() {
                 _radius = double.parse(value.toStringAsFixed(2));
                 print("Radius:"+_radius.toString());
               });
-              widget.callback(_imperial? (value * 1609.34):value);
-              print("callback:"+widget.callback.toString());
+              // widget.callback(_imperial ? (value * 1609.34):value);
+                //  print("callback:"+widget.callback.toString());
             },
           ),
         ),
       ],
     );
   }
-}
+ }
 
 //0.05
 //5.05
