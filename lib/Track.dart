@@ -545,7 +545,7 @@ class _TrackState extends State<Track> {
       await mapController!.animateCamera(
         CameraUpdate.newLatLngZoom(
           LatLng(currentLocation!.latitude!, currentLocation!.longitude!),
-          25.0, // Adjust zoom level as needed
+          3000.0, // Adjust zoom level as needed
         ),
       );
     }
@@ -691,7 +691,7 @@ body:  Stack(
     myLocationButtonEnabled: false,
     zoomControlsEnabled: false,
     initialCameraPosition: CameraPosition(
-      zoom: 20,
+      zoom: 300,
       target: _defaultLocation,
     ),
     onMapCreated: (GoogleMapController controller) {
