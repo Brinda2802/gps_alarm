@@ -1148,6 +1148,7 @@ class _MyHomePageState extends State<MyHomePage> {
       13.067439, 80.237617);
   LatLng? _target = null;
   bool _handletap = false;
+  bool _isLoading = true;
   TextEditingController notescontroller = TextEditingController();
   // Initialize the TextEditingController with the default value
   TextEditingController alramnamecontroller = TextEditingController(text: "Welcome");
@@ -1167,41 +1168,31 @@ class _MyHomePageState extends State<MyHomePage> {
       case 0: // Alarm List
         Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => MyAlarmsPage()));
-        // Replace with your AlarmListPage widget
         break;
       case 1: // Alarm List
         Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => MyHomePage()));
-
-        // Replace with your AlarmListPage widget
         break;
-
-      case 2: // Saved Alarms
+      case 2:
         Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => Settings())); // Replace with your SavedAlarmsPage widget
+            MaterialPageRoute(builder: (context) => Settings()));
         break;
       case 3:
         final RenderBox box = context.findRenderObject() as RenderBox;
         Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
         Share.share(
-          'Check out my awesome app: ! Download it from the app store: ',
+          'Check out my awesome app! Download it from the app store:',
           subject: 'Share this amazing app!',
           sharePositionOrigin: dummyRect,
         );
         break;
       case 4:
-
         _launchInBrowser(toLaunch);
-
-
         break;
       case 5:
-
         Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => About()));
-
         break;
-
     }
   }
   @override
@@ -1273,6 +1264,9 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Stack(
         children: [
+          Center(
+            child: CircularProgressIndicator(), // Adjust style as needed
+          ),
           GoogleMap(
 
 
@@ -1285,6 +1279,9 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             onMapCreated: (GoogleMapController controller) {
               mapController = controller;
+              setState(() {
+                _isLoading = false;
+              });
             },
             markers: _markers,
             onLongPress: _handleTap,
@@ -1301,6 +1298,12 @@ class _MyHomePageState extends State<MyHomePage> {
               });
             },
 
+          ),
+          Visibility(
+            visible: _isLoading,
+            child: Center(
+              child: CircularProgressIndicator(), // Adjust style as needed
+            ),
           ),
           Positioned(
             top: 50,
@@ -1358,7 +1361,8 @@ class _MyHomePageState extends State<MyHomePage> {
           Positioned(
               top: 50,left: 15,
               child: IconButton(
-                onPressed: () { _scaffoldKey.currentState?.openDrawer(); }, icon: Icon(Icons.menu),)),
+                onPressed: () {
+                  _scaffoldKey.currentState?.openDrawer(); }, icon: Icon(Icons.menu),)),
 
         ],
       ),
@@ -1426,23 +1430,12 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: Text("Set"),
                       ),
                     ),
-
-                    // ElevatedButton(
-                    //   onPressed: () {
-                    //     // Add your start logic here
-                    //   },
-                    //   style: ElevatedButton.styleFrom(
-                    //     backgroundColor: Color(0xffFFEF9A9A),
-                    //   ),
-                    //   child: Text('Start'),
-                    // ),
                   ],
                 ),
 
                 // Integrate the MeterCalculatorWidget
                 MeterCalculatorWidget(
                   callback: updateradiusvalue,
-
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

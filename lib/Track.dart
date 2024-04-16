@@ -245,11 +245,13 @@ class _TrackState extends State<Track> {
       }
 
       if (widget.alarm != null) {
+        AlarmDetails alarmDetails = alarms.firstWhere((element) => element.id == widget.alarm!.id);
+
         // Add marker for alarm
         _markers.add(Marker(
-          markerId: MarkerId( widget.alarm!.id), // Use the same ID for the marker
+          markerId: MarkerId( alarmDetails.id), // Use the same ID for the marker
           icon: customIcon,
-          position: LatLng(widget.alarm!.lat, widget.alarm!.lng),
+          position: LatLng(alarmDetails.lat, alarmDetails.lng),
           draggable: true, // Enable marker dragging
           onDragEnd: (newPosition) async {
             setState(() {
@@ -272,9 +274,9 @@ class _TrackState extends State<Track> {
         print("locationradius:" +widget.alarm!.locationRadius.toString());
         // Add circle for alarm
         _circles.add(Circle(
-          circleId: CircleId(widget.alarm!.id), // Use the same ID for the circle
-          center: LatLng(widget.alarm!.lat, widget.alarm!.lng),
-          radius: widget.alarm!.locationRadius, // Set your desired radius in meters
+          circleId: CircleId(alarmDetails.id), // Use the same ID for the circle
+          center: LatLng(alarmDetails.lat, alarmDetails.lng),
+          radius: alarmDetails.locationRadius, // Set your desired radius in meters
           fillColor: Colors.blue.withOpacity(0.3),
           strokeColor: Colors.blue,
           strokeWidth: 2,
@@ -301,7 +303,7 @@ class _TrackState extends State<Track> {
               alarms.map((alarm) => alarm.toJson()).toList();
               await prefs.setStringList(
                   'alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
-              await loadData();
+             await loadData();
               await markLocation();
             },
           )),
@@ -326,13 +328,15 @@ class _TrackState extends State<Track> {
     print("alarms");
     print(alarmsJson);
 
-    if (alarmsJson != null) {
-      alarms = alarmsJson.map((json) => AlarmDetails.fromJson(jsonDecode(json))).toList();
-    } else {
-      alarms = [];
-    }
 
-    setState(() {});
+
+    setState(() {
+      if (alarmsJson != null) {
+        alarms = alarmsJson.map((json) => AlarmDetails.fromJson(jsonDecode(json))).toList();
+      } else {
+        alarms = [];
+      }
+    });
   }
   Future<void> _isAndroidPermissionGranted() async {
     if (Platform.isAndroid) {
@@ -467,12 +471,10 @@ class _TrackState extends State<Track> {
         // Animate camera to fit both markers with some padding
         double padding = 0.05 ; // Adjust padding as needed
         CameraUpdate cameraUpdate = CameraUpdate.newLatLngBounds(
-          padLatLngBounds(bounds,3),padding
+          padLatLngBounds(bounds,0.20),padding
         );
-
         await mapController!.animateCamera(cameraUpdate);
       }
-
       print("alarm ring");
       checkAlarm();
     });
@@ -611,6 +613,8 @@ class _TrackState extends State<Track> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
+    double height=MediaQuery.of(context).size.height;
+    double width=MediaQuery.of(context).size.width;
     return Scaffold(
       key: _scaffoldKey,
       drawer: NavigationDrawer(
@@ -620,7 +624,8 @@ class _TrackState extends State<Track> {
         selectedIndex: screenIndex,
         children: <Widget>[
           SizedBox(
-            height: 32,
+            //height: 32,
+            height:height/23.625,
           ),
           NavigationDrawerDestination(
 
@@ -631,11 +636,6 @@ class _TrackState extends State<Track> {
           NavigationDrawerDestination(
             icon: Icon(Icons.alarm),
             label: Text('Set a Alarm'),
-            // Set selected based on screenIndex
-          ),
-          NavigationDrawerDestination(
-            icon: Icon(Icons.location_on_outlined),
-            label: Text('Alarm List'),
             // Set selected based on screenIndex
           ),
           NavigationDrawerDestination(
@@ -655,11 +655,6 @@ class _TrackState extends State<Track> {
             icon: Icon(Icons.share_outlined),
             label: Text('Share'),
 
-            // Set selected based on screenIndex
-          ),
-          NavigationDrawerDestination(
-            icon: Icon(Icons.feedback_outlined),
-            label: Text('Feedback'),
             // Set selected based on screenIndex
           ),
           NavigationDrawerDestination(
@@ -691,7 +686,7 @@ body:  Stack(
     myLocationButtonEnabled: false,
     zoomControlsEnabled: false,
     initialCameraPosition: CameraPosition(
-      zoom: 300,
+      zoom: 30,
       target: _defaultLocation,
     ),
     onMapCreated: (GoogleMapController controller) {

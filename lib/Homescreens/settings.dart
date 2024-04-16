@@ -1276,52 +1276,40 @@ class _SettingsState extends State<Settings> {
     }
   }
   Future<void> _saveAllSettings() async {
-    await _selectedUnit;
-    await _saveSelectedRingtone(selectedRingtone!);
+    // await _selectedUnit;
+    // await _saveSelectedRingtone(selectedRingtone!);
     await _saveRadiusData();
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('hasSetSettings', true);
   }
   void _handleSettingsSet() async {
-    if (_areAllFieldsFilled()) {
+    final prefs = await SharedPreferences.getInstance();
+    final hasSetSettings = prefs.getBool('hasSetSettings') ?? false; // Check if settings have been set
+
+    if ( !hasSetSettings) {
       _audioPlayer.stop();
-      // Navigate to MyAlarmsPage only if all fields are filled
-      // and hasSetSettings is true
       await _saveAllSettings();
       Navigator.of(context).push(
         MaterialPageRoute(builder: (context) => MyAlarmsPage()),
       );
     } else {
-      // Show popup if any fields are empty
-      showRequiredFieldsPopup();
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => Settings()),
+      );
     }
   }
-  void showRequiredFieldsPopup() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text("Required Fields"),
-          content: Text("Please fill in all the required fields."),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the popup
-              },
-              child: Text("OK"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-  bool _areAllFieldsFilled() {
-    return _selectedUnit != null &&
-        selectedRingtone != null &&
-        meterRadius != null &&
-        milesRadius != null;
-  }
+
+
+
+
+
+
+
+
+
+
+
 
   @override
   void dispose() {
@@ -1334,7 +1322,7 @@ class _SettingsState extends State<Settings> {
     _loadRingtones();
     // _buildRingtoneDropdown();
     _loadRadiusData();
-    _handleSettingsSet();
+    // _handleSettingsSet();
   }
   void _saveSelectedUnit(String newValue) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -1376,48 +1364,82 @@ class _SettingsState extends State<Settings> {
   int screenIndex=2;
   final Uri toLaunch =
   Uri(scheme: 'https', host: 'www.cylog.org', path: 'headers/');
+  // void handleScreenChanged(int index) {
+  //   switch (index) {
+  //     case 0: // Alarm List
+  //       Navigator.of(context).push(
+  //           MaterialPageRoute(builder: (context) => MyAlarmsPage()));
+  //       // Replace with your AlarmListPage widget
+  //       break;
+  //     case 1: // Alarm List
+  //       Navigator.of(context).push(
+  //           MaterialPageRoute(builder: (context) => MyHomePage()));
+  //
+  //       // Replace with your AlarmListPage widget
+  //       break;
+  //
+  //     case 2:
+  //
+  //       Navigator.of(context).pushReplacement(
+  //           MaterialPageRoute(builder: (context) => Settings())); // Replace with your SavedAlarmsPage widget
+  //       break;
+  //     case 3:
+  //       final RenderBox box = context.findRenderObject() as RenderBox;
+  //       Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
+  //       Share.share(
+  //         'Check out my awesome app: ! Download it from the app store: ',
+  //         subject: 'Share this amazing app!',
+  //         sharePositionOrigin: dummyRect,
+  //       );
+  //       break;
+  //     case 4:
+  //
+  //       _launchInBrowser(toLaunch);
+  //
+  //
+  //       break;
+  //     case 5:
+  //
+  //       Navigator.of(context).push(
+  //           MaterialPageRoute(builder: (context) => About()));
+  //
+  //       break;
+  //
+  //   }
+  // }
   void handleScreenChanged(int index) {
     switch (index) {
       case 0: // Alarm List
         Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => MyAlarmsPage()));
-        // Replace with your AlarmListPage widget
         break;
       case 1: // Alarm List
         Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => MyHomePage()));
-
-        // Replace with your AlarmListPage widget
         break;
-
-      case 2: // Saved Alarms
+      case 2:
         Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => Settings())); // Replace with your SavedAlarmsPage widget
+            MaterialPageRoute(builder: (context) => Settings()));
         break;
       case 3:
         final RenderBox box = context.findRenderObject() as RenderBox;
         Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
         Share.share(
-          'Check out my awesome app: ! Download it from the app store: ',
+          'Check out my awesome app! Download it from the app store:',
           subject: 'Share this amazing app!',
           sharePositionOrigin: dummyRect,
         );
         break;
       case 4:
-
         _launchInBrowser(toLaunch);
-
-
         break;
       case 5:
-
         Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => About()));
-
         break;
-
     }
   }
+
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   bool _imperial=false;
@@ -1515,7 +1537,7 @@ class _SettingsState extends State<Settings> {
                 onChanged: (newValue) {
                   setState(() {
                     _selectedUnit = newValue;
-        
+
                   });
                    _loadSelectedUnit();
                   _saveSelectedUnit(newValue!);
@@ -1541,7 +1563,7 @@ class _SettingsState extends State<Settings> {
         value: selectedRingtone,
         icon: const Icon(Icons.arrow_drop_down),
         isExpanded: true,
-        
+
         items: ringtones.map((ringtone) => DropdownMenuItem<String>(
           value: ringtone,
           child: Text(ringtone.split('/').last),
@@ -1554,7 +1576,7 @@ class _SettingsState extends State<Settings> {
             });
             _saveSelectedRingtone(value);
             _playRingtone(selectedRingtone!);
-        
+
             // await flutterLocalNotificationsPlugin
             //     .resolvePlatformSpecificImplementation<
             //     AndroidFlutterLocalNotificationsPlugin>()
@@ -1616,7 +1638,7 @@ class _SettingsState extends State<Settings> {
                               _saveRadiusData();
                             },
                           ),
-        
+
                           // Text('Meter Radius: ${meterRadius.toStringAsFixed(2)}', style: TextStyle(fontSize: 16)),
                         ],
                       ),
@@ -1634,7 +1656,7 @@ class _SettingsState extends State<Settings> {
                                 width:width/2.4,
                               ),
                               Text('${milesRadius.toStringAsFixed(_imperial ? 2:2)}', style: Theme.of(context).textTheme.bodyMedium,),
-        
+
                               Text("miles"),
                             ],
                           ),
@@ -1646,7 +1668,6 @@ class _SettingsState extends State<Settings> {
                             onChanged: (double value) {
                               setState(() {
                                 milesRadius = double.parse(value.toStringAsFixed(2));
-
                               });
                               _saveRadiusData();
                             },

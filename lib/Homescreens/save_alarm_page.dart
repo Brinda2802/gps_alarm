@@ -483,36 +483,30 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
       case 0: // Alarm List
         Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => MyAlarmsPage()));
-        // Replace with your AlarmListPage widget
         break;
       case 1: // Alarm List
         Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => MyHomePage()));
-
-        // Replace with your AlarmListPage widget
         break;
-
-      case 2: // Saved Alarms
+      case 2:
         Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => Settings())); // Replace with your SavedAlarmsPage widget
+            MaterialPageRoute(builder: (context) => Settings()));
         break;
       case 3:
         final RenderBox box = context.findRenderObject() as RenderBox;
         Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
         Share.share(
-          'Check out my awesome app: ! Download it from the app store: ',
+          'Check out my awesome app! Download it from the app store:',
           subject: 'Share this amazing app!',
           sharePositionOrigin: dummyRect,
         );
         break;
-        case 4:
-          _launchInBrowser(toLaunch);
-          break;
+      case 4:
+        _launchInBrowser(toLaunch);
+        break;
       case 5:
-
         Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => About()));
-
         break;
     }
   }
@@ -528,6 +522,66 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
         // backgroundColor: Color(0xffFFEF9A9A),
         title: Text("GPS Alarm" ),
       ),
+      // drawer: NavigationDrawer(
+      //   onDestinationSelected: (int index) {
+      //     handleScreenChanged(index); // Assuming you have a handleScreenChanged function
+      //   },
+      //   selectedIndex: screenIndex,
+      //   children: <Widget>[
+      //     SizedBox(
+      //       //height: 32,
+      //       height:height/23.625,
+      //     ),
+      //     NavigationDrawerDestination(
+      //
+      //       icon: Icon(Icons.alarm_on_outlined), // Adjust size as needed
+      //       label: Text('Saved Alarms'),
+      //       // Set selected based on screenIndex
+      //     ),
+      //     NavigationDrawerDestination(
+      //       icon: Icon(Icons.alarm),
+      //       label: Text('Set a Alarm'),
+      //       // Set selected based on screenIndex
+      //     ),
+      //     NavigationDrawerDestination(
+      //       icon: Icon(Icons.settings_outlined),
+      //       label: Text('Settings'),
+      //       // Set selected based on screenIndex
+      //     ),
+      //     Divider(),
+      //     Padding(
+      //       padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
+      //       child: Text(
+      //         'Communicate', // Assuming this is the header
+      //         style: Theme.of(context).textTheme.titleSmall,
+      //       ),
+      //     ),
+      //     NavigationDrawerDestination(
+      //       icon: Icon(Icons.share_outlined),
+      //       label: Text('Share'),
+      //
+      //       // Set selected based on screenIndex
+      //     ),
+      //     NavigationDrawerDestination(
+      //       icon: Icon(Icons.rate_review_outlined),
+      //       label: Text('Rate/Review'),
+      //       // Set selected based on screenIndex
+      //     ),
+      //     Divider(),
+      //     Padding(
+      //       padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
+      //       child: Text(
+      //         'App', // Assuming this is the header
+      //         style: Theme.of(context).textTheme.titleSmall,
+      //       ),
+      //     ),
+      //     NavigationDrawerDestination(
+      //       icon: Icon(Icons.error_outline_outlined),
+      //       label: Text('About'),
+      //       // Set selected based on screenIndex
+      //     ),
+      //   ],
+      // ),
       drawer: NavigationDrawer(
         onDestinationSelected: (int index) {
           handleScreenChanged(index); // Assuming you have a handleScreenChanged function
@@ -535,7 +589,6 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
         selectedIndex: screenIndex,
         children: <Widget>[
           SizedBox(
-            //height: 32,
             height:height/23.625,
           ),
           NavigationDrawerDestination(
@@ -575,7 +628,7 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
           ),
           Divider(),
           Padding(
-            padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
+            padding:  EdgeInsets.fromLTRB(28, 16, 16, 10),
             child: Text(
               'App', // Assuming this is the header
               style: Theme.of(context).textTheme.titleSmall,
@@ -733,14 +786,17 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
                              );
                              }, icon: Icon(Icons.delete),color: Theme.of(context).colorScheme.error,
                               ),
-
-                          IconButton(
-                            onPressed: () {  _showCustomBottomSheet(
-                            context,
-                            index,
-                          );}, icon: Icon(Icons.edit),
-                            color: Theme.of(context).colorScheme.secondary,
-                          ),
+                          // IconButton(
+                          //   onPressed: () {
+                          //
+                          //
+                          //   //   _showCustomBottomSheet(
+                          //   // context,
+                          //   // index);
+                          //   },
+                          //   icon: Icon(Icons.edit),
+                          //   color: Theme.of(context).colorScheme.secondary,
+                          // ),
 
                           // Switch(
                           //   value: alarms[index].isEnabled,

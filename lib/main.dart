@@ -493,10 +493,10 @@ Future<void> onStart(ServiceInstance service) async {
                         'Dismiss',
                       ),
                       // Stop action
-                      AndroidNotificationAction(
-                        'stop_action',
-                        'Stop',
-                      ),
+                      // AndroidNotificationAction(
+                      //   'stop_action',
+                      //   'Stop',
+                      // ),
 
                       // Snooze action
                  ],
