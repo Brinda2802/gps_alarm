@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:untitiled/Map%20screen%20page.dart';
 import 'package:uuid/uuid.dart';
@@ -35,19 +36,22 @@ FlutterLocalNotificationsPlugin();
 class Track extends StatefulWidget {
   final AlarmDetails? alarm;
   final String?selectedRingtone;
-
-
   //final String selectedRingtone;
-
-
-
-   const Track({super.key, this.alarm,   this.selectedRingtone,  });
+  const Track({super.key, this.alarm, this.selectedRingtone,  });
 
   @override
   State<Track> createState() => _TrackState();
 }
 
 class _TrackState extends State<Track> {
+  double radius=0;
+  updateradiusvalue(value){
+    print("updatevalue:"+value.toString());
+    setState(() {
+      radius=value;
+      print("updatevalue:"+value.toString());
+    });
+  }
   late String ringtonePath;
   late String selectedRingtone;
   void _saveSelectedRingtone() async {
@@ -86,10 +90,13 @@ class _TrackState extends State<Track> {
     _saveSelectedRingtone();
     loadData();
     markLocation();
+    setState(() {
+      radius=widget.alarm!.locationRadius;
+    });
 
-    // Initialize the notification plugin
 
-  }
+       // Initialize the notification plugin
+    }
   double degreesToRadians(double degrees) {
     return degrees * math.pi / 180;
   }
@@ -110,7 +117,7 @@ class _TrackState extends State<Track> {
 
     return distance;
   }
-
+  bool _handletap = false;
 
   // double calculateDistanceInKm(LatLng point1, LatLng point2) {
   //   const double earthRadius = 6371000; // meters
@@ -225,11 +232,11 @@ class _TrackState extends State<Track> {
   //     }
   //   });
   // }
+  LatLng? _target = null;
   Future markLocation() async {
     Marker? current;
-    ByteData byteData = await rootBundle.load('assets/locationimage.png');
+    ByteData byteData = await rootBundle.load('assets/message.png');
     Uint8List imageData = byteData.buffer.asUint8List();
-
     // Create a BitmapDescriptor from the image data
     BitmapDescriptor customIcon = BitmapDescriptor.fromBytes(imageData);
 
@@ -237,7 +244,6 @@ class _TrackState extends State<Track> {
       if (_markers.isNotEmpty) {
         current = _markers.first;
       }
-
       _markers.clear();
       _circles.clear();
       if (current != null) {
@@ -252,8 +258,11 @@ class _TrackState extends State<Track> {
           markerId: MarkerId( alarmDetails.id), // Use the same ID for the marker
           icon: customIcon,
           position: LatLng(alarmDetails.lat, alarmDetails.lng),
-          draggable: true, // Enable marker dragging
+          draggable: true,
+
+       // Enable marker dragging
           onDragEnd: (newPosition) async {
+
             setState(() {
               AlarmDetails old = alarms.firstWhere((element) => element.id == widget.alarm!.id);
               old.lat = newPosition.latitude;
@@ -261,14 +270,30 @@ class _TrackState extends State<Track> {
               alarms.removeWhere((element) => element.id == widget.alarm!.id);
               alarms.add(old);
             });
+            List<Placemark> placemarks = await placemarkFromCoordinates(newPosition.latitude, newPosition.longitude);
+
+            // Extract the location name from the placemark
+            String locationName = placemarks.isEmpty ? 'Default' : [
+              placemarks[0].name,
+              placemarks[0].subLocality,
+              placemarks[0].locality,
+            ].toList()
+                .where((element) => element != null && element != '')
+                .join(', ');
+
+            // Update the alarm name controller with the location name (optional)
+            alramnamecontroller.text = locationName;
 
             SharedPreferences prefs = await SharedPreferences.getInstance();
             List<Map<String, dynamic>> alarmsJson =
             alarms.map((alarm) => alarm.toJson()).toList();
             await prefs.setStringList(
                 'alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
-            await loadData();
+
+             await loadData();
             await markLocation();
+            _showCustomBottomSheet(
+                context,);
           },
         ));
         print("locationradius:" +widget.alarm!.locationRadius.toString());
@@ -321,15 +346,63 @@ class _TrackState extends State<Track> {
       }
     });
   }
+  void saveAlarm(BuildContext context) async {
+    // if (alramnamecontroller.text.isEmpty ||
+    //
+    //     radius == null) {
+    //   Navigator.of(context).pop();
+    //   // Show a Snackbar prompting the user to fill in the required fields
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(
+    //       content: Text('Please fill in all the required fields.'),
+    //
+    //     ),
+    //   );
+    //   return; // Exit the function without saving the data
+    // }
+    print("locationradius:" +radius.toString(),);
+
+    setState(() {
+
+      AlarmDetails newAlarm = AlarmDetails(
+        alarmName: alramnamecontroller.text,
+        notes: notescontroller.text,
+        locationRadius:  radius,
+        isAlarmOn: true, isFavourite: false, lat: _target!.latitude, lng: _target!.longitude, id:Uuid().v4(), isEnabled: true,
+      );
+      alarms.add(newAlarm);
+    });
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<Map<String, dynamic>> alarmsJson =
+    alarms.map((alarm) => alarm.toJson()).toList();
+    await prefs.setStringList(
+        'alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
+
+    loadData();
+    Navigator.of(context).pop();
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => MyAlarmsPage(
+
+
+        ),
+      ),
+    );
+  }
   Future<void> loadData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
+    String alarmName = alramnamecontroller.text;
+    String notes = notescontroller.text;
+    double radius = 0; // Assuming you have a way to get the radius
+    // Save data to SharedPreferences
+    await prefs.setString('alarmName', alarmName);
+    await prefs.setDouble('radius', radius);
+    await prefs.setString('notes', notes);
     List<String>? alarmsJson = prefs.getStringList('alarms');
     print("alarms");
     print(alarmsJson);
-
-
-
     setState(() {
       if (alarmsJson != null) {
         alarms = alarmsJson.map((json) => AlarmDetails.fromJson(jsonDecode(json))).toList();
@@ -365,6 +438,9 @@ class _TrackState extends State<Track> {
     }
   }
   bool _isNotificationShown=false;
+  TextEditingController notescontroller = TextEditingController();
+  // Initialize the TextEditingController with the default value
+  TextEditingController alramnamecontroller = TextEditingController(text: "Welcome");
   //   Future<void> _showNotification(AlarmDetails alarm) async {
 //    // Exit if notification already shown
 //     if (_isNotificationShown) return; // Exit if notification already shown
@@ -480,6 +556,344 @@ class _TrackState extends State<Track> {
     });
     log("location 2");
   }
+  void _showCustomBottomSheet(BuildContext context)async {
+    double height=MediaQuery.of(context).size.height;
+    double width=MediaQuery.of(context).size.width;
+    // if (!_handletap) {
+    //
+    //   // Show a snackbar if a destination is not selected
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(
+    //       content: Text('Please select a destination on the map.'),
+    //     ),
+    //   );
+    //   return;
+    // }
+    loadData();
+    alramnamecontroller.text;
+  //  notescontroller.clear();
+    List<AlarmDetails> alarms = [];
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? alarmsJson = prefs.getStringList('alarms');
+    if (alarmsJson != null) {
+      alarms = alarmsJson.map((json) => AlarmDetails.fromJson(jsonDecode(json))).toList();
+    } else {
+      alarms = [];
+    }
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Container(
+
+            height: height/2.29090,
+            width: double.infinity,
+
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+
+                    FilledButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Call the saveAlarm function
+                      },
+                      child: Text("Cancel"),
+                    ),
+                    Padding(
+                      padding:  EdgeInsets.only(left:width/3),
+                      child: FilledButton(
+                        onPressed: () async {
+                          int index = alarms.indexWhere((alarm) => alarm.id == widget.alarm!.id);
+                          if (index == -1) {
+                            // Alarm not found, handle error (optional)
+                            return;
+                          }
+
+                          // Get values from UI elements
+                          String newAlarmName = alramnamecontroller.text;
+                          String newNotes = notescontroller.text;
+                           double newRadius =radius;
+
+                          // Update the alarm details
+                          alarms[index].alarmName = newAlarmName;
+                          alarms[index].notes = newNotes;
+                          alarms[index].locationRadius = newRadius;
+
+                          // Save the updated list of alarms as JSON strings
+                          List<Map<String, dynamic>> alarmsJson =
+                          alarms.map((alarm) => alarm.toJson()).toList();
+                          await prefs.setStringList(
+                              'alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
+
+                          // Optionally, clear UI elements or navigate to MyAlarmsPage
+                          notescontroller.clear();
+                          alramnamecontroller.text = '';
+
+
+        showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Success"),
+            content: Text("Location changed successfully."),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => MyAlarmsPage()),
+                  );
+                },
+                child: Text("OK"),
+              ),
+            ],
+          );
+        }
+        );
+
+                          // // You can optionally navigate to MyAlarmsPage here
+                          // Navigator.of(context).push(
+                          //   MaterialPageRoute(builder: (context) => MyAlarmsPage()),
+                          // );
+
+
+
+                          // SharedPreferences prefs = await SharedPreferences.getInstance();
+                          // List<Map<String, dynamic>> alarmsJson =
+                          // alarms.map((alarm) => alarm.toJson()).toList();
+                          // await prefs.setStringList(
+                          //     'alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
+                          // await loadData();
+                         //  String alarmName = alramnamecontroller.text;
+                         //  String notes = notescontroller.text;
+                         //
+                         //
+                         //  // Create a new AlarmDetails object
+                         //  AlarmDetails newAlarm = AlarmDetails(
+                         //    alarmName: alarmName,
+                         //    notes: notes, id: '', locationRadius: , isEnabled: , isFavourite: , lat: , lng: ,
+                         //
+                         //    // Add other fields for your AlarmDetails class if needed
+                         //  );
+                         //
+                         //  // Add the new alarm to the existing alarms list
+                         //  alarms.add(newAlarm);
+                         //
+                         //  // Save the updated list of alarms as JSON strings
+                         //  List<String> alarmsToSave = alarms.map((alarm) => alarm.toJson()).toList();
+                         //  await prefs.setStringList('alarms', alarmsToSave);
+                         //
+                         //  // Get values from UI elements
+                         // Navigator.of(context).push(MaterialPageRoute(builder: (context)=>MyAlarmsPage()));
+                         // // Call the saveAlarm function
+                         //  saveAlarm( context);
+                         //  Navigator.of(context).push(MaterialPageRoute(builder: (context)=>MyAlarmsPage()));
+                        },
+                        child: Text("Save"),
+                      ),
+                    ),
+                  ],
+                ),
+
+                // Integrate the MeterCalculatorWidget
+                MeterCalculatorWidget(
+                  callback: updateradiusvalue,
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Alarm Name:", style: Theme.of(context).textTheme.titleMedium,),
+
+                    Container(
+                      height:height/ 15.12,
+                      width: width/1.2,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.black12),
+
+                      ),child: Padding(
+                      padding:  EdgeInsets.only(left: width/36),
+                      child: TextField(
+                        controller: alramnamecontroller,
+
+                        style: Theme.of(context).textTheme.bodyMedium,
+                        decoration: InputDecoration(
+                          hintText: "Alarm name",
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                    ),
+
+
+                    Text("Notes:",style: Theme.of(context).textTheme.titleMedium,),
+
+                    Container(
+                      height: height/10.8,
+                      width:width/1.2,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.black12),
+
+                      ),child: Padding(
+                      padding:  EdgeInsets.only(left: width/36),
+                      child: TextField(
+                        controller: notescontroller,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                        decoration: InputDecoration(
+                          hintText: "Notes",
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                    ),
+
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+  // void _showCustomBottomSheet(BuildContext context, int index)async {
+  //   double height=MediaQuery.of(context).size.height;
+  //   double width=MediaQuery.of(context).size.width;
+  //   TextEditingController alramnamecontroller =
+  //   TextEditingController(text: alarms[index].alarmName);
+  //   TextEditingController notescontroller =
+  //   TextEditingController(text: alarms[index].notes);
+  //
+  //
+  //   showModalBottomSheet(
+  //     context: context,
+  //     isScrollControlled: true,
+  //     builder: (BuildContext context) {
+  //       return Padding(
+  //         padding: EdgeInsets.only(
+  //           bottom: MediaQuery.of(context).viewInsets.bottom,
+  //         ),
+  //         child: Container(
+  //
+  //           height: height/2.29090,
+  //           width: double.infinity,
+  //
+  //           child: Column(
+  //             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //             children: [
+  //
+  //               Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //                 children: [
+  //
+  //                   OutlinedButton(
+  //                     onPressed: () {
+  //                       Navigator.of(context).pop(); // Call the saveAlarm function
+  //                     },
+  //                     child: Text("Cancel"),
+  //                   ),
+  //                   Padding(
+  //                     padding: const EdgeInsets.only(left: 120.0),
+  //                     child: FilledButton(
+  //                       onPressed: () async {
+  //                         setState(() {
+  //                           alarms[index].alarmName = alramnamecontroller.text;
+  //                           alarms[index].notes = notescontroller.text;
+  //                           alarms[index].locationRadius = radius;
+  //                         });
+  //
+  //                         saveData();
+  //                         loadData();
+  //                         Navigator.of(context).pop();
+  //                       },
+  //                       child: Text("Save"),
+  //                     ),
+  //                   ),
+  //
+  //
+  //                 ],
+  //               ),
+  //
+  //               // Integrate the MeterCalculatorWidget
+  //               MeterCalculatorWidget(
+  //                 callback: updateradiusvalue,
+  //
+  //               ),
+  //               Column(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   Text("Alarm Name:", style: Theme.of(context).textTheme.titleMedium,),
+  //
+  //                   Container(
+  //                     height:height/ 15.12,
+  //                     width: width/1.2,
+  //                     decoration: BoxDecoration(
+  //                       color: Colors.white,
+  //                       borderRadius: BorderRadius.circular(10),
+  //                       border: Border.all(color: Colors.black12),
+  //
+  //                     ),child: Padding(
+  //                     padding:  EdgeInsets.only(left: width/36),
+  //                     child: TextField(
+  //                       controller: alramnamecontroller,
+  //
+  //                       style: Theme.of(context).textTheme.bodyMedium,
+  //                       decoration: InputDecoration(
+  //                         hintText: "Alarm name",
+  //                         border: InputBorder.none,
+  //                         enabledBorder: InputBorder.none,
+  //                       ),
+  //                     ),
+  //                   ),
+  //                   ),
+  //
+  //
+  //                   Text("Notes:",style: Theme.of(context).textTheme.titleMedium,),
+  //
+  //                   Container(
+  //                     height: height/10.8,
+  //                     width:width/1.2,
+  //                     decoration: BoxDecoration(
+  //                       color: Colors.white,
+  //                       borderRadius: BorderRadius.circular(10),
+  //                       border: Border.all(color: Colors.black12),
+  //
+  //                     ),child: Padding(
+  //                     padding:  EdgeInsets.only(left: width/36),
+  //                     child: TextField(
+  //                       controller: notescontroller,
+  //                       style: Theme.of(context).textTheme.bodyMedium,
+  //                       decoration: InputDecoration(
+  //                         hintText: "Notes",
+  //                         border: InputBorder.none,
+  //                         enabledBorder: InputBorder.none,
+  //                       ),
+  //                     ),
+  //                   ),
+  //                   ),
+  //
+  //                 ],
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
   LatLngBounds padLatLngBounds(LatLngBounds bounds, double padding) {
     double southWestLat = bounds.southwest.latitude - padding;
     double southWestLng = bounds.southwest.longitude - padding;
@@ -707,6 +1121,20 @@ body:  Stack(
     },
 
   ),
+    Padding(
+      padding:  EdgeInsets.only(top: height/7.56,left:25),
+      child: Container(
+        height:70,
+        width:300,
+        decoration: BoxDecoration(
+          color: Colors.white70,
+          border: Border.all(
+            color: Colors.black,
+          ),
+          borderRadius: BorderRadius.circular(10),
+        ), child: Center(child: Text("To reposition a marker, tap on it\nand then drag it to the new location.",
+        textAlign:TextAlign.center,style: Theme.of(context).textTheme.titleMedium,)),),
+    ),
     Positioned(
       right: 24,bottom: 120,
       // padding:  EdgeInsets.only(top:height/1.68,left: 280),
@@ -746,10 +1174,100 @@ body:  Stack(
         child: IconButton(
           onPressed: () { _scaffoldKey.currentState?.openDrawer(); }, icon: Icon(Icons.menu),)),
   ],
-),
+  ),
 
     );
-
-
   }
 }
+
+class MeterCalculatorWidget extends StatefulWidget {
+  final Function(double) callback;
+
+  const MeterCalculatorWidget({
+    Key? key,
+    required this.callback,
+  }) : super(key: key);
+
+  @override
+  _MeterCalculatorWidgetState createState() => _MeterCalculatorWidgetState();
+}
+class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
+  double _radius = 200;
+  bool _imperial = false;
+  double meterRadius = 100; // Initial value for meter radius
+  double milesRadius = 0.10;
+  @override
+  void initState() {
+    _loadSelectedUnit();
+    // _loadRadiusData();
+    super.initState();
+  }
+  Future<void> _loadRadiusData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      meterRadius = prefs.getDouble('meterRadius') ?? 0.0;
+      milesRadius = prefs.getDouble('milesRadius') ?? 0.0;
+    });
+  }
+  Future<void> _loadSelectedUnit() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? selectedUnit = prefs.getString('selectedUnit');
+    double meterdefault = prefs.getDouble('meterRadius') ?? 2000;
+    double milesdefault = prefs.getDouble('milesRadius') ?? 1.04;
+    print("metersdefault:" + meterdefault.toString());
+    print("milesdefault:" + milesdefault.toString());
+    setState(() {
+      _imperial = (selectedUnit == 'Imperial system (mi/ft)');
+      _radius = _imperial ? milesdefault : meterdefault;
+    });
+  }
+  @override
+  Widget build(BuildContext context) {
+    double height=MediaQuery.of(context).size.height;
+    double width=MediaQuery.of(context).size.width;
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Text(
+              'Radius',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            Padding(
+              padding:  EdgeInsets.only(left:width/2.5714),
+              child:
+              Text(
+                  (_radius / (_imperial ? 1 : 1000)).toStringAsFixed(_imperial ? 2: 2) +
+                      ' ${_imperial ? 'miles' : 'Kilometers'}'
+              ),
+              //Text(_radius.toStringAsFixed(_imperial ? 2:0)+' ${_imperial ? 'miles' : 'meters'}'),
+            ),
+          ],
+        ),
+        Container(
+          width:width/1.16129,
+          child: Slider (
+            // Adjust max value according to your requirement
+            value: _radius,
+            divisions: 100,
+            min: _imperial ? milesRadius: meterRadius,
+            max: _imperial ? 2.00 : 3000,
+            onChanged: (value) {
+              widget.callback(_imperial? (value * 1609.34):value);
+              print("kmvalue:"+value.toString());
+              print("metercalculatedvalue:"+value.toString());
+              setState(() {
+                _radius = double.parse(value.toStringAsFixed(2));
+                print("Radius:"+_radius.toString());
+              });
+              // widget.callback(_imperial ? (value * 1609.34):value);
+              //  print("callback:"+widget.callback.toString());
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+

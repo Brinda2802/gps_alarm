@@ -1372,7 +1372,6 @@ class _MyHomePageState extends State<MyHomePage> {
     double height=MediaQuery.of(context).size.height;
     double width=MediaQuery.of(context).size.width;
     if (!_handletap) {
-
       // Show a snackbar if a destination is not selected
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -1403,7 +1402,6 @@ class _MyHomePageState extends State<MyHomePage> {
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
           child: Container(
-
             height: height/2.29090,
             width: double.infinity,
 
@@ -1489,7 +1487,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     ),
                     ),
-
                   ],
                 ),
               ],
@@ -1501,7 +1498,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
   void saveAlarm(BuildContext context) async {
     if (alramnamecontroller.text.isEmpty ||
-
         radius == null) {
       Navigator.of(context).pop();
       // Show a Snackbar prompting the user to fill in the required fields
@@ -1538,21 +1534,16 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => MyAlarmsPage(
-
-
         ),
       ),
     );
   }
-  placesAutoCompleteTextField() {
+  placesAutoCompleteTextField(){
     double height=MediaQuery.of(context).size.height;
     double width=MediaQuery.of(context).size.width;
     return Material(
-
       borderRadius: BorderRadius.circular(30.0),
       child: Container(
-
-
         // padding: EdgeInsets.symmetric(horizontal: 10),
         child: GooglePlaceAutoCompleteTextField(
           textEditingController: controller,
@@ -1642,7 +1633,6 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
   _handleTap(LatLng point) async {
-
     _handletap=true;
     ByteData byteData = await rootBundle.load('assets/locationimage.png');
     Uint8List imageData = byteData.buffer.asUint8List();
