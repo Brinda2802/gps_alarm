@@ -416,148 +416,175 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
             height:height/94.5,
           );},
           itemBuilder: (context, index) {
-            return GestureDetector(
-              onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => Track(
-                          alarm: alarms[index],
-                        )));
-              },
-              child: Card.filled(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              "${alarms[index].alarmName}",
-                             style: Theme.of(context).textTheme.titleMedium,
-                              overflow: TextOverflow.ellipsis, // Add this line
-                            ),
+            return Card.filled(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            "${alarms[index].alarmName}",
+                           style: Theme.of(context).textTheme.titleMedium,
+                            overflow: TextOverflow.ellipsis, // Add this line
                           ),
+                        ),
 
-                          Switch(
-                            // This bool value toggles the switch.
-                            value: alarms[index].isEnabled,
-                            onChanged: (value) {
-                              setState(() {
-                                alarms[index].isEnabled = value;
-                                saveData();
-                              });
-                            },
-                          ),
-                          // Text(
-                          //   currentLocation != null
-                          //       ? calculateDistance(
-                          //               LatLng(currentLocation!.latitude,
-                          //                   currentLocation!.longitude),
-                          //               LatLng(alarms[index].lat,
-                          //                   alarms[index].lng))
-                          //           .toStringAsFixed(0)
-                          //       : "3km",
-                          //   style: TextStyle(
-                          //     fontSize: 15,
-                          //
-                          //     fontWeight: FontWeight.w500,
-                          //   ),
-                          // ),
-                          // Text(
-                          //   "km",
-                          //   style: TextStyle(
-                          //     fontSize: 15,
-                          //     // color: Colors.green,
-                          //     fontWeight: FontWeight.w500,
-                          //   ),
-                          // ),
-                        ],
-                      ),
+                        Switch(
+                          // This bool value toggles the switch.
+                          value: alarms[index].isEnabled,
+                          onChanged: (value) {
+                            setState(() {
+                              alarms[index].isEnabled = value;
+                              saveData();
+                            });
+                          },
+                        ),
+                        // Text(
+                        //   currentLocation != null
+                        //       ? calculateDistance(
+                        //               LatLng(currentLocation!.latitude,
+                        //                   currentLocation!.longitude),
+                        //               LatLng(alarms[index].lat,
+                        //                   alarms[index].lng))
+                        //           .toStringAsFixed(0)
+                        //       : "3km",
+                        //   style: TextStyle(
+                        //     fontSize: 15,
+                        //
+                        //     fontWeight: FontWeight.w500,
+                        //   ),
+                        // ),
+                        // Text(
+                        //   "km",
+                        //   style: TextStyle(
+                        //     fontSize: 15,
+                        //     // color: Colors.green,
+                        //     fontWeight: FontWeight.w500,
+                        //   ),
+                        // ),
+                      ],
+                    ),
 
-                      Text(
-                        "${alarms[index].notes}",
-                         style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                      // SizedBox(
-                      //   height: 15,
-                      // ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.location_on,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                                Text(
-                                  currentLocation != null
-                                      ? (calculateDistance(
-                                      LatLng(currentLocation!.latitude, currentLocation!.longitude),
-                                       LatLng(alarms[index].lat, alarms[index].lng))
-                                      ) // Divide by 1000 to convert meters to kilometers
-                                      .toStringAsFixed(1) // Adjust the precision as needed
-                                      : "3 km", // Default value if currentLocation is null
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                ),
-                                Text(
-                                  "km",
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                ),
-                              ],
-                            ),
-                          ),
-                          IconButton(
-                             onPressed: () {  final alarmToDelete = alarms[
-                             index]; // Store the alarm for later
-
-                             // Show confirmation Snackbar
-                             ScaffoldMessenger.of(context).showSnackBar(
-                               SnackBar(
-                                 content: Text(
-                                     'Are you sure you want to delete "${alarmToDelete.alarmName}"?'),
-                                 action: SnackBarAction(
-                                   label: 'Delete',
-                                   onPressed: () {
-                                     setState(() {
-                                       alarms.removeAt(index);
-                                     });
-                                     saveData();
-                                   },
-                                 ),
-                               ),
-                             );
-                             }, icon: Icon(Icons.delete),color: Theme.of(context).colorScheme.error,
+                    Text(
+                      "${alarms[index].notes}",
+                       style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    // SizedBox(
+                    //   height: 15,
+                    // ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.location_on,
+                                color: Theme.of(context).colorScheme.primary,
                               ),
-                          IconButton(
-                            onPressed: () {
-                             Navigator.of(context).push(
-                               MaterialPageRoute(builder: (context)=>Track())
-                             );
-                            //    _showCustomBottomSheet(
-                            // context,
-                            // index);
-                            },
-                            icon: Icon(Icons.edit),
-                            color: Theme.of(context).colorScheme.secondary,
+                              Text(
+                                currentLocation != null
+                                    ? (calculateDistance(
+                                    LatLng(currentLocation!.latitude, currentLocation!.longitude),
+                                     LatLng(alarms[index].lat, alarms[index].lng))
+                                    ) // Divide by 1000 to convert meters to kilometers
+                                    .toStringAsFixed(1) // Adjust the precision as needed
+                                    : "3 km", // Default value if currentLocation is null
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                              Text(
+                                "km",
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            ],
                           ),
+                        ),
+                        // IconButton(
+                        //    onPressed: () {  final alarmToDelete = alarms[
+                        //    index]; // Store the alarm for later
+                        //
+                        //    // Show confirmation Snackbar
+                        //    ScaffoldMessenger.of(context).showSnackBar(
+                        //      SnackBar(
+                        //        content: Text(
+                        //            'Are you sure you want to delete "${alarmToDelete.alarmName}"?'),
+                        //        action: SnackBarAction(
+                        //          label: 'Delete',
+                        //          onPressed: () {
+                        //            setState(() {
+                        //              alarms.removeAt(index);
+                        //            });
+                        //            saveData();
+                        //          },
+                        //        ),
+                        //      ),
+                        //    );
+                        //    }, icon: Icon(Icons.delete),color: Theme.of(context).colorScheme.error,
+                        //     ),
+                        IconButton(
+                          onPressed: () {
+                            final alarmToDelete = alarms[index]; // Store the alarm for later
 
-                          // Switch(
-                          //   value: alarms[index].isEnabled,
-                          //   onChanged: (value) {
-                          //     setState(() {
-                          //       alarms[index].isEnabled = value;
-                          //       saveData();
-                          //     });
-                          //   },
-                          // ),
+                            // Show confirmation dialog
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text('Delete Alarm'),
+                                  content: Text('Are you sure you want to delete "${alarmToDelete.alarmName}"?'),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop(); // Close the dialog
+                                      },
+                                      child: Text('Cancel'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          alarms.removeAt(index);
+                                        });
+                                        saveData();
+                                        Navigator.of(context).pop(); // Close the dialog
+                                      },
+                                      child: Text('Delete'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          icon: Icon(Icons.delete),
+                          color: Theme.of(context).colorScheme.error,
+                        ),
 
-                        ],
-                      ),
-                    ],
-                  ),
+                        IconButton(
+                          onPressed: () {
+                            Navigator.of(context).pushReplacement(MaterialPageRoute(
+                                builder: (context) => Track(
+                                  alarm: alarms[index],
+                                )));
+                          },
+                          icon: Icon(Icons.edit),
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+
+                        // Switch(
+                        //   value: alarms[index].isEnabled,
+                        //   onChanged: (value) {
+                        //     setState(() {
+                        //       alarms[index].isEnabled = value;
+                        //       saveData();
+                        //     });
+                        //   },
+                        // ),
+
+                      ],
+                    ),
+                  ],
                 ),
               ),
             );
@@ -567,7 +594,7 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
         floatingActionButton: FloatingActionButton(
         child: Icon(CupertinoIcons.plus),
         onPressed: (){
-          Navigator.of(context).push(
+          Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context)=>MyHomePage())
           );
         },

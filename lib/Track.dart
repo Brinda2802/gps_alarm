@@ -235,7 +235,7 @@ class _TrackState extends State<Track> {
   LatLng? _target = null;
   Future markLocation() async {
     Marker? current;
-    ByteData byteData = await rootBundle.load('assets/message.png');
+    ByteData byteData = await rootBundle.load('assets/locationmark.png');
     Uint8List imageData = byteData.buffer.asUint8List();
     // Create a BitmapDescriptor from the image data
     BitmapDescriptor customIcon = BitmapDescriptor.fromBytes(imageData);
@@ -437,6 +437,8 @@ class _TrackState extends State<Track> {
       });
     }
   }
+  final _formKey = GlobalKey<FormState>();
+
   bool _isNotificationShown=false;
   TextEditingController notescontroller = TextEditingController();
   // Initialize the TextEditingController with the default value
@@ -612,52 +614,72 @@ class _TrackState extends State<Track> {
                       padding:  EdgeInsets.only(left:width/3),
                       child: FilledButton(
                         onPressed: () async {
-                          int index = alarms.indexWhere((alarm) => alarm.id == widget.alarm!.id);
-                          if (index == -1) {
-                            // Alarm not found, handle error (optional)
-                            return;
+                          Navigator.of(context).pop();
+                          if (_formKey.currentState!.validate()) {
+                            int index = alarms.indexWhere((alarm) =>
+                            alarm.id == widget.alarm!.id);
+                            if (index == -1) {
+                              // Alarm not found, handle error (optional)
+                              return;
+                            }
+
+                            // Get values from UI elements
+                            String newAlarmName = alramnamecontroller.text;
+                            String newNotes = notescontroller.text;
+                            double newRadius = radius;
+
+                            // Update the alarm details
+                            alarms[index].alarmName = newAlarmName;
+                            alarms[index].notes = newNotes;
+                            alarms[index].locationRadius = newRadius;
+
+                            // Save the updated list of alarms as JSON strings
+                            List<Map<String, dynamic>> alarmsJson =
+                            alarms.map((alarm) => alarm.toJson()).toList();
+                            await prefs.setStringList(
+                                'alarms',
+                                alarmsJson.map((json) => jsonEncode(json))
+                                    .toList());
+
+                            // Optionally, clear UI elements or navigate to MyAlarmsPage
+                            notescontroller.clear();
+                            alramnamecontroller.text = '';
+
+
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text("Success"),
+                                    content: Text(
+                                        "Location changed successfully."),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                          Navigator.of(context).pushReplacement(
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    MyAlarmsPage()),
+                                          );
+                                        },
+                                        child: Text("OK"),
+                                      ),
+                                    ],
+                                  );
+                                }
+                            );
                           }
-
-                          // Get values from UI elements
-                          String newAlarmName = alramnamecontroller.text;
-                          String newNotes = notescontroller.text;
-                           double newRadius =radius;
-
-                          // Update the alarm details
-                          alarms[index].alarmName = newAlarmName;
-                          alarms[index].notes = newNotes;
-                          alarms[index].locationRadius = newRadius;
-
-                          // Save the updated list of alarms as JSON strings
-                          List<Map<String, dynamic>> alarmsJson =
-                          alarms.map((alarm) => alarm.toJson()).toList();
-                          await prefs.setStringList(
-                              'alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
-
-                          // Optionally, clear UI elements or navigate to MyAlarmsPage
-                          notescontroller.clear();
-                          alramnamecontroller.text = '';
-
-
-        showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("Success"),
-            content: Text("Location changed successfully."),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => MyAlarmsPage()),
-                  );
-                },
-                child: Text("OK"),
-              ),
-            ],
-          );
-        }
-        );
+                          else {
+                            // Form is not valid, do nothing (or display an error message)
+                            // You can display an error message if needed
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                    'Please fix the errors before saving the alarm.'),
+                              ),
+                            );
+                          }
 
                           // // You can optionally navigate to MyAlarmsPage here
                           // Navigator.of(context).push(
@@ -707,60 +729,163 @@ class _TrackState extends State<Track> {
                 MeterCalculatorWidget(
                   callback: updateradiusvalue,
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Alarm Name:", style: Theme.of(context).textTheme.titleMedium,),
-
-                    Container(
-                      height:height/ 15.12,
-                      width: width/1.2,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.black12),
-
-                      ),child: Padding(
-                      padding:  EdgeInsets.only(left: width/36),
-                      child: TextField(
-                        controller: alramnamecontroller,
-
-                        style: Theme.of(context).textTheme.bodyMedium,
-                        decoration: InputDecoration(
-                          hintText: "Alarm name",
-                          border: InputBorder.none,
-                          enabledBorder: InputBorder.none,
+                // Column(
+                //   crossAxisAlignment: CrossAxisAlignment.start,
+                //   children: [
+                //     Text("Alarm Name:", style: Theme.of(context).textTheme.titleMedium,),
+                //
+                //     Container(
+                //       height:height/ 15.12,
+                //       width: width/1.2,
+                //       decoration: BoxDecoration(
+                //         color: Colors.white,
+                //         borderRadius: BorderRadius.circular(10),
+                //         border: Border.all(color: Colors.black12),
+                //
+                //       ),child: Padding(
+                //       padding:  EdgeInsets.only(left: width/36),
+                //       child: TextField(
+                //         controller: alramnamecontroller,
+                //
+                //         style: Theme.of(context).textTheme.bodyMedium,
+                //         decoration: InputDecoration(
+                //           hintText: "Alarm name",
+                //           border: InputBorder.none,
+                //           enabledBorder: InputBorder.none,
+                //         ),
+                //       ),
+                //     ),
+                //     ),
+                //
+                //
+                //     Text("Notes:",style: Theme.of(context).textTheme.titleMedium,),
+                //
+                //     Container(
+                //       height: height/10.8,
+                //       width:width/1.2,
+                //       decoration: BoxDecoration(
+                //         color: Colors.white,
+                //         borderRadius: BorderRadius.circular(10),
+                //         border: Border.all(color: Colors.black12),
+                //
+                //       ),child: Padding(
+                //       padding:  EdgeInsets.only(left: width/36),
+                //       child: TextField(
+                //         controller: notescontroller,
+                //         style: Theme.of(context).textTheme.bodyMedium,
+                //         decoration: InputDecoration(
+                //           hintText: "Notes",
+                //           border: InputBorder.none,
+                //           enabledBorder: InputBorder.none,
+                //         ),
+                //       ),
+                //     ),
+                //     ),
+                //
+                //   ],
+                // ),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start, // Align text to the start horizontally
+                    children: [
+                      Text(
+                        "Alarm Name:",
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      Container(
+                        height: height / 15.12,
+                        width: width / 1.2,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.black12),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.only(left: width / 36),
+                          child: TextFormField(
+                            controller: alramnamecontroller,
+                            maxLines: 2,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                            decoration: InputDecoration(
+                              hintText: "Alarm name",
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              counterText: '', // Hide default character counter
+                            ),
+                            maxLength: 50, // Set character limit
+                            validator: (value) {
+                              // Check if the input is only whitespace characters or empty
+                              if (value!.trim().isEmpty) {
+                                return 'Alarm name is required.';
+                              }
+                              if (value.split(' ').length > 50) {
+                                return 'Alarm name cannot exceed 50 words.';
+                              }
+                              //Remove the check for special characters and emojis
+                              //    if (RegExp(r'[^\w\s]').hasMatch(value)) {
+                              // return 'Alarm name cannot contain special characters or emojis.';
+                              //     }
+                              return null; // Valid input
+                            },
+                            onChanged: (value) {
+                              // Optional: Update counter text manually (if desired)
+                              // setState(() {
+                              //   counterText = value.length.toString();
+                              // });
+                            },
+                          ),
                         ),
                       ),
-                    ),
-                    ),
-
-
-                    Text("Notes:",style: Theme.of(context).textTheme.titleMedium,),
-
-                    Container(
-                      height: height/10.8,
-                      width:width/1.2,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.black12),
-
-                      ),child: Padding(
-                      padding:  EdgeInsets.only(left: width/36),
-                      child: TextField(
-                        controller: notescontroller,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                        decoration: InputDecoration(
-                          hintText: "Notes",
-                          border: InputBorder.none,
-                          enabledBorder: InputBorder.none,
+                      Text("Notes:",style: Theme.of(context).textTheme.titleMedium,),
+                      Container(
+                        height: height / 15.12,
+                        width: width / 1.2,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.black12),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.only(left: width / 36),
+                          child: TextFormField(
+                            controller: notescontroller,
+                            maxLines: 2,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                            decoration: InputDecoration(
+                              hintText: "Notes",
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              counterText: '', // Hide default character counter
+                            ),
+                            maxLength: 50, // Set character limit
+                            validator: (value) {
+                              // Check if the input is only whitespace characters or empty
+                              // if (value!.trim().isEmpty) {
+                              //   return 'Notes is required.';
+                              // }
+                              if (value!.split(' ').length > 50) {
+                                return 'Notes cannot exceed 50 words.';
+                              }
+                              //Remove the check for special characters and emojis
+                              //    if (RegExp(r'[^\w\s]').hasMatch(value)) {
+                              // return 'Alarm name cannot contain special characters or emojis.';
+                              //     }
+                              return null; // Valid input
+                            },
+                            onChanged: (value) {
+                              // Optional: Update counter text manually (if desired)
+                              // setState(() {
+                              //   counterText = value.length.toString();
+                              // });
+                            },
+                          ),
                         ),
                       ),
-                    ),
-                    ),
 
-                  ],
+
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -1121,20 +1246,20 @@ body:  Stack(
     },
 
   ),
-    Padding(
-      padding:  EdgeInsets.only(top: height/7.56,left:25),
-      child: Container(
-        height:70,
-        width:300,
-        decoration: BoxDecoration(
-          color: Colors.white70,
-          border: Border.all(
-            color: Colors.black,
-          ),
-          borderRadius: BorderRadius.circular(10),
-        ), child: Center(child: Text("To reposition a marker, tap on it\nand then drag it to the new location.",
-        textAlign:TextAlign.center,style: Theme.of(context).textTheme.titleMedium,)),),
-    ),
+    // Padding(
+    //   padding:  EdgeInsets.only(top: height/7.56,left:25),
+    //   child: Container(
+    //     height:70,
+    //     width:300,
+    //     decoration: BoxDecoration(
+    //       color: Colors.white70,
+    //       border: Border.all(
+    //         color: Colors.black,
+    //       ),
+    //       borderRadius: BorderRadius.circular(10),
+    //     ), child: Center(child: Text("To reposition a marker, tap on it\nand then drag it to the new location.",
+    //     textAlign:TextAlign.center,style: Theme.of(context).textTheme.titleMedium,)),),
+    // ),
     Positioned(
       right: 24,bottom: 120,
       // padding:  EdgeInsets.only(top:height/1.68,left: 280),

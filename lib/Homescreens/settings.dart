@@ -1290,7 +1290,7 @@ class _SettingsState extends State<Settings> {
     if ( !hasSetSettings) {
       _audioPlayer.stop();
       await _saveAllSettings();
-      Navigator.of(context).push(
+      Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => MyAlarmsPage()),
       );
     } else {
