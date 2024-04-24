@@ -944,6 +944,8 @@
 //     );
 //   }
 // }
+import 'dart:ffi';
+
 import 'package:share_plus/share_plus.dart';
 import 'dart:convert';
 import 'dart:developer';
@@ -1164,21 +1166,57 @@ class _MyHomePageState extends State<MyHomePage> {
   String _appBarTitle = '';
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int screenIndex=1;
+  // void handleScreenChanged(int index) {
+  //   switch (index) {
+  //     case 0: // Alarm List
+  //       Navigator.of(context).push(
+  //           MaterialPageRoute(builder: (context) => MyAlarmsPage()));
+  //       break;
+  //     case 1: // Alarm List
+  //       Navigator.of(context).push(
+  //           MaterialPageRoute(builder: (context) => MyHomePage()));
+  //       break;
+  //     case 2:
+  //       Navigator.of(context).push(
+  //           MaterialPageRoute(builder: (context) => Settings()));
+  //       break;
+  //     case 3:
+  //       final RenderBox box = context.findRenderObject() as RenderBox;
+  //       Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
+  //       Share.share(
+  //         'Check out my awesome app! Download it from the app store:',
+  //         subject: 'Share this amazing app!',
+  //         sharePositionOrigin: dummyRect,
+  //       );
+  //       break;
+  //     case 4:
+  //       _launchInBrowser(toLaunch);
+  //       break;
+  //     case 5:
+  //       Navigator.of(context).push(
+  //           MaterialPageRoute(builder: (context) => About()));
+  //       break;
+  //   }
+  // }
   void handleScreenChanged(int index) {
     switch (index) {
-      case 0: // Alarm List
-        Navigator.of(context).push(
+      case 0:
+        Navigator.of (context).pop();// Alarm List
+        Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => MyAlarmsPage()));
         break;
-      case 1: // Alarm List
-        Navigator.of(context).push(
+      case 1:
+        Navigator.of (context).pop();// Alarm List
+        Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => MyHomePage()));
         break;
       case 2:
-        Navigator.of(context).push(
+        Navigator.of (context).pop();
+        Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => Settings()));
         break;
       case 3:
+        Navigator.of (context).pop();
         final RenderBox box = context.findRenderObject() as RenderBox;
         Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
         Share.share(
@@ -1188,10 +1226,12 @@ class _MyHomePageState extends State<MyHomePage> {
         );
         break;
       case 4:
+        Navigator.of (context).pop();
         _launchInBrowser(toLaunch);
         break;
       case 5:
-        Navigator.of(context).push(
+        Navigator.of (context).pop();
+        Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => About()));
         break;
     }
@@ -1842,7 +1882,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
   _handleTap(LatLng point) async {
     _handletap=true;
-    ByteData byteData = await rootBundle.load('assets/locationmark.png',);
+    ByteData byteData = await rootBundle.load('assets/locationmark5.png');
     Uint8List imageData = byteData.buffer.asUint8List();
 
     // Create a BitmapDescriptor from the image data
@@ -1857,13 +1897,9 @@ class _MyHomePageState extends State<MyHomePage> {
       }
       // Convert the set to a list
       List<Marker> markerList = _markers.toList();
-
       // Load the custom icon image
-
-
       // Add a new marker with the custom icon
       markerList.add(Marker(
-
         markerId: MarkerId(point.toString()),
         position: point,
         infoWindow: InfoWindow(

@@ -185,19 +185,23 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
   }
   void handleScreenChanged(int index) {
     switch (index) {
-      case 0: // Alarm List
-        Navigator.of(context).push(
+      case 0:
+        Navigator.of (context).pop();// Alarm List
+        Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => MyAlarmsPage()));
         break;
-      case 1: // Alarm List
-        Navigator.of(context).push(
+      case 1:
+        Navigator.of (context).pop();// Alarm List
+        Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => MyHomePage()));
         break;
       case 2:
-        Navigator.of(context).push(
+        Navigator.of (context).pop();
+        Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => Settings()));
         break;
       case 3:
+        Navigator.of (context).pop();
         final RenderBox box = context.findRenderObject() as RenderBox;
         Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
         Share.share(
@@ -207,10 +211,12 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
         );
         break;
       case 4:
+        Navigator.of (context).pop();
         _launchInBrowser(toLaunch);
         break;
       case 5:
-        Navigator.of(context).push(
+        Navigator.of (context).pop();
+        Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => About()));
         break;
     }

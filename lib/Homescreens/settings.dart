@@ -1259,6 +1259,44 @@ class _SettingsState extends State<Settings> {
       print('Error saving selected ringtone: $e');
     }
   }
+  void handleScreenChanged(int index) {
+    switch (index) {
+      case 0:
+        Navigator.of (context).pop();// Alarm List
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => MyAlarmsPage()));
+        break;
+      case 1:
+        Navigator.of (context).pop();// Alarm List
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => MyHomePage()));
+        break;
+      case 2:
+        Navigator.of (context).pop();
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => Settings()));
+        break;
+      case 3:
+        Navigator.of (context).pop();
+        final RenderBox box = context.findRenderObject() as RenderBox;
+        Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
+        Share.share(
+          'Check out my awesome app! Download it from the app store:',
+          subject: 'Share this amazing app!',
+          sharePositionOrigin: dummyRect,
+        );
+        break;
+      case 4:
+        Navigator.of (context).pop();
+        _launchInBrowser(toLaunch);
+        break;
+      case 5:
+        Navigator.of (context).pop();
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => About()));
+        break;
+    }
+  }
 
   Future<void> _playRingtone(String ringtone) async {
     // Ensure assets/alarm_ringtones/ is the correct path
@@ -1407,38 +1445,38 @@ class _SettingsState extends State<Settings> {
   //
   //   }
   // }
-  void handleScreenChanged(int index) {
-    switch (index) {
-      case 0: // Alarm List
-        Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => MyAlarmsPage()));
-        break;
-      case 1: // Alarm List
-        Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => MyHomePage()));
-        break;
-      case 2:
-        Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => Settings()));
-        break;
-      case 3:
-        final RenderBox box = context.findRenderObject() as RenderBox;
-        Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
-        Share.share(
-          'Check out my awesome app! Download it from the app store:',
-          subject: 'Share this amazing app!',
-          sharePositionOrigin: dummyRect,
-        );
-        break;
-      case 4:
-        _launchInBrowser(toLaunch);
-        break;
-      case 5:
-        Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => About()));
-        break;
-    }
-  }
+  // void handleScreenChanged(int index) {
+  //   switch (index) {
+  //     case 0: // Alarm List
+  //       Navigator.of(context).push(
+  //           MaterialPageRoute(builder: (context) => MyAlarmsPage()));
+  //       break;
+  //     case 1: // Alarm List
+  //       Navigator.of(context).push(
+  //           MaterialPageRoute(builder: (context) => MyHomePage()));
+  //       break;
+  //     case 2:
+  //       Navigator.of(context).push(
+  //           MaterialPageRoute(builder: (context) => Settings()));
+  //       break;
+  //     case 3:
+  //       final RenderBox box = context.findRenderObject() as RenderBox;
+  //       Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
+  //       Share.share(
+  //         'Check out my awesome app! Download it from the app store:',
+  //         subject: 'Share this amazing app!',
+  //         sharePositionOrigin: dummyRect,
+  //       );
+  //       break;
+  //     case 4:
+  //       _launchInBrowser(toLaunch);
+  //       break;
+  //     case 5:
+  //       Navigator.of(context).push(
+  //           MaterialPageRoute(builder: (context) => About()));
+  //       break;
+  //   }
+  // }
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override

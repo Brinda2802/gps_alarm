@@ -235,11 +235,10 @@ class _TrackState extends State<Track> {
   LatLng? _target = null;
   Future markLocation() async {
     Marker? current;
-    ByteData byteData = await rootBundle.load('assets/locationmark.png');
+    ByteData byteData = await rootBundle.load('assets/locationmark5.png');
     Uint8List imageData = byteData.buffer.asUint8List();
     // Create a BitmapDescriptor from the image data
     BitmapDescriptor customIcon = BitmapDescriptor.fromBytes(imageData);
-
     setState(() {
       if (_markers.isNotEmpty) {
         current = _markers.first;
@@ -255,6 +254,7 @@ class _TrackState extends State<Track> {
 
         // Add marker for alarm
         _markers.add(Marker(
+
           markerId: MarkerId( alarmDetails.id), // Use the same ID for the marker
           icon: customIcon,
           position: LatLng(alarmDetails.lat, alarmDetails.lng),
