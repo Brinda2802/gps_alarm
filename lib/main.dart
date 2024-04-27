@@ -287,8 +287,6 @@
 //   }
 // }
 
-
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -313,10 +311,8 @@ import 'Homescreens/settings.dart';
 import 'Map screen page.dart';
 import 'about page.dart';
 
-
 const notificationChannelId = 'my_foreground';
 const notificationId = 888;
-
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -387,18 +383,21 @@ Future<void> main() async {
   // });
   //await initializeService();
   location.Location ls = new location.Location();
-  if(await Permission.notification.request().isGranted && await Permission.location.request().isGranted && await ls.serviceEnabled()){
+  if (await Permission.notification.request().isGranted &&
+      await Permission.location.request().isGranted &&
+      await ls.serviceEnabled()) {
     await initializeService();
   }
   runApp(const MyApp());
 }
+
 Future<void> initializeService() async {
   final service = FlutterBackgroundService();
 
   /// OPTIONAL, using custom notification channel id
 
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-  FlutterLocalNotificationsPlugin();
+      FlutterLocalNotificationsPlugin();
 
   if (Platform.isAndroid) {
     await flutterLocalNotificationsPlugin.initialize(
@@ -417,19 +416,22 @@ Future<void> initializeService() async {
     androidConfiguration: AndroidConfiguration(
       // this will be executed when app is in foreground or background in separated isolate
       onStart: onStart,
-
+      initialNotificationTitle: 'Running in Background',
+      initialNotificationContent: 'This is required to trigger alarm',
       // auto start service
-      autoStart: true,
+      autoStart: false,
       isForegroundMode: true,
-    ), iosConfiguration: IosConfiguration(
-    // auto start service
-    autoStart: true,
+    ),
+    iosConfiguration: IosConfiguration(
+      // auto start service
+      autoStart: false,
 
-    // this will be executed when app is in foreground in separated isolate
-    onForeground: onStart,
-  ),
+      // this will be executed when app is in foreground in separated isolate
+      onForeground: onStart,
+    ),
   );
 }
+
 class MyStream {
   StreamController<int> _controller = StreamController<int>();
 
@@ -451,90 +453,103 @@ class MyStream {
 @pragma('vm:entry-point')
 Future<void> onStart(ServiceInstance service) async {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-  FlutterLocalNotificationsPlugin();
+      FlutterLocalNotificationsPlugin();
   await flutterLocalNotificationsPlugin.initialize(
     const InitializationSettings(
       android: AndroidInitializationSettings('ic_bg_service_small'),
     ),
   );
 
-  final LocationSettings locationSettings = LocationSettings(
-      accuracy: LocationAccuracy.high,
-      distanceFilter: 100);
+  final LocationSettings locationSettings =
+      LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 100);
 
-  Geolocator.getPositionStream(locationSettings: locationSettings).listen(
-          (Position? position) async {
-        List<AlarmDetails> alarms = [];
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        prefs.reload();
-        List<String>? alarmsJson = prefs.getStringList('alarms');
-        print(alarmsJson?.join(","));
-        if (alarmsJson != null) {
-          alarms.addAll(
-              alarmsJson.map((json) => AlarmDetails.fromJson(jsonDecode(json)))
-                  .toList());
-          for (var alarm in alarms) {
-            print("location radius:" + alarm.locationRadius.toString());
-            print("alarmname:" + alarm.alarmName);
-            if (!alarm.isEnabled) {
-              continue;
-            }
-            double distance = calculateDistance(
-              LatLng(position!.latitude, position.longitude),
-              LatLng(alarm.lat, alarm.lng),
-            );
-            print("distance:" + distance.toString());
-            if (distance <= alarm.locationRadius) {
-              var index = alarms.indexOf(alarm);
-              alarms[index].isEnabled = false;
-              List<Map<String, dynamic>> alarmsJson =
-              alarms.map((alarm) => alarm.toJson()).toList();
-              await prefs.setStringList(
-                  'alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
-              // Trigger notification with sound regardless of service state
-              final savedRingtone = prefs.getString('selectedRingtone') ?? "alarm6.mp3";
-              print(savedRingtone);
-              flutterLocalNotificationsPlugin.show(
-                notificationId,
-                alarm.alarmName,
-                'Reached your place',
-                NotificationDetails(
-                  android: AndroidNotificationDetails(
-                    Uuid().v4(),
-                    'MY FOREGROUND SERVICE',
-                    icon: 'ic_bg_service_small',
-                    sound: RawResourceAndroidNotificationSound(savedRingtone.replaceAll(".mp3", "")),
-                    priority: Priority.high,
-                    importance:Importance.max,
-                    ticker: 'ticker',
-                    actions: [
-                      // Dismiss action
-                      AndroidNotificationAction(
-                        Uuid().v4(),
-                        'Dismiss',
-                      ),
-                      // Stop action
-                      // AndroidNotificationAction(
-                      //   'stop_action',
-                      //   'Stop',
-                      // ),
-
-                      // Snooze action
-                 ],
-                    styleInformation: DefaultStyleInformation(true, true),
-                  ),
-                ),
-              );
-              break; // Exit loop after triggering the first alarm
-            }
-          }
+  late StreamSubscription subscription;
+  subscription = Geolocator.getPositionStream(locationSettings: locationSettings)
+      .listen((Position? position) async {
+    List<AlarmDetails> alarms = [];
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.reload();
+    List<String>? alarmsJson = prefs.getStringList('alarms');
+    print(alarmsJson?.join(","));
+    if (alarmsJson != null) {
+      alarms.addAll(alarmsJson
+          .map((json) => AlarmDetails.fromJson(jsonDecode(json)))
+          .where((element) => element.isEnabled)
+          .toList());
+      for (var alarm in alarms) {
+        print("location radius:" + alarm.locationRadius.toString());
+        print("alarmname:" + alarm.alarmName);
+        if (!alarm.isEnabled) {
+          continue;
         }
-      });
-  service.on('stopService').listen((event) async {
-    await stopService();
+        double distance = calculateDistance(
+          LatLng(position!.latitude, position.longitude),
+          LatLng(alarm.lat, alarm.lng),
+        );
+        print("distance:" + distance.toString());
+        if (distance <= alarm.locationRadius) {
+          var index = alarms.indexOf(alarm);
+          alarms[index].isEnabled = false;
+          List<Map<String, dynamic>> alarmsJson =
+              alarms.map((alarm) => alarm.toJson()).toList();
+          await prefs.setStringList(
+              'alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
+          // Trigger notification with sound regardless of service state
+          final savedRingtone =
+              prefs.getString('selectedRingtone') ?? "alarm6.mp3";
+          print(savedRingtone);
+          flutterLocalNotificationsPlugin.show(
+            notificationId,
+            alarm.alarmName,
+            'Reached your place',
+            NotificationDetails(
+              android: AndroidNotificationDetails(
+                Uuid().v4(),
+                'MY FOREGROUND SERVICE',
+                icon: 'ic_bg_service_small',
+                sound: RawResourceAndroidNotificationSound(
+                    savedRingtone.replaceAll(".mp3", "")),
+                priority: Priority.high,
+                importance: Importance.max,
+                ticker: 'ticker',
+                actions: [
+                  // Dismiss action
+                  AndroidNotificationAction(
+                    Uuid().v4(),
+                    'Dismiss',
+                  ),
+                  // Stop action
+                  // AndroidNotificationAction(
+                  //   'stop_action',
+                  //   'Stop',
+                  // ),
+
+                  // Snooze action
+                ],
+                styleInformation: DefaultStyleInformation(true, true),
+              ),
+            ),
+          );
+          print('preparing to stop service');
+          break; // Exit loop after triggering the first alarm
+        }
+      }
+
+      alarms = alarms.where((element) => element.isEnabled).toList();
+      if(alarms.isEmpty) {
+        subscription.cancel();
+        service.stopSelf();
+      }
+    }
   });
 
+  service.on('stopService').listen((event) {
+    print('stopping service');
+    service.stopSelf();
+    subscription.cancel();
+  });
 }
+
 Future<void> stopService() async {
   // 1. Cancel location updates:// Cancels the location stream
 
@@ -561,10 +576,10 @@ Future<void> stopService() async {
   print('Service stopped.');
 }
 
-
 double degreesToRadians(double degrees) {
   return degrees * math.pi / 180;
 }
+
 double calculateDistance(LatLng point1, LatLng point2) {
   const double earthRadius = 6371000; // meters
   double lat1 = degreesToRadians(point1.latitude);
@@ -585,7 +600,6 @@ double calculateDistance(LatLng point1, LatLng point2) {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -595,12 +609,13 @@ class MyApp extends StatelessWidget {
         textTheme: GoogleFonts.robotoFlexTextTheme(),
       ),
       debugShowCheckedModeBanner: false,
-      home:Splashscreen(),
-      routes: { // Define your routes (optional)
+      home: Splashscreen(),
+      routes: {
+        // Define your routes (optional)
         '/home': (context) => MyAlarmsPage(),
         '/secondpage': (context) => MyHomePage(),
         '/thirdpage': (context) => Settings(),
-        'fouthpage': (context) =>About(),
+        'fouthpage': (context) => About(),
       },
     );
   }
@@ -618,9 +633,11 @@ class _SplashscreenState extends State<Splashscreen> {
     super.initState();
     _checkUserStatus();
   }
+
   Future<void> _checkUserStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool hasSetSettings = prefs.getBool('hasSetSettings') ?? false; // Default to false if not set
+    bool hasSetSettings =
+        prefs.getBool('hasSetSettings') ?? false; // Default to false if not set
     print("hasSetSettings value: $hasSetSettings");
     if (hasSetSettings) {
       // User has set settings before, navigate to MyAlarmsPage
@@ -637,15 +654,6 @@ class _SplashscreenState extends State<Splashscreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-
-    );
+    return Scaffold();
   }
 }
-
-
-
-
-
-
-

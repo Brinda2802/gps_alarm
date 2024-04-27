@@ -944,8 +944,7 @@
 //     );
 //   }
 // }
-import 'dart:ffi';
-
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:convert';
 import 'dart:developer';
@@ -1144,7 +1143,9 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     }
   }
-  Set<Marker> _markers={};
+  Set<Marker> _markers={
+
+  };
 
   LatLng? _current = const LatLng(
       13.067439, 80.237617);
@@ -1393,13 +1394,11 @@ class _MyHomePageState extends State<MyHomePage> {
             child: CircularProgressIndicator(), // Adjust style as needed
           ),
           GoogleMap(
-
-
             mapType: MapType.normal,
             myLocationButtonEnabled: false,
             zoomControlsEnabled: false,
             initialCameraPosition: CameraPosition(
-              zoom: 15,
+              zoom: 30,
               target: _defaultLocation,
             ),
             onMapCreated: (GoogleMapController controller) {
@@ -1409,10 +1408,13 @@ class _MyHomePageState extends State<MyHomePage> {
               });
             },
             markers: _markers,
+            // onMarkerDragEnd: (LatLng newPosition) {
+            //   setState(() {
+            //     _targetLocation = newPosition;
+            //   });
+            // },
             onLongPress: _handleTap,
-
-
-            onCameraMoveStarted: () {
+              onCameraMoveStarted: () {
               setState(() {
                 _isCameraMoving = true;
               });
@@ -1424,6 +1426,11 @@ class _MyHomePageState extends State<MyHomePage> {
             },
 
           ),
+          // Positioned(
+          //     top: 200,
+          //     left: 70,
+          //     right: 20,
+          //     child: Image.asset("assets/locationmark11.png")),
           Visibility(
             visible: _isLoading,
             child: Center(
@@ -1860,6 +1867,11 @@ class _MyHomePageState extends State<MyHomePage> {
         'alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
 
     loadData();
+    final service = FlutterBackgroundService();
+    if(! (await service.isRunning())) {
+      await service.startService();
+    }
+    Navigator.of(context).pop();
     Navigator.of(context).pop();
 
     Navigator.of(context).pushReplacement(
@@ -1965,7 +1977,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
   _handleTap(LatLng point) async {
     _handletap=true;
-    ByteData byteData = await rootBundle.load('assets/locationmark7.png');
+    ByteData byteData = await rootBundle.load('assets/locationmark10.png');
     Uint8List imageData = byteData.buffer.asUint8List();
     // Create a BitmapDescriptor from the image data
     BitmapDescriptor customIcon = BitmapDescriptor.fromBytes(imageData);

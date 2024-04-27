@@ -234,8 +234,9 @@ class _TrackState extends State<Track> {
   // }
   LatLng? _target = null;
   Future markLocation() async {
+   // double radius = radius;
     Marker? current;
-    ByteData byteData = await rootBundle.load('assets/locationmark7.png');
+    ByteData byteData = await rootBundle.load('assets/locationmark10.png');
     Uint8List imageData = byteData.buffer.asUint8List();
     // Create a BitmapDescriptor from the image data
     BitmapDescriptor customIcon = BitmapDescriptor.fromBytes(imageData);
@@ -438,7 +439,6 @@ class _TrackState extends State<Track> {
     }
   }
   final _formKey = GlobalKey<FormState>();
-
   bool _isNotificationShown=false;
   TextEditingController notescontroller = TextEditingController();
   // Initialize the TextEditingController with the default value
@@ -653,6 +653,7 @@ class _TrackState extends State<Track> {
                                       TextButton(
                                         onPressed: () {
                                           Navigator.of(context).pop();
+                                          Navigator.of(context).pop();
                                           Navigator.of(context).pushReplacement(
                                             MaterialPageRoute(
                                                 builder: (context) =>
@@ -724,6 +725,7 @@ class _TrackState extends State<Track> {
                 // Integrate the MeterCalculatorWidget
                 MeterCalculatorWidget(
                   callback: updateradiusvalue,
+                  radius: widget.alarm?.locationRadius,
                 ),
                 // Column(
                 //   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1087,46 +1089,45 @@ class _TrackState extends State<Track> {
       );
     }
   }
-  void handleScreenChanged(int index) {
-    Navigator.of(context).pop();
-
-    switch (index) {
-      case 0: // Alarm List
-        Navigator.of(context).pop();
-        // Replace with your AlarmListPage widget
-        break;
-      case 1: // Alarm List
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => MyHomePage()));
-        // Replace with your AlarmListPage widget
-        break;
-      case 2:
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => Settings())); // Replace with your SavedAlarmsPage widget
-        break;
-      case 3:
-        final RenderBox box = context.findRenderObject() as RenderBox;
-        Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
-        Share.share(
-          'Check out my awesome app: ! Download it from the app store: ',
-          subject: 'Share this amazing app!',
-          sharePositionOrigin: dummyRect,
-        );
-        break;
-      case 4:
-        _launchInBrowser(toLaunch);
-        break;
-      case 5:
-        Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => About()));
-
-        break;
-
-    }
-    setState(() {
-      screenIndex = index; // Update selected index
-    });
-  }
+  // void handleScreenChanged(int index) {
+  //   Navigator.of(context).pop();
+  //   switch (index) {
+  //     case 0: // Alarm List
+  //       Navigator.of(context).pop();
+  //       // Replace with your AlarmListPage widget
+  //       break;
+  //     case 1: // Alarm List
+  //       Navigator.of(context).pushReplacement(
+  //           MaterialPageRoute(builder: (context) => MyHomePage()));
+  //       // Replace with your AlarmListPage widget
+  //       break;
+  //     case 2:
+  //       Navigator.of(context).pushReplacement(
+  //           MaterialPageRoute(builder: (context) => Settings())); // Replace with your SavedAlarmsPage widget
+  //       break;
+  //     case 3:
+  //       final RenderBox box = context.findRenderObject() as RenderBox;
+  //       Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
+  //       Share.share(
+  //         'Check out my awesome app: ! Download it from the app store: ',
+  //         subject: 'Share this amazing app!',
+  //         sharePositionOrigin: dummyRect,
+  //       );
+  //       break;
+  //     case 4:
+  //       _launchInBrowser(toLaunch);
+  //       break;
+  //     case 5:
+  //       Navigator.of(context).push(
+  //           MaterialPageRoute(builder: (context) => About()));
+  //
+  //       break;
+  //
+  //   }
+  //   setState(() {
+  //     screenIndex = index; // Update selected index
+  //   });
+  // }
   int screenIndex=0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
@@ -1134,67 +1135,70 @@ class _TrackState extends State<Track> {
     double height=MediaQuery.of(context).size.height;
     double width=MediaQuery.of(context).size.width;
     return Scaffold(
-      key: _scaffoldKey,
-      drawer: NavigationDrawer(
-        onDestinationSelected: (int index) {
-          handleScreenChanged(index); // Assuming you have a handleScreenChanged function
-        },
-        selectedIndex: screenIndex,
-        children: <Widget>[
-          SizedBox(
-            //height: 32,
-            height:height/23.625,
-          ),
-          NavigationDrawerDestination(
-
-            icon: Icon(Icons.alarm_on_outlined), // Adjust size as needed
-            label: Text('Saved Alarms'),
-            // Set selected based on screenIndex
-          ),
-          NavigationDrawerDestination(
-            icon: Icon(Icons.alarm),
-            label: Text('Set a Alarm'),
-            // Set selected based on screenIndex
-          ),
-          NavigationDrawerDestination(
-            icon: Icon(Icons.settings_outlined),
-            label: Text('Settings'),
-            // Set selected based on screenIndex
-          ),
-          Divider(),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
-            child: Text(
-              'Communicate', // Assuming this is the header
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-          ),
-          NavigationDrawerDestination(
-            icon: Icon(Icons.share_outlined),
-            label: Text('Share'),
-
-            // Set selected based on screenIndex
-          ),
-          NavigationDrawerDestination(
-            icon: Icon(Icons.rate_review_outlined),
-            label: Text('Rate/Review'),
-            // Set selected based on screenIndex
-          ),
-          Divider(),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
-            child: Text(
-              'App', // Assuming this is the header
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-          ),
-          NavigationDrawerDestination(
-            icon: Icon(Icons.error_outline_outlined),
-            label: Text('About'),
-            // Set selected based on screenIndex
-          ),
-        ],
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
       ),
+      key: _scaffoldKey,
+      // drawer: NavigationDrawer(
+      //   onDestinationSelected: (int index) {
+      //     handleScreenChanged(index); // Assuming you have a handleScreenChanged function
+      //   },
+      //   selectedIndex: screenIndex,
+      //   children: <Widget>[
+      //     SizedBox(
+      //       //height: 32,
+      //       height:height/23.625,
+      //     ),
+      //     NavigationDrawerDestination(
+      //
+      //       icon: Icon(Icons.alarm_on_outlined), // Adjust size as needed
+      //       label: Text('Saved Alarms'),
+      //       // Set selected based on screenIndex
+      //     ),
+      //     NavigationDrawerDestination(
+      //       icon: Icon(Icons.alarm),
+      //       label: Text('Set a Alarm'),
+      //       // Set selected based on screenIndex
+      //     ),
+      //     NavigationDrawerDestination(
+      //       icon: Icon(Icons.settings_outlined),
+      //       label: Text('Settings'),
+      //       // Set selected based on screenIndex
+      //     ),
+      //     Divider(),
+      //     Padding(
+      //       padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
+      //       child: Text(
+      //         'Communicate', // Assuming this is the header
+      //         style: Theme.of(context).textTheme.titleSmall,
+      //       ),
+      //     ),
+      //     NavigationDrawerDestination(
+      //       icon: Icon(Icons.share_outlined),
+      //       label: Text('Share'),
+      //
+      //       // Set selected based on screenIndex
+      //     ),
+      //     NavigationDrawerDestination(
+      //       icon: Icon(Icons.rate_review_outlined),
+      //       label: Text('Rate/Review'),
+      //       // Set selected based on screenIndex
+      //     ),
+      //     Divider(),
+      //     Padding(
+      //       padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
+      //       child: Text(
+      //         'App', // Assuming this is the header
+      //         style: Theme.of(context).textTheme.titleSmall,
+      //       ),
+      //     ),
+      //     NavigationDrawerDestination(
+      //       icon: Icon(Icons.error_outline_outlined),
+      //       label: Text('About'),
+      //       // Set selected based on screenIndex
+      //     ),
+      //   ],
+      // ),
 body:  Stack(
   children: [
     GoogleMap(
@@ -1286,10 +1290,12 @@ body:  Stack(
 
 class MeterCalculatorWidget extends StatefulWidget {
   final Function(double) callback;
+  final double? radius;
 
   const MeterCalculatorWidget({
     Key? key,
     required this.callback,
+    this.radius,
   }) : super(key: key);
 
   @override
@@ -1322,7 +1328,7 @@ class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
     print("milesdefault:" + milesdefault.toString());
     setState(() {
       _imperial = (selectedUnit == 'Imperial system (mi/ft)');
-      _radius = _imperial ? milesdefault : meterdefault;
+      _radius = widget.radius ?? (_imperial ? milesdefault : meterdefault);
     });
   }
   @override
