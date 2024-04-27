@@ -294,7 +294,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 import 'dart:math' as math;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -308,6 +310,8 @@ import 'Homescreens/homescreen.dart';
 import 'package:geolocator/geolocator.dart';
 import 'Homescreens/save_alarm_page.dart';
 import 'Homescreens/settings.dart';
+import 'Map screen page.dart';
+import 'about page.dart';
 
 
 const notificationChannelId = 'my_foreground';
@@ -399,7 +403,7 @@ Future<void> initializeService() async {
   if (Platform.isAndroid) {
     await flutterLocalNotificationsPlugin.initialize(
       const InitializationSettings(
-        android: AndroidInitializationSettings('ic_notification'),
+        android: AndroidInitializationSettings('ic_bg_service_small'),
       ),
     );
   }
@@ -426,13 +430,31 @@ Future<void> initializeService() async {
   ),
   );
 }
+class MyStream {
+  StreamController<int> _controller = StreamController<int>();
+
+  Stream<int> get stream => _controller.stream;
+
+  void start() {
+    // Start emitting values
+    for (int i = 0; i < 10; i++) {
+      _controller.add(i);
+      Future.delayed(Duration(milliseconds: 500), () => _controller.add(i));
+    }
+  }
+
+  void cancel() {
+    _controller.close(); // Close the stream controller to stop emitting values
+  }
+}
+
 @pragma('vm:entry-point')
 Future<void> onStart(ServiceInstance service) async {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
   FlutterLocalNotificationsPlugin();
   await flutterLocalNotificationsPlugin.initialize(
     const InitializationSettings(
-      android: AndroidInitializationSettings('ic_notification'),
+      android: AndroidInitializationSettings('ic_bg_service_small'),
     ),
   );
 
@@ -473,7 +495,6 @@ Future<void> onStart(ServiceInstance service) async {
               final savedRingtone = prefs.getString('selectedRingtone') ?? "alarm6.mp3";
               print(savedRingtone);
               flutterLocalNotificationsPlugin.show(
-
                 notificationId,
                 alarm.alarmName,
                 'Reached your place',
@@ -481,7 +502,7 @@ Future<void> onStart(ServiceInstance service) async {
                   android: AndroidNotificationDetails(
                     Uuid().v4(),
                     'MY FOREGROUND SERVICE',
-                    icon: 'ic_notification',
+                    icon: 'ic_bg_service_small',
                     sound: RawResourceAndroidNotificationSound(savedRingtone.replaceAll(".mp3", "")),
                     priority: Priority.high,
                     importance:Importance.max,
@@ -509,9 +530,37 @@ Future<void> onStart(ServiceInstance service) async {
           }
         }
       });
-
+  service.on('stopService').listen((event) async {
+    await stopService();
+  });
 
 }
+Future<void> stopService() async {
+  // 1. Cancel location updates:// Cancels the location stream
+
+  // 2. Stop foreground service (if running):
+  if (defaultTargetPlatform == TargetPlatform.android) {
+    const methodChannel = MethodChannel('com.yourdomain.yourapp/service');
+    try {
+      await methodChannel.invokeMethod('stopForegroundService');
+    } on PlatformException catch (e) {
+      // Handle platform exceptions (optional)
+      print("Error stopping service: $e");
+    }
+  }
+
+  // 3. (Optional) Clear notifications:
+  final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  await flutterLocalNotificationsPlugin.cancelAll();
+
+  // 4. (Optional) Persist alarm data if needed:
+  // ... Save alarms to SharedPreferences or other storage ...
+
+  // 5. (Optional) Unregister any other listeners or resources
+
+  print('Service stopped.');
+}
+
 
 double degreesToRadians(double degrees) {
   return degrees * math.pi / 180;
@@ -547,6 +596,12 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       home:Splashscreen(),
+      routes: { // Define your routes (optional)
+        '/home': (context) => MyAlarmsPage(),
+        '/secondpage': (context) => MyHomePage(),
+        '/thirdpage': (context) => Settings(),
+        'fouthpage': (context) =>About(),
+      },
     );
   }
 }

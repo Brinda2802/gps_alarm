@@ -235,7 +235,7 @@ class _TrackState extends State<Track> {
   LatLng? _target = null;
   Future markLocation() async {
     Marker? current;
-    ByteData byteData = await rootBundle.load('assets/locationmark5.png');
+    ByteData byteData = await rootBundle.load('assets/locationmark7.png');
     Uint8List imageData = byteData.buffer.asUint8List();
     // Create a BitmapDescriptor from the image data
     BitmapDescriptor customIcon = BitmapDescriptor.fromBytes(imageData);
@@ -395,7 +395,7 @@ class _TrackState extends State<Track> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String alarmName = alramnamecontroller.text;
     String notes = notescontroller.text;
-    double radius = 0; // Assuming you have a way to get the radius
+    double radius = widget.alarm!.locationRadius;; // Assuming you have a way to get the radius
     // Save data to SharedPreferences
     await prefs.setString('alarmName', alarmName);
     await prefs.setDouble('radius', radius);
@@ -573,6 +573,7 @@ class _TrackState extends State<Track> {
     // }
     loadData();
     alramnamecontroller.text;
+    notescontroller.text = widget.alarm!.notes;
   //  notescontroller.clear();
     List<AlarmDetails> alarms = [];
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -622,12 +623,10 @@ class _TrackState extends State<Track> {
                               // Alarm not found, handle error (optional)
                               return;
                             }
-
                             // Get values from UI elements
                             String newAlarmName = alramnamecontroller.text;
                             String newNotes = notescontroller.text;
                             double newRadius = radius;
-
                             // Update the alarm details
                             alarms[index].alarmName = newAlarmName;
                             alarms[index].notes = newNotes;
@@ -642,10 +641,7 @@ class _TrackState extends State<Track> {
                                     .toList());
 
                             // Optionally, clear UI elements or navigate to MyAlarmsPage
-                            notescontroller.clear();
                             alramnamecontroller.text = '';
-
-
                             showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
@@ -1092,28 +1088,23 @@ class _TrackState extends State<Track> {
     }
   }
   void handleScreenChanged(int index) {
+    Navigator.of(context).pop();
+
     switch (index) {
       case 0: // Alarm List
-        Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => MyAlarmsPage()));
+        Navigator.of(context).pop();
         // Replace with your AlarmListPage widget
         break;
       case 1: // Alarm List
-
-        Navigator.of(context).push(
+        Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => MyHomePage()));
         // Replace with your AlarmListPage widget
         break;
       case 2:
-        Navigator.of(context).pop();// Saved Alarms
-        // Replace with your SavedAlarmsPage widget
-        break;
-      case 3: // Saved Alarms
-        Navigator.of(context).push(
+        Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => Settings())); // Replace with your SavedAlarmsPage widget
         break;
-      case 4:
-
+      case 3:
         final RenderBox box = context.findRenderObject() as RenderBox;
         Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
         Share.share(
@@ -1121,23 +1112,11 @@ class _TrackState extends State<Track> {
           subject: 'Share this amazing app!',
           sharePositionOrigin: dummyRect,
         );
-
-
+        break;
+      case 4:
+        _launchInBrowser(toLaunch);
         break;
       case 5:
-
-        _launchInBrowser(toLaunch);
-
-
-        break;
-      case 6:
-
-        _launchInBrowser(toLaunch);
-
-
-        break;
-      case 7:
-
         Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => About()));
 

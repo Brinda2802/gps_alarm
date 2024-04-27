@@ -183,44 +183,48 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
       throw Exception('Could not launch $url');
     }
   }
-  void handleScreenChanged(int index) {
-    switch (index) {
-      case 0:
-        Navigator.of (context).pop();// Alarm List
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => MyAlarmsPage()));
-        break;
-      case 1:
-        Navigator.of (context).pop();// Alarm List
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => MyHomePage()));
-        break;
-      case 2:
-        Navigator.of (context).pop();
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => Settings()));
-        break;
-      case 3:
-        Navigator.of (context).pop();
-        final RenderBox box = context.findRenderObject() as RenderBox;
-        Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
-        Share.share(
-          'Check out my awesome app! Download it from the app store:',
-          subject: 'Share this amazing app!',
-          sharePositionOrigin: dummyRect,
-        );
-        break;
-      case 4:
-        Navigator.of (context).pop();
-        _launchInBrowser(toLaunch);
-        break;
-      case 5:
-        Navigator.of (context).pop();
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => About()));
-        break;
-    }
-  }
+  // void handleScreenChanged(int index) {
+  //   switch (index) {
+  //     case 0:
+  //       // Navigator.of (context).pop();// Alarm List
+  //       // Navigator.of(context).pushReplacement(
+  //       //     MaterialPageRoute(builder: (context) => MyAlarmsPage()));
+  //       Navigator.popUntil(context, ModalRoute.withName('/screen1'));
+  //       break;
+  //     case 1:
+  //       // Navigator.of (context).pop();// Alarm List
+  //       // Navigator.of(context).push(
+  //       //     MaterialPageRoute(builder: (context) => MyHomePage()));
+  //       Navigator.popUntil(context, ModalRoute.withName('/screen2'));
+  //       break;
+  //     case 2:
+  //       // Navigator.of (context).pop();
+  //       // Navigator.of(context).push(
+  //       //     MaterialPageRoute(builder: (context) => Settings()));
+  //       Navigator.popUntil(context, ModalRoute.withName('/screen3'));
+  //       break;
+  //     case 3:
+  //       // Navigator.of (context).pop();
+  //       final RenderBox box = context.findRenderObject() as RenderBox;
+  //       Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
+  //       Share.share(
+  //         'Check out my awesome app! Download it from the app store:',
+  //         subject: 'Share this amazing app!',
+  //         sharePositionOrigin: dummyRect,
+  //       );
+  //       break;
+  //     case 4:
+  //       // Navigator.of (context).pop();
+  //       _launchInBrowser(toLaunch);
+  //       break;
+  //     case 5:
+  //       // Navigator.of (context).pop();
+  //       // Navigator.of(context).push(
+  //       //     MaterialPageRoute(builder: (context) => About()));
+  //       Navigator.popUntil(context, ModalRoute.withName('/screen4'));
+  //       break;
+  //   }
+  // }
   // void saveAlarm(BuildContext context) async {
   //   if (alramnamecontroller.text.isEmpty ||
   //       radius == null) {
@@ -265,6 +269,51 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
   //     ),
   //   );
   // }
+  void handleScreenChanged(int index) {
+    switch (index) {
+      case 0:
+        Navigator.of(context).pop();
+        break;
+      case 1:
+        Navigator.of(context).pop();
+      // No pop needed for screen2 as it's likely the first screen
+      //   Navigator.pushNamed(context, '/secondpage'); // Navigate to screen2
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (context)=>MyHomePage())
+        );
+        break;
+      case 2:
+        Navigator.of(context).pop();
+        // Navigator.pushNamed(context, '/thirdpage');
+        Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context)=>Settings())
+                ); //Navigate to screen3
+        break;
+      case 3:
+        Navigator.of(context).pop();
+      // Share functionality, no navigation
+        final RenderBox box = context.findRenderObject() as RenderBox;
+        Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
+        Share.share(
+          'Check out my awesome app! Download it from the app store:',
+          subject: 'Share this amazing app!',
+          sharePositionOrigin: dummyRect,
+        );
+        break;
+      case 4:
+        Navigator.of(context).pop();
+      // Launch URL, no navigation
+        _launchInBrowser(toLaunch);
+        break;
+      case 5:
+        Navigator.of(context).pop();
+        // Navigator.pushNamed(context, '/fouthpage'); // Navigate to screen4
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (context)=>About())
+        );
+        break;
+    }
+  }
   final Uri toLaunch =
   Uri(scheme: 'https', host: 'www.cylog.org', path: 'headers/');
   @override
@@ -569,7 +618,7 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
 
                         IconButton(
                           onPressed: () {
-                            Navigator.of(context).pushReplacement(MaterialPageRoute(
+                            Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) => Track(
                                   alarm: alarms[index],
                                 )));
@@ -600,7 +649,7 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
         floatingActionButton: FloatingActionButton(
         child: Icon(CupertinoIcons.plus),
         onPressed: (){
-          Navigator.of(context).pushReplacement(
+          Navigator.of(context).push(
             MaterialPageRoute(builder: (context)=>MyHomePage())
           );
         },

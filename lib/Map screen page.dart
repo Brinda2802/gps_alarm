@@ -1198,25 +1198,107 @@ class _MyHomePageState extends State<MyHomePage> {
   //       break;
   //   }
   // }
+  // void handleScreenChanged(int index) {
+  //   switch (index) {
+  //     case 0:
+  //       Navigator.of (context).pop();// Alarm List
+  //       Navigator.of(context).pushReplacement(
+  //           MaterialPageRoute(builder: (context) => MyAlarmsPage()));
+  //       break;
+  //     case 1:
+  //       Navigator.of (context).pop();// Alarm List
+  //       Navigator.of(context).push(
+  //           MaterialPageRoute(builder: (context) => MyHomePage()));
+  //       break;
+  //     case 2:
+  //       Navigator.of (context).pop();
+  //       Navigator.of(context).push(
+  //           MaterialPageRoute(builder: (context) => Settings()));
+  //       break;
+  //     case 3:
+  //       Navigator.of (context).pop();
+  //       final RenderBox box = context.findRenderObject() as RenderBox;
+  //       Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
+  //       Share.share(
+  //         'Check out my awesome app! Download it from the app store:',
+  //         subject: 'Share this amazing app!',
+  //         sharePositionOrigin: dummyRect,
+  //       );
+  //       break;
+  //     case 4:
+  //       Navigator.of (context).pop();
+  //       _launchInBrowser(toLaunch);
+  //       break;
+  //     case 5:
+  //       Navigator.of (context).pop();
+  //       Navigator.of(context).push(
+  //           MaterialPageRoute(builder: (context) => About()));
+  //       break;
+  //   }
+  // }
+  // void handleScreenChanged(int index) {
+  //   switch (index) {
+  //     case 0:
+  //       Navigator.of(context).pop();
+  //       // No pop needed for screen1 as it's likely the first screen
+  //      Navigator.of(context).push(
+  //        MaterialPageRoute(builder: (context)=>My)
+  //      )// Navigate to screen1
+  //       break;
+  //     case 1:
+  //       Navigator.of(context).pop();
+  //       // No pop needed for screen2 as it's likely the first screen
+  //      // Navigator.pushNamed(context, '/secondpage');
+  //        Navigator.popUntil(context, ModalRoute.withName('/secondpage'));
+  //       // Navigate to screen2
+  //       break;
+  //     case 2:
+  //       Navigator.of(context).pop();
+  //       // Navigator.pushNamed(context, '/thirdpage');
+  //       Navigator.popUntil(context, ModalRoute.withName('/thirdpage'));// Navigate to screen3
+  //       break;
+  //     case 3:
+  //       Navigator.of(context).pop();
+  //       // Share functionality, no navigation
+  //       final RenderBox box = context.findRenderObject() as RenderBox;
+  //       Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
+  //       Share.share(
+  //         'Check out my awesome app! Download it from the app store:',
+  //         subject: 'Share this amazing app!',
+  //         sharePositionOrigin: dummyRect,
+  //       );
+  //
+  //       break;
+  //     case 4:
+  //       Navigator.of(context).pop();
+  //       // Launch URL, no navigation
+  //       _launchInBrowser(toLaunch);
+  //       break;
+  //     case 5:
+  //       Navigator.of(context).pop();
+  //      // Navigator.pushNamed(context, '/fouthpage');
+  //       Navigator.popUntil(context, ModalRoute.withName('/fouthpage'));// Navigate to screen4
+  //       break;
+  //   }
+  // }
   void handleScreenChanged(int index) {
+    Navigator.of(context).pop();
     switch (index) {
       case 0:
-        Navigator.of (context).pop();// Alarm List
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => MyAlarmsPage()));
+        // No pop needed for screen1 as it's likely the first screen
+        //   Navigator.pushNamed(context, '/home'); // Navigate to screen1
+        Navigator.of(context).pop();
         break;
       case 1:
-        Navigator.of (context).pop();// Alarm List
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => MyHomePage()));
         break;
       case 2:
-        Navigator.of (context).pop();
+        // Navigator.pushNamed(context, '/thirdpage');
         Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => Settings()));
+            MaterialPageRoute(builder: (context)=>Settings())
+        ); //Navigate to screen3
         break;
       case 3:
-        Navigator.of (context).pop();
+        // Share functionality, no navigation
         final RenderBox box = context.findRenderObject() as RenderBox;
         Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
         Share.share(
@@ -1226,13 +1308,14 @@ class _MyHomePageState extends State<MyHomePage> {
         );
         break;
       case 4:
-        Navigator.of (context).pop();
+        // Launch URL, no navigation
         _launchInBrowser(toLaunch);
         break;
       case 5:
-        Navigator.of (context).pop();
+        // Navigator.pushNamed(context, '/fouthpage'); // Navigate to screen4
         Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => About()));
+            MaterialPageRoute(builder: (context)=>About())
+        );
         break;
     }
   }
@@ -1882,9 +1965,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
   _handleTap(LatLng point) async {
     _handletap=true;
-    ByteData byteData = await rootBundle.load('assets/locationmark5.png');
+    ByteData byteData = await rootBundle.load('assets/locationmark7.png');
     Uint8List imageData = byteData.buffer.asUint8List();
-
     // Create a BitmapDescriptor from the image data
     BitmapDescriptor customIcon = BitmapDescriptor.fromBytes(imageData);
     setState(() {

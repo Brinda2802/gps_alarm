@@ -1260,24 +1260,19 @@ class _SettingsState extends State<Settings> {
     }
   }
   void handleScreenChanged(int index) {
+    Navigator.of(context).pop();
+
     switch (index) {
       case 0:
-        Navigator.of (context).pop();// Alarm List
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => MyAlarmsPage()));
+        Navigator.of(context).pop();
         break;
       case 1:
-        Navigator.of (context).pop();// Alarm List
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => MyHomePage()));
         break;
       case 2:
-        Navigator.of (context).pop();
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => Settings()));
         break;
       case 3:
-        Navigator.of (context).pop();
         final RenderBox box = context.findRenderObject() as RenderBox;
         Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
         Share.share(
@@ -1287,16 +1282,59 @@ class _SettingsState extends State<Settings> {
         );
         break;
       case 4:
-        Navigator.of (context).pop();
         _launchInBrowser(toLaunch);
         break;
       case 5:
-        Navigator.of (context).pop();
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => About()));
         break;
     }
   }
+  // void handleScreenChanged(int index) {
+  //   switch (index) {
+  //     case 0:
+  //       Navigator.of(context).pop();
+  //       // No pop needed for screen1 as it's likely the first screen
+  //       // Navigator.pushAndRemoveUntil(context, '/screen1');
+  //       // Navigate to screen1
+  //       // Navigator.popUntil(context, ModalRoute.withName('/screen1'));
+  //
+  //       break;
+  //     case 1:
+  //       Navigator.of(context).pop();
+  //       // No pop needed for screen2 as it's likely the first screen
+  //       //Navigator.pushNamed(context, '/screen2');
+  //       //  Navigator.popUntil(context, ModalRoute.withName('/screen1')); //Navigate to screen2
+  //       break;
+  //     case 2:
+  //       Navigator.of(context).pop();
+  //      // Navigator.pushNamed(context, '/screen3'); // Navigate to screen3
+  //      //  Navigator.popUntil(context, ModalRoute.withName('/screen2'));
+  //       break;
+  //     case 3:
+  //       Navigator.of(context).pop();
+  //       // Share functionality, no navigation
+  //       final RenderBox box = context.findRenderObject() as RenderBox;
+  //       Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
+  //       Share.share(
+  //         'Check out my awesome app! Download it from the app store:',
+  //         subject: 'Share this amazing app!',
+  //         sharePositionOrigin: dummyRect,
+  //       );
+  //       // Navigator.popUntil(context, ModalRoute.withName('/screen3'));
+  //       break;
+  //     case 4:
+  //       Navigator.of(context).pop();
+  //       // Launch URL, no navigation
+  //       _launchInBrowser(toLaunch);
+  //       // Navigator.popUntil(context, ModalRoute.withName('/screen4'));
+  //       break;
+  //     case 5:
+  //       Navigator.of(context).pop();
+  //       // Navigator.pushNamed(context, '/screen5'); // Navigate to screen4
+  //       break;
+  //   }
+  // }
 
   Future<void> _playRingtone(String ringtone) async {
     // Ensure assets/alarm_ringtones/ is the correct path
@@ -1324,31 +1362,13 @@ class _SettingsState extends State<Settings> {
   void _handleSettingsSet() async {
     final prefs = await SharedPreferences.getInstance();
     final hasSetSettings = prefs.getBool('hasSetSettings') ?? false; // Check if settings have been set
+    _audioPlayer.stop();
+    await _saveAllSettings();
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => MyAlarmsPage()),
+    );
 
-    if ( !hasSetSettings) {
-      _audioPlayer.stop();
-      await _saveAllSettings();
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => MyAlarmsPage()),
-      );
-    } else {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => Settings()),
-      );
-    }
   }
-
-
-
-
-
-
-
-
-
-
-
-
   @override
   void dispose() {
     super.dispose();
@@ -2021,6 +2041,8 @@ class _SettingsState extends State<Settings> {
 //         Navigator.of(context).push(
 //             MaterialPageRoute(builder: (context) => MyAlarmsPage()));
 //         // Replace with your AlarmListPage widget
+
+
 //         break;
 //       case 1: // Alarm List
 //         Navigator.of(context).push(
