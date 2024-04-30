@@ -944,6 +944,8 @@
 //     );
 //   }
 // }
+
+
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:convert';
@@ -1398,7 +1400,7 @@ class _MyHomePageState extends State<MyHomePage> {
             myLocationButtonEnabled: false,
             zoomControlsEnabled: false,
             initialCameraPosition: CameraPosition(
-              zoom: 30,
+              zoom: 15,
               target: _defaultLocation,
             ),
             onMapCreated: (GoogleMapController controller) {
@@ -1502,8 +1504,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _showCustomBottomSheet(BuildContext context)async {
     double height=MediaQuery.of(context).size.height;
     double width=MediaQuery.of(context).size.width;
-
-
+    int characterCount = 0;
     if (!_handletap) {
       // Show a snackbar if a destination is not selected
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1530,12 +1531,13 @@ class _MyHomePageState extends State<MyHomePage> {
       context: context,
       isScrollControlled: true,
       builder: (BuildContext context) {
+        String counterText;
         return Padding(
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
           child: Container(
-            height: height/2.29090,
+            height: 390,
             width: double.infinity,
 
             child: Column(
@@ -1555,21 +1557,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     Padding(
                       padding:  EdgeInsets.only(left:width/3),
                       child: FilledButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            // Form is valid, navigate to save alarm page
-                            saveAlarm(context);
-                          } else {
-                            // Form is not valid, do nothing (or display an error message)
-                            // You can display an error message if needed
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                    'Please fix the errors before saving the alarm.'),
-                              ),
-                            );
-                          }
-
+                        onPressed: (){
+                          saveAlarm(context);
                         },
                           // Call the saveAlarm function
 
@@ -1721,111 +1710,77 @@ class _MyHomePageState extends State<MyHomePage> {
                 //     ),
                 //   ],
                 // ),
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start, // Align text to the start horizontally
-                    children: [
-                      Text(
-                        "Alarm Name:",
-                        style: Theme.of(context).textTheme.titleMedium,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start, // Align text to the start horizontally
+              children: [
+                Text(
+                  "Alarm Name:",
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                Container(
+                  //height: 70,
+                  width: 320,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.black12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 16.0,right: 16),
+                    child: TextField(
+                      textAlign: TextAlign.start,
+                      // keyboardType: TextInputType.multiline,
+                      maxLines: 2,
+                      controller: alramnamecontroller,
+                      // Set the desired number of lines for multi-line input
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      decoration: InputDecoration(
+                        hintText: "Alarmname",
+                        border: InputBorder.none, // Remove borders if desired (optional)
+                        enabledBorder: InputBorder.none, // Remove borders if desired (optional)
+                        // Show current character count and limit
                       ),
-                      Container(
-                        height: height / 15.12,
-                        width: width / 1.2,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.black12),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.only(left: width / 36),
-                          child: TextFormField(
-                            controller: alramnamecontroller,
-                            maxLines: 2,
-                            style: Theme.of(context).textTheme.bodyMedium,
-                            decoration: InputDecoration(
-                              hintText: "Alarm name",
-                              border: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                              counterText: '', // Hide default character counter
-                            ),
-                            maxLength: 50, // Set character limit
-                            validator: (value) {
-                              // Check if the input is only whitespace characters or empty
-                              if (value!.trim().isEmpty) {
-                                return 'Alarm name is required.';
-                              }
-                              if (value.split(' ').length > 50) {
-                                return 'Alarm name cannot exceed 50 words.';
-                              }
-                              //Remove the check for special characters and emojis
-                           //    if (RegExp(r'[^\w\s]').hasMatch(value)) {
-                           // return 'Alarm name cannot contain special characters or emojis.';
-                           //     }
-                              return null; // Valid input
-                            },
-                            onChanged: (value) {
-                              // Optional: Update counter text manually (if desired)
-                              // setState(() {
-                              //   counterText = value.length.toString();
-                              // });
-                            },
-                          ),
-                        ),
-                      ),
-                      Text("Notes:",style: Theme.of(context).textTheme.titleMedium,),
-                      Container(
-                        height: height / 15.12,
-                        width: width / 1.2,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.black12),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.only(left: width / 36),
-                          child: TextFormField(
-                            controller: notescontroller,
-                            maxLines: 2,
-                            style: Theme.of(context).textTheme.bodyMedium,
-                            decoration: InputDecoration(
-                              hintText: "Notes",
-                              border: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                              counterText: '', // Hide default character counter
-                            ),
-                            maxLength: 50, // Set character limit
-                            validator: (value) {
-                              // Check if the input is only whitespace characters or empty
-                              // if (value!.trim().isEmpty) {
-                              //   return 'Notes is required.';
-                              // }
-                              if (value!.split(' ').length > 50) {
-                                return 'Notes cannot exceed 50 words.';
-                              }
-                              //Remove the check for special characters and emojis
-                              //    if (RegExp(r'[^\w\s]').hasMatch(value)) {
-                              // return 'Alarm name cannot contain special characters or emojis.';
-                              //     }
-                              return null; // Valid input
-                            },
-                            onChanged: (value) {
-                              // Optional: Update counter text manually (if desired)
-                              // setState(() {
-                              //   counterText = value.length.toString();
-                              // });
-                            },
-                          ),
-                        ),
-                      ),
-
-
-                    ],
+                      maxLength: 50,
+                      onChanged: (value) => counterText= '${alramnamecontroller.text.length}/50',// Set the maximum allowed characters
+                    ),
                   ),
                 ),
-
+                //Text("Alarmname cannot exceed 50 words",style: Theme.of(context).textTheme.bodySmall,),
+                SizedBox(
+                  height: 10,
+                ),
+                Text("Notes:",style: Theme.of(context).textTheme.titleMedium,),
+                Container(
+                  //height: 70,
+                  width: 320,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.black12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 16.0,right: 16),
+                    child: TextField(
+                      textAlign: TextAlign.start,
+                      // keyboardType: TextInputType.multiline,
+                      maxLines: 2,
+                      controller: notescontroller,
+                      // Set the desired number of lines for multi-line input
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      decoration: InputDecoration(
+                        hintText: "Notes",
+                        border: InputBorder.none, // Remove borders if desired (optional)
+                        enabledBorder: InputBorder.none, // Remove borders if desired (optional)
+                        // Show current character count and limit
+                      ),
+                      maxLength: 150,
+                      onChanged: (value) => counterText= '${notescontroller.text.length}/150',// Set the maximum allowed characters
+                    ),
+                  ),
+                ),
+                //Text("Notes cannot exceed 150 words",style: Theme.of(context).textTheme.bodySmall,),
               ],
+            ),]
             ),
           ),
         );
@@ -1846,9 +1801,7 @@ class _MyHomePageState extends State<MyHomePage> {
       );
       return; // Exit the function without saving the data
     }
-
     print("locationradius:" +radius.toString(),);
-
     setState(() {
 
       AlarmDetails newAlarm = AlarmDetails(

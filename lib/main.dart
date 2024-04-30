@@ -536,11 +536,12 @@ Future<void> onStart(ServiceInstance service) async {
       }
 
       alarms = alarms.where((element) => element.isEnabled).toList();
-      if(alarms.isEmpty) {
+      if(alarms.isEmpty ) {
         subscription.cancel();
         service.stopSelf();
       }
     }
+
   });
 
   service.on('stopService').listen((event) {

@@ -52,6 +52,12 @@ class _TrackState extends State<Track> {
       print("updatevalue:"+value.toString());
     });
   }
+
+  double targetZoomLevel = 15.0;
+
+  bool isMapInitialized = false;
+  GoogleMapController? mapController;
+  bool _imperial = false;
   late String ringtonePath;
   late String selectedRingtone;
   void _saveSelectedRingtone() async {
@@ -67,10 +73,11 @@ class _TrackState extends State<Track> {
       });
     }
   }
+
   bool isAnimated=false;
   bool _notificationsEnabled = false;
   TextEditingController controller = TextEditingController();
-  GoogleMapController? mapController;
+
   location.LocationData? currentLocation;
   location.Location _locationService = location.Location();
   bool _isCameraMoving = true;
@@ -507,8 +514,7 @@ class _TrackState extends State<Track> {
     }
     LatLng? _current =  LatLng(
         13.067439, 80.237617);
-    LatLng? _target =  LatLng(
-        13.067439, 80.237617);
+    _target = LatLng(widget.alarm!.lat, widget.alarm!.lng);
     log("location 1");
     _locationService.onLocationChanged.listen((
         location.LocationData newLocation) async {
@@ -542,14 +548,14 @@ class _TrackState extends State<Track> {
       if (mapController != null && !isAnimated ) {
         isAnimated = true;
         // Calculate bounds containing both markers
-        LatLngBounds bounds = LatLngBounds(
+        LatLngBounds bounds = LatLngBounds      (
           southwest: _calculateMarkerBounds(_current, _target).southwest,
           northeast: _calculateMarkerBounds(_current, _target).northeast,
         );
         // Animate camera to fit both markers with some padding
-        double padding = 0.05 ; // Adjust padding as needed
+        double padding = 0.05; // Adjust padding as needed
         CameraUpdate cameraUpdate = CameraUpdate.newLatLngBounds(
-          padLatLngBounds(bounds,0.20),padding
+          padLatLngBounds(bounds,0.60),padding
         );
         await mapController!.animateCamera(cameraUpdate);
       }
@@ -588,17 +594,18 @@ class _TrackState extends State<Track> {
       context: context,
       isScrollControlled: true,
       builder: (BuildContext context) {
+        String counterText;
         return Padding(
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
           child: Container(
-
-            height: height/2.29090,
+            height: 390,
             width: double.infinity,
 
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
 
                 Row(
@@ -616,67 +623,55 @@ class _TrackState extends State<Track> {
                       child: FilledButton(
                         onPressed: () async {
                           Navigator.of(context).pop();
-                          if (_formKey.currentState!.validate()) {
-                            int index = alarms.indexWhere((alarm) =>
-                            alarm.id == widget.alarm!.id);
-                            if (index == -1) {
-                              // Alarm not found, handle error (optional)
-                              return;
-                            }
-                            // Get values from UI elements
-                            String newAlarmName = alramnamecontroller.text;
-                            String newNotes = notescontroller.text;
-                            double newRadius = radius;
-                            // Update the alarm details
-                            alarms[index].alarmName = newAlarmName;
-                            alarms[index].notes = newNotes;
-                            alarms[index].locationRadius = newRadius;
-
-                            // Save the updated list of alarms as JSON strings
-                            List<Map<String, dynamic>> alarmsJson =
-                            alarms.map((alarm) => alarm.toJson()).toList();
-                            await prefs.setStringList(
-                                'alarms',
-                                alarmsJson.map((json) => jsonEncode(json))
-                                    .toList());
-
-                            // Optionally, clear UI elements or navigate to MyAlarmsPage
-                            alramnamecontroller.text = '';
-                            showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: Text("Success"),
-                                    content: Text(
-                                        "Location changed successfully."),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                          Navigator.of(context).pop();
-                                          Navigator.of(context).pushReplacement(
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    MyAlarmsPage()),
-                                          );
-                                        },
-                                        child: Text("OK"),
-                                      ),
-                                    ],
-                                  );
-                                }
-                            );
+                          int index = alarms.indexWhere((alarm) =>
+                          alarm.id == widget.alarm!.id);
+                          if (index == -1) {
+                            // Alarm not found, handle error (optional)
+                            return;
                           }
-                          else {
-                            // Form is not valid, do nothing (or display an error message)
-                            // You can display an error message if needed
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                    'Please fix the errors before saving the alarm.'),
-                              ),
-                            );
-                          }
+                          // Get values from UI elements
+                          String newAlarmName = alramnamecontroller.text;
+                          String newNotes = notescontroller.text;
+                          double newRadius = radius;
+                          // Update the alarm details
+                          alarms[index].alarmName = newAlarmName;
+                          alarms[index].notes = newNotes;
+                          alarms[index].locationRadius = newRadius;
+
+                          // Save the updated list of alarms as JSON strings
+                          List<Map<String, dynamic>> alarmsJson =
+                          alarms.map((alarm) => alarm.toJson()).toList();
+                          await prefs.setStringList(
+                              'alarms',
+                              alarmsJson.map((json) => jsonEncode(json))
+                                  .toList());
+
+                          // Optionally, clear UI elements or navigate to MyAlarmsPage
+                          alramnamecontroller.text = '';
+                          showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text("Success"),
+                                  content: Text(
+                                      "Location changed successfully."),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                        Navigator.of(context).pop();
+                                        Navigator.of(context).pushReplacement(
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  MyAlarmsPage()),
+                                        );
+                                      },
+                                      child: Text("OK"),
+                                    ),
+                                  ],
+                                );
+                              }
+                          );
 
                           // // You can optionally navigate to MyAlarmsPage here
                           // Navigator.of(context).push(
@@ -725,7 +720,7 @@ class _TrackState extends State<Track> {
                 // Integrate the MeterCalculatorWidget
                 MeterCalculatorWidget(
                   callback: updateradiusvalue,
-                  radius: widget.alarm?.locationRadius,
+                  //radius: widget.alarm?.locationRadius,
                 ),
                 // Column(
                 //   crossAxisAlignment: CrossAxisAlignment.start,
@@ -782,8 +777,8 @@ class _TrackState extends State<Track> {
                 //
                 //   ],
                 // ),
-                Form(
-                  key: _formKey,
+                Padding(
+                  padding: const EdgeInsets.only(left: 24.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start, // Align text to the start horizontally
                     children: [
@@ -792,96 +787,67 @@ class _TrackState extends State<Track> {
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       Container(
-                        height: height / 15.12,
-                        width: width / 1.2,
+                        //height: 70,
+                         width: 320,
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(color: Colors.black12),
                         ),
                         child: Padding(
-                          padding: EdgeInsets.only(left: width / 36),
-                          child: TextFormField(
-                            controller: alramnamecontroller,
+                          padding: const EdgeInsets.only(left: 16.0,right: 16),
+                          child: TextField(
+                            textAlign: TextAlign.start,
+                           // keyboardType: TextInputType.multiline,
                             maxLines: 2,
+                            controller: alramnamecontroller,
+                            // Set the desired number of lines for multi-line input
                             style: Theme.of(context).textTheme.bodyMedium,
                             decoration: InputDecoration(
-                              hintText: "Alarm name",
-                              border: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                              counterText: '', // Hide default character counter
+                              hintText: "Alarmname",
+                              border: InputBorder.none, // Remove borders if desired (optional)
+                              enabledBorder: InputBorder.none, // Remove borders if desired (optional)
+                              // Show current character count and limit
                             ),
-                            maxLength: 50, // Set character limit
-                            validator: (value) {
-                              // Check if the input is only whitespace characters or empty
-                              if (value!.trim().isEmpty) {
-                                return 'Alarm name is required.';
-                              }
-                              if (value.split(' ').length > 50) {
-                                return 'Alarm name cannot exceed 50 words.';
-                              }
-                              //Remove the check for special characters and emojis
-                              //    if (RegExp(r'[^\w\s]').hasMatch(value)) {
-                              // return 'Alarm name cannot contain special characters or emojis.';
-                              //     }
-                              return null; // Valid input
-                            },
-                            onChanged: (value) {
-                              // Optional: Update counter text manually (if desired)
-                              // setState(() {
-                              //   counterText = value.length.toString();
-                              // });
-                            },
+                            maxLength: 50,
+                            onChanged: (value) => counterText= '${alramnamecontroller.text.length}/50',// Set the maximum allowed characters
                           ),
                         ),
+                      ),
+                      //Text("Alarmname cannot exceed 50 words",style: Theme.of(context).textTheme.bodySmall,),
+                      SizedBox(
+                        height: 10,
                       ),
                       Text("Notes:",style: Theme.of(context).textTheme.titleMedium,),
                       Container(
-                        height: height / 15.12,
-                        width: width / 1.2,
+                        //height: 70,
+                        width: 320,
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(color: Colors.black12),
                         ),
                         child: Padding(
-                          padding: EdgeInsets.only(left: width / 36),
-                          child: TextFormField(
-                            controller: notescontroller,
+                          padding: const EdgeInsets.only(left: 16.0,right: 16),
+                          child: TextField(
+                            textAlign: TextAlign.start,
+                            // keyboardType: TextInputType.multiline,
                             maxLines: 2,
+                            controller: notescontroller,
+                            // Set the desired number of lines for multi-line input
                             style: Theme.of(context).textTheme.bodyMedium,
                             decoration: InputDecoration(
                               hintText: "Notes",
-                              border: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                              counterText: '', // Hide default character counter
+                              border: InputBorder.none, // Remove borders if desired (optional)
+                              enabledBorder: InputBorder.none, // Remove borders if desired (optional)
+                              // Show current character count and limit
                             ),
-                            maxLength: 50, // Set character limit
-                            validator: (value) {
-                              // Check if the input is only whitespace characters or empty
-                              // if (value!.trim().isEmpty) {
-                              //   return 'Notes is required.';
-                              // }
-                              if (value!.split(' ').length > 50) {
-                                return 'Notes cannot exceed 50 words.';
-                              }
-                              //Remove the check for special characters and emojis
-                              //    if (RegExp(r'[^\w\s]').hasMatch(value)) {
-                              // return 'Alarm name cannot contain special characters or emojis.';
-                              //     }
-                              return null; // Valid input
-                            },
-                            onChanged: (value) {
-                              // Optional: Update counter text manually (if desired)
-                              // setState(() {
-                              //   counterText = value.length.toString();
-                              // });
-                            },
+                            maxLength: 150,
+                            onChanged: (value) => counterText= '${notescontroller.text.length}/150',// Set the maximum allowed characters
                           ),
                         ),
                       ),
-
-
+                      //Text("Notes cannot exceed 150 words",style: Theme.of(context).textTheme.bodySmall,),
                     ],
                   ),
                 ),
@@ -1135,10 +1101,8 @@ class _TrackState extends State<Track> {
     double height=MediaQuery.of(context).size.height;
     double width=MediaQuery.of(context).size.width;
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-      ),
-      key: _scaffoldKey,
+
+      //key: _scaffoldKey,
       // drawer: NavigationDrawer(
       //   onDestinationSelected: (int index) {
       //     handleScreenChanged(index); // Assuming you have a handleScreenChanged function
@@ -1208,13 +1172,31 @@ body:  Stack(
     myLocationButtonEnabled: false,
     zoomControlsEnabled: false,
     initialCameraPosition: CameraPosition(
-      zoom: 30,
+      zoom: 15,
       target: _defaultLocation,
     ),
-    onMapCreated: (GoogleMapController controller) {
-      mapController = controller;
-    },
-    markers: _markers,
+    // onMapCreated: (GoogleMapController controller) {
+    //   mapController = controller;
+    // },
+      onMapCreated: (GoogleMapController controller) {
+        mapController = controller;
+        isMapInitialized = true;
+        if (isMapInitialized) {
+          // Determine the current zoom level
+          double _defaultLocation = mapController!.getZoomLevel() as double;
+
+          // Calculate the difference between current and target zoom levels
+          double zoomLevelDifference = _defaultLocation - (_target!.latitude+_target!.longitude);
+
+          // Adjust the zoom level of the map to match the target level
+          mapController?.animateCamera(
+            CameraUpdate.zoomBy(zoomLevelDifference),
+          );
+        }
+      },
+
+
+        markers: _markers,
 
 
     onCameraMoveStarted: () {
@@ -1280,10 +1262,9 @@ body:  Stack(
     Positioned(
         top: 50,left: 15,
         child: IconButton(
-          onPressed: () { _scaffoldKey.currentState?.openDrawer(); }, icon: Icon(Icons.menu),)),
+          onPressed: () { Navigator.of(context).pop();}, icon: Icon(Icons.arrow_back),)),
   ],
   ),
-
     );
   }
 }

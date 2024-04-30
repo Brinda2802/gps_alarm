@@ -1201,6 +1201,20 @@ class _SettingsState extends State<Settings> {
     );
   }
 
+  Future<void> _loadRadiusData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      // Load meter radius (convert from kilometers if stored)
+      meterRadius = prefs.getDouble('meterRadius')?.toDouble() ?? 100;
+      meterRadius /= 1000; // Convert kilometers to meters if previously stored
+
+      // Load miles radius
+      milesRadius = prefs.getDouble('milesRadius') ?? 0.10;
+
+      // Load unit system preference (default to metric)
+      _isMetricSystem = prefs.getBool('unitSystem') ?? true;
+    });
+  }
 
   Future<void> _loadRingtones() async {
     try {
@@ -1222,6 +1236,15 @@ class _SettingsState extends State<Settings> {
       selectedRingtone=prefs.getString('selectedRingtone') ?? "alarm6.mp3";
     });
   }
+  Future<void> _saveRadiusData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('meterRadius', meterRadius * 1000); // Store in meters
+    await prefs.setDouble('milesRadius', milesRadius);
+
+    // Optionally save unit system preference
+    await prefs.setBool('unitSystem', _isMetricSystem); // Save current preference
+  }
+
   // Future<void> _saveSelectedRingtone(String ringtone) async {
   //   final prefs = await SharedPreferences.getInstance();
   //   prefs.reload();
@@ -1378,6 +1401,7 @@ class _SettingsState extends State<Settings> {
     super.initState();
     _loadSelectedUnit();
     _loadRingtones();
+
     // _buildRingtoneDropdown();
     _loadRadiusData();
     // _handleSettingsSet();
@@ -1397,19 +1421,21 @@ class _SettingsState extends State<Settings> {
       radius=_imperial?1.24:2000;
     });
   }
-  Future<void> _loadRadiusData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      meterRadius = (prefs.getDouble('meterRadius') ?? 100) / 1000;
-      milesRadius = prefs.getDouble('milesRadius') ?? 0.10;
-    });
-  }
-  Future<void> _saveRadiusData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setDouble('meterRadius', meterRadius*1000);
-    await prefs.setDouble('milesRadius', milesRadius);
-
-  }
+  // Future<void> _loadRadiusData() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   setState(() {
+  //     meterRadius = (prefs.getDouble('meterRadius') ?? 100) / 1000;
+  //     milesRadius = prefs.getDouble('milesRadius') ?? 0.10;
+  //     print("meterradius:"+meterRadius.toString());
+  //     print("milesradius:"+milesRadius.toString());
+  //   });
+  // }
+  // Future<void> _saveRadiusData() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   await prefs.setDouble('meterRadius', meterRadius*1000);
+  //   await prefs.setDouble('milesRadius', milesRadius);
+  //
+  // }
   Future<void> _launchInBrowser(Uri url) async {
     if (!await launchUrl(
       url,
@@ -1418,6 +1444,21 @@ class _SettingsState extends State<Settings> {
       throw Exception('Could not launch $url');
     }
   }
+  // Future<void> _loadRadiusData() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   setState(() {
+  //     // Load meter radius (convert from kilometers if stored)
+  //     meterRadius = prefs.getDouble('meterRadius')?.toDouble() ?? 100;
+  //     meterRadius /= 1000; // Convert kilometers to meters if previously stored
+  //
+  //     // Load miles radius
+  //     milesRadius = prefs.getDouble('milesRadius') ?? 0.10;
+  //
+  //     // Load unit system preference (default to metric)
+  //     _isMetricSystem = prefs.getBool('unitSystem') ?? true;
+  //   });
+  // }
+
   Future<void>? _launched;
   int screenIndex=2;
   final Uri toLaunch =
@@ -1497,7 +1538,6 @@ class _SettingsState extends State<Settings> {
   //       break;
   //   }
   // }
-
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   bool _imperial=false;
