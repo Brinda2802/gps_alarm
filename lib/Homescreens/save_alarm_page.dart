@@ -563,7 +563,7 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
       
                                 Switch(
                                   // This bool value toggles the switch.
-                                  value: alarms[index].isEnabled,
+                                  value: alarms[index].isEnabled ,
                                   onChanged: (value) async {
                                     setState(() {
                                       alarms[index].isEnabled = value;
@@ -577,6 +577,11 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
                                       }
                                     }
                                     else {
+                                      // if (alarms.where((element) => element.isEnabled).isEmpty) {
+                                      //   alarms[index].isEnabled = false;
+                                      //   print('stopping service as no alarms are enabled');
+                                      //   service.invoke('stopService');
+                                      // }
                                       print('checking for stop');
                                       print(alarms.toString());
                                       if(alarms.where((element) => element.isEnabled).isEmpty && await service.isRunning()) {

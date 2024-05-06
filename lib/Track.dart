@@ -52,9 +52,7 @@ class _TrackState extends State<Track> {
       print("updatevalue:"+value.toString());
     });
   }
-
   double targetZoomLevel = 15.0;
-
   bool isMapInitialized = false;
   GoogleMapController? mapController;
   bool _imperial = false;
@@ -73,11 +71,9 @@ class _TrackState extends State<Track> {
       });
     }
   }
-
   bool isAnimated=false;
   bool _notificationsEnabled = false;
   TextEditingController controller = TextEditingController();
-
   location.LocationData? currentLocation;
   location.Location _locationService = location.Location();
   bool _isCameraMoving = true;
@@ -600,7 +596,7 @@ class _TrackState extends State<Track> {
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
           child: Container(
-            height: 390,
+           height: height/ 1.9384615384615,
             width: double.infinity,
 
             child: Column(
@@ -623,55 +619,57 @@ class _TrackState extends State<Track> {
                       child: FilledButton(
                         onPressed: () async {
                           Navigator.of(context).pop();
-                          int index = alarms.indexWhere((alarm) =>
-                          alarm.id == widget.alarm!.id);
-                          if (index == -1) {
-                            // Alarm not found, handle error (optional)
-                            return;
-                          }
-                          // Get values from UI elements
-                          String newAlarmName = alramnamecontroller.text;
-                          String newNotes = notescontroller.text;
-                          double newRadius = radius;
-                          // Update the alarm details
-                          alarms[index].alarmName = newAlarmName;
-                          alarms[index].notes = newNotes;
-                          alarms[index].locationRadius = newRadius;
 
-                          // Save the updated list of alarms as JSON strings
-                          List<Map<String, dynamic>> alarmsJson =
-                          alarms.map((alarm) => alarm.toJson()).toList();
-                          await prefs.setStringList(
-                              'alarms',
-                              alarmsJson.map((json) => jsonEncode(json))
-                                  .toList());
+                            int index = alarms.indexWhere((alarm) =>
+                            alarm.id == widget.alarm!.id);
+                            if (index == -1) {
+                              // Alarm not found, handle error (optional)
+                              return;
+                            }
+                            // Get values from UI elements
+                            String newAlarmName = alramnamecontroller.text;
+                            String newNotes = notescontroller.text;
+                            double newRadius = radius;
+                            // Update the alarm details
+                            alarms[index].alarmName = newAlarmName;
+                            alarms[index].notes = newNotes;
+                            alarms[index].locationRadius = newRadius;
 
-                          // Optionally, clear UI elements or navigate to MyAlarmsPage
-                          alramnamecontroller.text = '';
-                          showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: Text("Success"),
-                                  content: Text(
-                                      "Location changed successfully."),
-                                  actions: <Widget>[
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                        Navigator.of(context).pop();
-                                        Navigator.of(context).pushReplacement(
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  MyAlarmsPage()),
-                                        );
-                                      },
-                                      child: Text("OK"),
-                                    ),
-                                  ],
-                                );
-                              }
-                          );
+                            // Save the updated list of alarms as JSON strings
+                            List<Map<String, dynamic>> alarmsJson =
+                            alarms.map((alarm) => alarm.toJson()).toList();
+                            await prefs.setStringList(
+                                'alarms',
+                                alarmsJson.map((json) => jsonEncode(json))
+                                    .toList());
+
+                            // Optionally, clear UI elements or navigate to MyAlarmsPage
+                            alramnamecontroller.text = '';
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text("Success"),
+                                    content: Text(
+                                        "Location changed successfully."),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                          Navigator.of(context).pushReplacement(
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    MyAlarmsPage()),
+                                          );
+                                        },
+                                        child: Text("OK"),
+                                      ),
+                                    ],
+                                  );
+                                }
+                            );
+
+
 
                           // // You can optionally navigate to MyAlarmsPage here
                           // Navigator.of(context).push(
@@ -686,30 +684,30 @@ class _TrackState extends State<Track> {
                           // await prefs.setStringList(
                           //     'alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
                           // await loadData();
-                         //  String alarmName = alramnamecontroller.text;
-                         //  String notes = notescontroller.text;
-                         //
-                         //
-                         //  // Create a new AlarmDetails object
-                         //  AlarmDetails newAlarm = AlarmDetails(
-                         //    alarmName: alarmName,
-                         //    notes: notes, id: '', locationRadius: , isEnabled: , isFavourite: , lat: , lng: ,
-                         //
-                         //    // Add other fields for your AlarmDetails class if needed
-                         //  );
-                         //
-                         //  // Add the new alarm to the existing alarms list
-                         //  alarms.add(newAlarm);
-                         //
-                         //  // Save the updated list of alarms as JSON strings
-                         //  List<String> alarmsToSave = alarms.map((alarm) => alarm.toJson()).toList();
-                         //  await prefs.setStringList('alarms', alarmsToSave);
-                         //
-                         //  // Get values from UI elements
-                         // Navigator.of(context).push(MaterialPageRoute(builder: (context)=>MyAlarmsPage()));
-                         // // Call the saveAlarm function
-                         //  saveAlarm( context);
-                         //  Navigator.of(context).push(MaterialPageRoute(builder: (context)=>MyAlarmsPage()));
+                          //  String alarmName = alramnamecontroller.text;
+                          //  String notes = notescontroller.text;
+                          //
+                          //
+                          //  // Create a new AlarmDetails object
+                          //  AlarmDetails newAlarm = AlarmDetails(
+                          //    alarmName: alarmName,
+                          //    notes: notes, id: '', locationRadius: , isEnabled: , isFavourite: , lat: , lng: ,
+                          //
+                          //    // Add other fields for your AlarmDetails class if needed
+                          //  );
+                          //
+                          //  // Add the new alarm to the existing alarms list
+                          //  alarms.add(newAlarm);
+                          //
+                          //  // Save the updated list of alarms as JSON strings
+                          //  List<String> alarmsToSave = alarms.map((alarm) => alarm.toJson()).toList();
+                          //  await prefs.setStringList('alarms', alarmsToSave);
+                          //
+                          //  // Get values from UI elements
+                          // Navigator.of(context).push(MaterialPageRoute(builder: (context)=>MyAlarmsPage()));
+                          // // Call the saveAlarm function
+                          //  saveAlarm( context);
+                          //  Navigator.of(context).push(MaterialPageRoute(builder: (context)=>MyAlarmsPage()));
                         },
                         child: Text("Save"),
                       ),
@@ -778,7 +776,7 @@ class _TrackState extends State<Track> {
                 //   ],
                 // ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 24.0),
+                  padding:  EdgeInsets.only(left: width/15),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start, // Align text to the start horizontally
                     children: [
@@ -788,14 +786,14 @@ class _TrackState extends State<Track> {
                       ),
                       Container(
                         //height: 70,
-                         width: 320,
+                        width: width/1.1612903225806,
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(color: Colors.black12),
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.only(left: 16.0,right: 16),
+                          padding:  EdgeInsets.only(left:width/ 22.5,right: width/22.5),
                           child: TextField(
                             textAlign: TextAlign.start,
                            // keyboardType: TextInputType.multiline,
@@ -821,14 +819,14 @@ class _TrackState extends State<Track> {
                       Text("Notes:",style: Theme.of(context).textTheme.titleMedium,),
                       Container(
                         //height: 70,
-                        width: 320,
+                        width: width/1.1612903225806,
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(color: Colors.black12),
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.only(left: 16.0,right: 16),
+                          padding:  EdgeInsets.only(left:width/ 22.5,right:width/ 22.5),
                           child: TextField(
                             textAlign: TextAlign.start,
                             // keyboardType: TextInputType.multiline,

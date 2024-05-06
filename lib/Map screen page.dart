@@ -946,6 +946,8 @@
 // }
 
 
+import 'dart:async';
+
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:convert';
@@ -1046,6 +1048,11 @@ class _MyHomePageState extends State<MyHomePage> {
     alramnamecontroller.text="Welcome";
     _loadRadiusData();
     loadData();
+    Timer(Duration(seconds: 20), () {
+      setState(() {
+        _isLoading = false;
+      });
+    });
 
   }
 
@@ -1393,7 +1400,8 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Stack(
         children: [
           Center(
-            child: CircularProgressIndicator(), // Adjust style as needed
+            child: CircularProgressIndicator(
+            ), // Adjust style as needed
           ),
           GoogleMap(
             mapType: MapType.normal,
@@ -1537,11 +1545,12 @@ class _MyHomePageState extends State<MyHomePage> {
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
           child: Container(
-            height: 390,
+            height:height/ 1.9384615384615,
             width: double.infinity,
 
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
               children: [
 
                 Row(
@@ -1710,77 +1719,81 @@ class _MyHomePageState extends State<MyHomePage> {
                 //     ),
                 //   ],
                 // ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start, // Align text to the start horizontally
-              children: [
-                Text(
-                  "Alarm Name:",
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                Container(
-                  //height: 70,
-                  width: 320,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.black12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 16.0,right: 16),
-                    child: TextField(
-                      textAlign: TextAlign.start,
-                      // keyboardType: TextInputType.multiline,
-                      maxLines: 2,
-                      controller: alramnamecontroller,
-                      // Set the desired number of lines for multi-line input
-                      style: Theme.of(context).textTheme.bodyMedium,
-                      decoration: InputDecoration(
-                        hintText: "Alarmname",
-                        border: InputBorder.none, // Remove borders if desired (optional)
-                        enabledBorder: InputBorder.none, // Remove borders if desired (optional)
-                        // Show current character count and limit
+                Padding(
+                  padding:  EdgeInsets.only(left:width/ 15),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start, // Align text to the start horizontally
+                    children: [
+                      Text(
+                        "Alarm Name:",
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      maxLength: 50,
-                      onChanged: (value) => counterText= '${alramnamecontroller.text.length}/50',// Set the maximum allowed characters
-                    ),
-                  ),
-                ),
-                //Text("Alarmname cannot exceed 50 words",style: Theme.of(context).textTheme.bodySmall,),
-                SizedBox(
-                  height: 10,
-                ),
-                Text("Notes:",style: Theme.of(context).textTheme.titleMedium,),
-                Container(
-                  //height: 70,
-                  width: 320,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.black12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 16.0,right: 16),
-                    child: TextField(
-                      textAlign: TextAlign.start,
-                      // keyboardType: TextInputType.multiline,
-                      maxLines: 2,
-                      controller: notescontroller,
-                      // Set the desired number of lines for multi-line input
-                      style: Theme.of(context).textTheme.bodyMedium,
-                      decoration: InputDecoration(
-                        hintText: "Notes",
-                        border: InputBorder.none, // Remove borders if desired (optional)
-                        enabledBorder: InputBorder.none, // Remove borders if desired (optional)
-                        // Show current character count and limit
+                      Container(
+                        //height: 70,
+                        width: width/1.1612903225806,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.black12),
+                        ),
+                        child: Padding(
+                          padding:  EdgeInsets.only(left: width/22.5,right: width/22.5),
+                          child: TextField(
+                            textAlign: TextAlign.start,
+                            // keyboardType: TextInputType.multiline,
+                            maxLines: 2,
+                            controller: alramnamecontroller,
+                            // Set the desired number of lines for multi-line input
+                            style: Theme.of(context).textTheme.bodyMedium,
+                            decoration: InputDecoration(
+                              hintText: "Alarmname",
+                              border: InputBorder.none, // Remove borders if desired (optional)
+                              enabledBorder: InputBorder.none, // Remove borders if desired (optional)
+                              // Show current character count and limit
+                            ),
+                            maxLength: 50,
+                            onChanged: (value) => counterText= '${alramnamecontroller.text.length}/50',// Set the maximum allowed characters
+                          ),
+                        ),
                       ),
-                      maxLength: 150,
-                      onChanged: (value) => counterText= '${notescontroller.text.length}/150',// Set the maximum allowed characters
-                    ),
+                      //Text("Alarmname cannot exceed 50 words",style: Theme.of(context).textTheme.bodySmall,),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text("Notes:",style: Theme.of(context).textTheme.titleMedium,),
+                      Container(
+                        //height: 70,
+                        width: width/1.1612903225806,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.black12),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.only(left: width/22.5,right: width/22.5),
+                          child: TextField(
+                            textAlign: TextAlign.start,
+                            // keyboardType: TextInputType.multiline,
+                            maxLines: 2,
+                            controller: notescontroller,
+                            // Set the desired number of lines for multi-line input
+                            style: Theme.of(context).textTheme.bodyMedium,
+                            decoration: InputDecoration(
+                              hintText: "Notes",
+                              border: InputBorder.none, // Remove borders if desired (optional)
+                              enabledBorder: InputBorder.none, // Remove borders if desired (optional)
+                              // Show current character count and limit
+                            ),
+                            maxLength: 150,
+                            onChanged: (value) => counterText= '${notescontroller.text.length}/150',// Set the maximum allowed characters
+                          ),
+                        ),
+                      ),
+                      //Text("Notes cannot exceed 150 words",style: Theme.of(context).textTheme.bodySmall,),
+                    ],
                   ),
                 ),
-                //Text("Notes cannot exceed 150 words",style: Theme.of(context).textTheme.bodySmall,),
-              ],
-            ),]
+              ]
             ),
           ),
         );

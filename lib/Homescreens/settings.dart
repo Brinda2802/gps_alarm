@@ -1122,18 +1122,16 @@ class _SettingsState extends State<Settings> {
       radius=value;
     });
   }
-
-
   List<String> ringtones = [
-
-  ];
+    ];
   bool listFileExists = true;
-
   String? _selectedUnit; // Variable to store the selected unit
-
   // Dropdown options
   List<String> _units = ['Metric system (m/km)', 'Imperial system (mi/ft)'];
+  List <String> options =['sounds','vibrate','sounds and Vibrate'];
   String? selectedRingtone ;
+  String? kSharedPrefVibrate = 'vibrateEnabled';
+  String? kSharedPrefBoth = 'useBoth';
   // DropdownButton<String> _buildRingtoneDropdown() {
   //   return
   //     DropdownButton<String>(
@@ -1184,9 +1182,9 @@ class _SettingsState extends State<Settings> {
             selectedRingtone = value;
             // Save selected ringtone
           });
-          _saveSelectedRingtone(value);
-          _playRingtone(selectedRingtone!);
-
+          _saveSettings(value);
+           // _saveSelectedRingtone(value);
+           _playRingtone(selectedRingtone!);
           // await flutterLocalNotificationsPlugin
           //     .resolvePlatformSpecificImplementation<
           //     AndroidFlutterLocalNotificationsPlugin>()
@@ -1200,7 +1198,35 @@ class _SettingsState extends State<Settings> {
       ),
     );
   }
-
+  Future<void> _saveSettings(String ringtone) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('selectedRingtone', ringtone);
+      print('Selected ringtone saved: $ringtone');
+      await prefs.setString('selectedRingtone', selectedRingtone!); // Existing ringtone storage
+      await prefs.setBool(kSharedPrefVibrate!, isSwitched); // Store vibrate state
+      await prefs.setString(kSharedPrefBoth!, _selectedOption == 'Both' ? 'Both' : ''); // Store "Both" state (empty string for non-Both)
+      print('Settings saved successfully!');
+      print("selectedringtone:" + selectedRingtone!);
+      print("vibrateoption" + kSharedPrefVibrate!);
+      print("bothvalue:" + kSharedPrefBoth!);
+    } catch (e) {
+      print('Error saving settings: $e');
+    }
+  }
+  Future<void> _loadSettings() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      setState(() {
+        selectedRingtone = prefs.getString('selectedRingtone') ?? "";
+        isSwitched = prefs.getBool(kSharedPrefVibrate!) ?? false;
+        // Check for "Both" state based on the stored value
+        _selectedOption = prefs.getString(kSharedPrefBoth!) == 'Both' ? 'Both' : _selectedOption; // Maintain existing selection if not "Both"
+      });
+    } catch (e) {
+      print('Error loading settings: $e');
+    }
+  }
   Future<void> _loadRadiusData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -1215,7 +1241,6 @@ class _SettingsState extends State<Settings> {
       _isMetricSystem = prefs.getBool('unitSystem') ?? true;
     });
   }
-
   Future<void> _loadRingtones() async {
     try {
       if (listFileExists) {  // Check if list.txt exists (optional)
@@ -1276,6 +1301,7 @@ class _SettingsState extends State<Settings> {
   Future<void> _saveSelectedRingtone(String ringtone) async {
     try {
       final prefs = await SharedPreferences.getInstance();
+
       await prefs.setString('selectedRingtone', ringtone);
       print('Selected ringtone saved: $ringtone');
     } catch (e) {
@@ -1287,13 +1313,15 @@ class _SettingsState extends State<Settings> {
 
     switch (index) {
       case 0:
-        Navigator.of(context).pop();
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => MyAlarmsPage()));
         break;
       case 1:
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => MyHomePage()));
         break;
       case 2:
+        Navigator.of(context).pop();
         break;
       case 3:
         final RenderBox box = context.findRenderObject() as RenderBox;
@@ -1358,7 +1386,6 @@ class _SettingsState extends State<Settings> {
   //       break;
   //   }
   // }
-
   Future<void> _playRingtone(String ringtone) async {
     // Ensure assets/alarm_ringtones/ is the correct path
     final ringtonePath = '$ringtone';
@@ -1390,19 +1417,23 @@ class _SettingsState extends State<Settings> {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (context) => MyAlarmsPage()),
     );
-
   }
   @override
   void dispose() {
     super.dispose();
     _audioPlayer.stop(); // Stop the audio player when the widget is disposed
   }
+  String selectedOptionKey = 'selectedOption';
+  String selectedRingtoneKey = 'selectedRingtone';
+  String isSwitchedKey = 'isSwitched';
+  // Function to store switch value
   void initState()  {
     super.initState();
     _loadSelectedUnit();
     _loadRingtones();
 
-    // _buildRingtoneDropdown();
+     _loadSettings();
+     // _buildRingtoneDropdown();
     _loadRadiusData();
     // _handleSettingsSet();
   }
@@ -1444,6 +1475,33 @@ class _SettingsState extends State<Settings> {
       throw Exception('Could not launch $url');
     }
   }
+  // Future<void> _loadOptions() async {
+  //   try {
+  //     // Load ringtones
+  //     if (listFileExists) {
+  //       ringtones = await rootBundle.loadString('assets/list.txt').then(
+  //             (data) => data.split(','),
+  //       );
+  //     } else {
+  //       // Handle the case where list.txt is missing (optional)
+  //     }
+  //
+  //     // Load selected ringtone
+  //     SharedPreferences prefs = await SharedPreferences.getInstance();
+  //     setState(() {
+  //       selectedRingtone = prefs.getString('selectedRingtone') ?? "alarm6.mp3";
+  //       _selectedOption = prefs.getString('selectedOption') ?? 'Alarms';
+  //       isSwitched = prefs.getBool('isSwitched') ?? false;
+  //       print("selectedRingtone" +selectedRingtone!);
+  //       print("selectedoption" +_selectedOption!);
+  //     });
+  //   } on FlutterError catch (e) {
+  //     // Handle error if list.txt is missing or inaccessible
+  //     print("Error loading options: $e");
+  //   }
+  // }
+
+
   // Future<void> _loadRadiusData() async {
   //   SharedPreferences prefs = await SharedPreferences.getInstance();
   //   setState(() {
@@ -1458,7 +1516,6 @@ class _SettingsState extends State<Settings> {
   //     _isMetricSystem = prefs.getBool('unitSystem') ?? true;
   //   });
   // }
-
   Future<void>? _launched;
   int screenIndex=2;
   final Uri toLaunch =
@@ -1539,6 +1596,9 @@ class _SettingsState extends State<Settings> {
   //   }
   // }
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  bool isSwitched = false;
+  String? _options;
+  String _selectedOption = 'Alarms';
   @override
   bool _imperial=false;
   Widget build(BuildContext context) {
@@ -1635,8 +1695,8 @@ class _SettingsState extends State<Settings> {
                 onChanged: (newValue) {
                   setState(() {
                     _selectedUnit = newValue;
-
                   });
+
                    _loadSelectedUnit();
                   _saveSelectedUnit(newValue!);
                   _isMetricSystem = newValue == 'Metric system (m/km)';
@@ -1692,11 +1752,116 @@ class _SettingsState extends State<Settings> {
               SizedBox(
                 height:height/37.8,
               ),
-              Text('Alarm',
-                style:Theme.of(context).textTheme.titleLarge, ),
-              Container(
-                child: _buildRingtoneDropdown(),
+              Text('Options',
+                style:Theme.of(context).textTheme.titleLarge,),
+              // DropdownButton<String>(
+              //   value: dropdownValue,
+              //   onChanged: (String? newValue) {
+              //     setState(() {
+              //       dropdownValue = newValue!;
+              //     });
+              //   },
+              //   items: <String>['Alarms', 'Vibrate', 'Alarms and Vibrate']
+              //       .map<DropdownMenuItem<String>>((String value) {
+              //     return DropdownMenuItem<String>(
+              //       value: value,
+              //       child: Text(value),
+              //     );
+              //   }).toList(),
+              // ),
+              DropdownButton<String>(
+                value: _selectedOption,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedOption = newValue!;
+                  });
+                },
+                hint: Text("Alarms"),
+                style: Theme.of(context).textTheme.bodyMedium,
+                underline: Container(
+                  height: height / 37.8,
+                  color: Colors.transparent,
+                ),
+                icon: Icon(Icons.arrow_drop_down),
+                isExpanded: true,
+                items: ['Alarms', 'Vibrate', 'Both'].map((option) {
+                  return DropdownMenuItem<String>(
+                    value: option,
+                    child: Text(option),
+                  );
+                }).toList(),
               ),
+              Divider(),
+              SizedBox(
+                height:height/37.8,
+              ),
+
+
+              Visibility(
+                visible: _selectedOption == 'Alarms' || _selectedOption == 'Both',
+                child: Container(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Alarm',
+                        style:Theme.of(context).textTheme.titleLarge,),
+                      _buildRingtoneDropdown(),
+                    ],
+                  ), // Replace _buildRingtoneDropdown() with your widget for ringtones
+                ),
+              ),
+              Visibility(
+                visible: _selectedOption == 'Vibrate' || _selectedOption == 'Both',
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Vibrate',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    Switch(
+                      value: isSwitched,
+                      onChanged: (bool value) {
+                        setState(() {
+                          isSwitched = value;
+                          // Call function to store switch value
+                          _saveSettings(selectedRingtone!);
+                        });
+
+                      },
+                    ),
+                  ],
+                ),
+              ),
+
+              // Text('Alarm',
+              //   style:Theme.of(context).textTheme.titleLarge,),
+              // Container(
+              //   child: _buildRingtoneDropdown(),
+              // ),
+              // Divider(),
+              // SizedBox(
+              //   height:height/37.8,
+              // ),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //   children: [
+              //     Text('Vibrate',
+              //       style:Theme.of(context).textTheme.titleLarge,),
+              //     Switch(
+              //       value: isSwitched,
+              //       onChanged: (bool value) {
+              //         setState(() {
+              //           isSwitched = value; // Update the state of the switch when it's toggled
+              //         });
+              //       },
+              //     ),
+              //   ],
+              // ),
+              SizedBox(
+                height:height/37.8,
+              ),
+
               Divider(),
               SizedBox(
                 height:height/37.8,
@@ -1777,9 +1942,6 @@ class _SettingsState extends State<Settings> {
                   ],
                 ),
               ),
-              // SizedBox(
-              //   height: height/75.6,
-              // ),
               Text("The Minimum value must exceed 0.10",style: Theme.of(context).textTheme.bodySmall,),
               SizedBox(
                 height: height/75.6,
