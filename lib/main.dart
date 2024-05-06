@@ -2093,6 +2093,7 @@ Future<void> onStart(ServiceInstance service) async {
       alarms = alarms.where((element) => element.isEnabled).toList();
       if(alarms.isEmpty ) {
         subscription.cancel();
+        service.invoke('stopped');
         service.stopSelf();
       }
     }
@@ -2101,6 +2102,7 @@ Future<void> onStart(ServiceInstance service) async {
 
   service.on('stopService').listen((event) {
     print('stopping service');
+    service.invoke('stopped');
     service.stopSelf();
     subscription.cancel();
   });

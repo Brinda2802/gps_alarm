@@ -102,6 +102,11 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
     _loadSelectedUnit();
     loadData();
     saveData();
+
+    FlutterBackgroundService().on('stopped')
+      .listen((event) {
+        loadData();
+    });
   }
   Future<void> _loadSelectedUnit() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -189,11 +194,14 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
 
   Future<void> loadData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
     List<String>? alarmsJson = prefs.getStringList('alarms');
     if (alarmsJson != null) {
-      alarms = alarmsJson
-          .map((json) => AlarmDetails.fromJson(jsonDecode(json)))
-          .toList();
+      setState(() {
+        alarms = alarmsJson
+            .map((json) => AlarmDetails.fromJson(jsonDecode(json)))
+            .toList();
+      });
     }
     double? storedLatitude = prefs.getDouble('current_latitude');
     double? storedLongitude = prefs.getDouble('current_longitude');
