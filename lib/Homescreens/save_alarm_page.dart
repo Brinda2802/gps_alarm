@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 import 'package:flutter/services.dart';
@@ -34,6 +35,7 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
   bool isFavorite = false;
   List<AlarmDetails> alarms = [];
   bool _imperial = false;
+  StreamSubscription? bgServiceListener;
   // double calculateDistance(LatLng point1, LatLng point2) {
   //   const double earthRadius = 6371000; // meters
   //
@@ -96,18 +98,32 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
   //   // Convert meters to kilometers and return the result
   //   return distanceInMeters / 1000;
   // }
+
+  @override
+  void dispose() {
+    bgServiceListener?.cancel();
+    super.dispose();
+  }
   @override
   void initState() {
     super.initState();
     _loadSelectedUnit();
     loadData();
-    saveData();
+    // saveData();
 
-    FlutterBackgroundService().on('stopped')
+    bgServiceListener = FlutterBackgroundService().on('stopped')
       .listen((event) {
-        loadData();
+        if (mounted) {
+          print('mounted');
+          loadData();
+        }
+        else {
+          print('not mounted');
+        }
     });
   }
+
+
   Future<void> _loadSelectedUnit() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? selectedUnit = prefs.getString('selectedUnit');

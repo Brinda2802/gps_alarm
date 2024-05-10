@@ -1756,6 +1756,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as location;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sound_mode/sound_mode.dart';
 import 'package:uuid/uuid.dart';
 import 'Apiutils.dart';
 import 'Homescreens/homescreen.dart';
@@ -1765,10 +1766,13 @@ import 'Homescreens/settings.dart';
 import 'Map screen page.dart';
 import 'about page.dart';
 import 'example.dart';
+import 'package:sound_mode/utils/ringer_mode_statuses.dart';
 
 const notificationChannelId = 'my_foreground';
 const notificationId = 888;
 
+const String channelId = 'your_channel_id';
+const String channelName = 'Your Channel Name';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // const AndroidInitializationSettings initializationSettingsAndroid =
@@ -1848,9 +1852,7 @@ Future<void> main() async {
 
 Future<void> initializeService() async {
   final service = FlutterBackgroundService();
-
   /// OPTIONAL, using custom notification channel id
-
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
   FlutterLocalNotificationsPlugin();
 
@@ -1861,6 +1863,7 @@ Future<void> initializeService() async {
       ),
     );
   }
+
 
   // await flutterLocalNotificationsPlugin
   //     .resolvePlatformSpecificImplementation<
@@ -1905,6 +1908,7 @@ class MyStream {
   }
 }
 
+
 @pragma('vm:entry-point')
 Future<void> onStart(ServiceInstance service) async {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -1914,11 +1918,25 @@ Future<void> onStart(ServiceInstance service) async {
       android: AndroidInitializationSettings('ic_bg_service_small'),
     ),
   );
+  RingerModeStatus ringerStatus = await SoundMode.ringerModeStatus;
+  print(ringerStatus);
+
+// To change the device's sound mode: silent to normal.
+  if(ringerStatus == 'silent'){
+    try {
+      await SoundMode.setSoundMode(RingerModeStatus.normal);
+    } on PlatformException {
+      print('Please enable permissions required');
+    }
+  }
+  // final prefs = await SharedPreferences.getInstance();
+  // final selectedRingtone = prefs.getString('selectedRingtone') ?? "alarm6.mp3";
+  // final isVibrateEnabled = prefs.getBool(kSharedPrefVibrate!) ?? false;
+  // final isBothEnabled = prefs.getString(kSharedPrefBoth!) == 'Both';
 
   final prefs = await SharedPreferences.getInstance();
-  final selectedRingtone = prefs.getString('selectedRingtone') ?? "alarm6.mp3";
+  final savedRingtone = prefs.getString('selectedRingtone') ?? "alarm6.mp3";
   final isVibrateEnabled = prefs.getBool(kSharedPrefVibrate!) ?? false;
-  final isBothEnabled = prefs.getString(kSharedPrefBoth!) == 'Both';
 
   final LocationSettings locationSettings =
   LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 100);
@@ -1954,15 +1972,15 @@ Future<void> onStart(ServiceInstance service) async {
           alarms.map((alarm) => alarm.toJson()).toList();
           await prefs.setStringList(
               'alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
-             if( !isVibrateEnabled){
-              // Trigger notification with sound regardless of service state
-               final savedRingtone =
-                   prefs.getString('selectedRingtone') ?? "alarm6.mp3";
+          if( !isVibrateEnabled){
+               final prefs = await SharedPreferences.getInstance();
+               final savedRingtone = prefs.getString('selectedRingtone') ?? "alarm6.mp3";
+               // Trigger notification with sound regardless of service state
                print(savedRingtone);
                flutterLocalNotificationsPlugin.show(
                  notificationId,
                  alarm.alarmName,
-                 'Reached your place',
+                 'Reached destination radius',
                  NotificationDetails(
                    android: AndroidNotificationDetails(
                      Uuid().v4(),
@@ -1970,8 +1988,19 @@ Future<void> onStart(ServiceInstance service) async {
                      icon: 'ic_bg_service_small',
                      sound: RawResourceAndroidNotificationSound(
                          savedRingtone.replaceAll(".mp3", "")),
-                     priority: Priority.high,
+                     priority: Priority.max,
                      importance: Importance.max,
+                     additionalFlags: Int32List.fromList(<int>[4]),
+                     enableVibration: false,
+                     fullScreenIntent: true,
+                     playSound: true,
+
+                     // vibrationPattern: Int64List.fromList(<int>[
+                     //   0, // Start immediately
+                     //   1000, // Vibrate for 1 second
+                     //   500, // Pause for 0.5 seconds
+                     //   1000, // Vibrate for 1 second
+                     // ]),
                      ticker: 'ticker',
                      actions: [
                        // Dismiss action
@@ -1993,6 +2022,8 @@ Future<void> onStart(ServiceInstance service) async {
                );
              }
              else if (isVibrateEnabled){
+               final prefs = await SharedPreferences.getInstance();
+               final isVibrateEnabled = prefs.getBool(kSharedPrefVibrate!) ?? false;
                // Trigger notification with sound regardless of service state
                // final savedRingtone =
                //     prefs.getString('selectedRingtone') ?? "alarm6.mp3";
@@ -2000,7 +2031,7 @@ Future<void> onStart(ServiceInstance service) async {
                flutterLocalNotificationsPlugin.show(
                  notificationId,
                  alarm.alarmName,
-                 'Reached your place',
+                 'Reached destination radius',
                  NotificationDetails(
                    android: AndroidNotificationDetails(
                      Uuid().v4(),
@@ -2008,6 +2039,7 @@ Future<void> onStart(ServiceInstance service) async {
                      icon: 'ic_bg_service_small',
                      priority: Priority.high,
                      importance: Importance.max,
+                     playSound: false,
                      enableVibration: true,
                      additionalFlags: Int32List.fromList(<int>[4]),
                       vibrationPattern: Int64List.fromList(<int>[
@@ -2036,60 +2068,151 @@ Future<void> onStart(ServiceInstance service) async {
                  ),
                );
              }
-             else {
-               // Trigger notification with sound regardless of service state
-               final savedRingtone =
-                   prefs.getString('selectedRingtone') ?? "alarm6.mp3";
-               print(savedRingtone);
-               flutterLocalNotificationsPlugin.show(
-                 notificationId,
-                 alarm.alarmName,
-                 'Reached your place',
-                 NotificationDetails(
-                   android: AndroidNotificationDetails(
-                     Uuid().v4(),
-                     'MY FOREGROUND SERVICE',
-                     icon: 'ic_bg_service_small',
-                     sound: RawResourceAndroidNotificationSound(
-                         savedRingtone.replaceAll(".mp3", "")),
-                     priority: Priority.high,
-                     importance: Importance.max,
-                     enableVibration: true,
-                     additionalFlags: Int32List.fromList(<int>[4]),
-                     vibrationPattern: Int64List.fromList(<int>[
-                       0, // Start immediately
-                       1000, // Vibrate for 1 second
-                       500, // Pause for 0.5 seconds
-                       1000, // Vibrate for 1 second
-                     ]),
-                     ticker: 'ticker',
-                     actions: [
-                       // Dismiss action
-                       AndroidNotificationAction(
-                         Uuid().v4(),
-                         'Dismiss',
-                       ),
-                       // Stop action
-                       // AndroidNotificationAction(
-                       //   'stop_action',
-                       //   'Stop',
-                       // ),
+             else  {
+               final prefs = await SharedPreferences.getInstance();
+               final savedRingtone = prefs.getString('selectedRingtone') ?? "alarm6.mp3";
+               final isVibrateEnabled = prefs.getBool(kSharedPrefVibrate!) ?? false;
+             // Trigger notification with sound regardless of service state
 
-                       // Snooze action
-                     ],
-                     styleInformation: DefaultStyleInformation(true, true),
-                   ),
-                 ),
-               );
-             }
+    print(savedRingtone);
+    flutterLocalNotificationsPlugin.show(
+    notificationId,
+    alarm.alarmName,
+    'Reached destination radius',
+    NotificationDetails(
+    android: AndroidNotificationDetails(
+    Uuid().v4(),
+    'MY FOREGROUND SERVICE',
+    icon: 'ic_bg_service_small',
+    sound: RawResourceAndroidNotificationSound(
+    savedRingtone.replaceAll(".mp3", "")),
+    priority: Priority.high,
+    importance: Importance.max,
+    additionalFlags: Int32List.fromList(<int>[4]),
+      vibrationPattern:isVibrateEnabled? Int64List.fromList(<int>[
+      0, // Start immediately
+      1000, // Vibrate for 1 second
+      500, // Pause for 0.5 seconds
+      1000, // Vibrate for 1 second
+    ]):Int64List.fromList(<int>[ 0 ]),
+    ticker: 'ticker',
+    actions: [
+    // Dismiss action
+    AndroidNotificationAction(
+    Uuid().v4(),
+    'Dismiss',
+    ),
+    // Stop action
+    // AndroidNotificationAction(
+    //   'stop_action',
+    //   'Stop',
+    // ),
+
+    // Snooze action
+    ],
+    styleInformation: DefaultStyleInformation(true, true),
+    ),
+    ),
+    );
+    }
 
 
-
-          print('preparing to stop service');
-          break; // Exit loop after triggering the first alarm
+         // else if (!isVibrateEnabled  || isVibrateEnabled ) {
+         //    // Trigger notification with sound regardless of service state
+         //    final savedRingtone =
+         //        prefs.getString('selectedRingtone') ?? "alarm6.mp3";
+         //    print(savedRingtone);
+         //    flutterLocalNotificationsPlugin.show(
+         //      notificationId,
+         //      alarm.alarmName,
+         //      'Reached your place',
+         //      NotificationDetails(
+         //        android: AndroidNotificationDetails(
+         //          Uuid().v4(),
+         //          'MY FOREGROUND SERVICE',
+         //          icon: 'ic_bg_service_small',
+         //          sound: RawResourceAndroidNotificationSound(
+         //              savedRingtone.replaceAll(".mp3", "")),
+         //          priority: Priority.high,
+         //          importance: Importance.max,
+         //          enableVibration: true,
+         //          additionalFlags: Int32List.fromList(<int>[4]),
+         //          vibrationPattern: Int64List.fromList(<int>[
+         //            0, // Start immediately
+         //            1000, // Vibrate for 1 second
+         //            500, // Pause for 0.5 seconds
+         //            1000, // Vibrate for 1 second
+         //          ]),
+         //          ticker: 'ticker',
+         //          actions: [
+         //            // Dismiss action
+         //            AndroidNotificationAction(
+         //              Uuid().v4(),
+         //              'Dismiss',
+         //            ),
+         //            // Stop action
+         //            // AndroidNotificationAction(
+         //            //   'stop_action',
+         //            //   'Stop',
+         //            // ),
+         //
+         //            // Snooze action
+         //          ],
+         //          styleInformation: DefaultStyleInformation(true, true),
+         //        ),
+         //      ),
+         //    );
+         //  }
+             // else if (!isVibrateEnabled  || isVibrateEnabled ) {
+             //   // Trigger notification with sound regardless of service state
+             //   final savedRingtone =
+             //       prefs.getString('selectedRingtone') ?? "alarm6.mp3";
+             //   print(savedRingtone);
+             //   flutterLocalNotificationsPlugin.show(
+             //     notificationId,
+             //     alarm.alarmName,
+             //     'Reached your place',
+             //     NotificationDetails(
+             //       android: AndroidNotificationDetails(
+             //         Uuid().v4(),
+             //         'MY FOREGROUND SERVICE',
+             //         icon: 'ic_bg_service_small',
+             //         sound: RawResourceAndroidNotificationSound(
+             //             savedRingtone.replaceAll(".mp3", "")),
+             //         priority: Priority.high,
+             //         importance: Importance.max,
+             //         enableVibration: true,
+             //         additionalFlags: Int32List.fromList(<int>[4]),
+             //         vibrationPattern: Int64List.fromList(<int>[
+             //           0, // Start immediately
+             //           1000, // Vibrate for 1 second
+             //           500, // Pause for 0.5 seconds
+             //           1000, // Vibrate for 1 second
+             //         ]),
+             //         ticker: 'ticker',
+             //         actions: [
+             //           // Dismiss action
+             //           AndroidNotificationAction(
+             //             Uuid().v4(),
+             //             'Dismiss',
+             //           ),
+             //           // Stop action
+             //           // AndroidNotificationAction(
+             //           //   'stop_action',
+             //           //   'Stop',
+             //           // ),
+             //
+             //           // Snooze action
+             //         ],
+             //         styleInformation: DefaultStyleInformation(true, true),
+             //       ),
+             //     ),
+             //   );
+             // }
+             print('preparing to stop service');
+             break; // Exit loop after triggering the first alarm
         }
       }
-
       alarms = alarms.where((element) => element.isEnabled).toList();
       if(alarms.isEmpty ) {
         subscription.cancel();
@@ -2097,8 +2220,7 @@ Future<void> onStart(ServiceInstance service) async {
         service.stopSelf();
       }
     }
-
-  });
+      });
 
   service.on('stopService').listen((event) {
     print('stopping service');

@@ -62,6 +62,8 @@ dependencies:
   background_location: ^0.13.0
   geolocator: ^11.0.0
   audio_service: ^0.18.13
+  sound_mode: ^3.0.0
+
 #  audioplayers: ^0.20.1
 
 

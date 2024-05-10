@@ -1426,7 +1426,7 @@ class _MyHomePageState extends State<MyHomePage> {
             onLongPress: _handleTap,
               onCameraMoveStarted: () {
               setState(() {
-                _isCameraMoving = true;
+                _isCameraMoving = false;
               });
             },
             onCameraIdle: () {
