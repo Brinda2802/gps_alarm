@@ -1746,6 +1746,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 import 'dart:math' as math;
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -1872,6 +1873,7 @@ Future<void> initializeService() async {
 
   await service.configure(
     androidConfiguration: AndroidConfiguration(
+
       // this will be executed when app is in foreground or background in separated isolate
       onStart: onStart,
       initialNotificationTitle: 'Running in Background',
@@ -1879,6 +1881,7 @@ Future<void> initializeService() async {
       // auto start service
       autoStart: false,
       isForegroundMode: true,
+
     ),
     iosConfiguration: IosConfiguration(
       // auto start service
@@ -1921,6 +1924,8 @@ Future<void> onStart(ServiceInstance service) async {
   RingerModeStatus ringerStatus = await SoundMode.ringerModeStatus;
   print(ringerStatus);
 
+
+
 // To change the device's sound mode: silent to normal.
   if(ringerStatus == 'silent'){
     try {
@@ -1934,9 +1939,40 @@ Future<void> onStart(ServiceInstance service) async {
   // final isVibrateEnabled = prefs.getBool(kSharedPrefVibrate!) ?? false;
   // final isBothEnabled = prefs.getString(kSharedPrefBoth!) == 'Both';
 
+  // final prefs = await SharedPreferences.getInstance();
+  // final savedRingtone = prefs.getString('selectedRingtone') ?? "alarm6.mp3";
+  // final isVibrateEnabled = prefs.getBool(kSharedPrefVibrate!) ?? false;
+  // String ?_selectedOption ;
+  // final prefs = await SharedPreferences.getInstance();
+  // await prefs.setString('selected_alarm_option', _selectedOption!);
+  // print('Saved alarm option: $_selectedOption');
   final prefs = await SharedPreferences.getInstance();
-  final savedRingtone = prefs.getString('selectedRingtone') ?? "alarm6.mp3";
-  final isVibrateEnabled = prefs.getBool(kSharedPrefVibrate!) ?? false;
+  final selectedRingtone = prefs.getString('selectedRingtone') ?? "alarm6.mp3";
+  final selectedOption = prefs.getString('selected_alarm_option') ?? "Alarms";
+
+  // Use the loaded values as needed
+  print('Loaded alarm option: $selectedOption');
+  print('Selected ringtone loaded: $selectedRingtone');
+  // Future<void> playAlarmSound(String filePath) async {
+  //   AudioCache audioCache = AudioCache();
+  //   await audioCache.load(filePath);
+
+  late  final AudioPlayer _audioPlayer = AudioPlayer();
+  Future<void> _playRingtone(String ringtone) async {
+    // Ensure assets/alarm_ringtones/ is the correct path
+    final ringtonePath = '$ringtone';
+    try {
+      await _audioPlayer.play(AssetSource(ringtonePath));
+      // await _audioPlayer.setSource(AssetSource(ringtonePath));
+      // await _audioPlayer.resume(); // Start playing the ringtone
+    } catch (e) {
+      if (e is PlatformException) {
+        print('Audio playback error: ${e.message}'); // Log the entire error message
+      } else {
+        print('Unexpected error: $e');
+      }
+    }
+  }
 
   final LocationSettings locationSettings =
   LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 100);
@@ -1972,11 +2008,15 @@ Future<void> onStart(ServiceInstance service) async {
           alarms.map((alarm) => alarm.toJson()).toList();
           await prefs.setStringList(
               'alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
-          if( !isVibrateEnabled){
+          await _playRingtone(selectedRingtone);
+          print("locally play a sound:" +selectedRingtone);
+          if(selectedOption == 'Alarms'){
                final prefs = await SharedPreferences.getInstance();
                final savedRingtone = prefs.getString('selectedRingtone') ?? "alarm6.mp3";
                // Trigger notification with sound regardless of service state
                print(savedRingtone);
+               // Play the alarm sound
+               // await playAlarmSound("locally saved the sound:"+savedRingtone);
                flutterLocalNotificationsPlugin.show(
                  notificationId,
                  alarm.alarmName,
@@ -1994,7 +2034,6 @@ Future<void> onStart(ServiceInstance service) async {
                      enableVibration: false,
                      fullScreenIntent: true,
                      playSound: true,
-
                      // vibrationPattern: Int64List.fromList(<int>[
                      //   0, // Start immediately
                      //   1000, // Vibrate for 1 second
@@ -2020,10 +2059,9 @@ Future<void> onStart(ServiceInstance service) async {
                    ),
                  ),
                );
+
              }
-             else if (isVibrateEnabled){
-               final prefs = await SharedPreferences.getInstance();
-               final isVibrateEnabled = prefs.getBool(kSharedPrefVibrate!) ?? false;
+             else if (selectedOption == 'Vibrate'){
                // Trigger notification with sound regardless of service state
                // final savedRingtone =
                //     prefs.getString('selectedRingtone') ?? "alarm6.mp3";
@@ -2068,10 +2106,10 @@ Future<void> onStart(ServiceInstance service) async {
                  ),
                );
              }
-             else  {
+             else if (selectedOption == 'both') {
                final prefs = await SharedPreferences.getInstance();
                final savedRingtone = prefs.getString('selectedRingtone') ?? "alarm6.mp3";
-               final isVibrateEnabled = prefs.getBool(kSharedPrefVibrate!) ?? false;
+               // final isVibrateEnabled = prefs.getBool(kSharedPrefVibrate!) ?? false;
              // Trigger notification with sound regardless of service state
 
     print(savedRingtone);
@@ -2089,12 +2127,12 @@ Future<void> onStart(ServiceInstance service) async {
     priority: Priority.high,
     importance: Importance.max,
     additionalFlags: Int32List.fromList(<int>[4]),
-      vibrationPattern:isVibrateEnabled? Int64List.fromList(<int>[
+      vibrationPattern:Int64List.fromList(<int>[
       0, // Start immediately
       1000, // Vibrate for 1 second
       500, // Pause for 0.5 seconds
       1000, // Vibrate for 1 second
-    ]):Int64List.fromList(<int>[ 0 ]),
+    ]),
     ticker: 'ticker',
     actions: [
     // Dismiss action
@@ -2115,7 +2153,8 @@ Future<void> onStart(ServiceInstance service) async {
     ),
     );
     }
-
+          await _playRingtone(selectedRingtone);
+          print("locally play a sound:" +selectedRingtone);
 
          // else if (!isVibrateEnabled  || isVibrateEnabled ) {
          //    // Trigger notification with sound regardless of service state

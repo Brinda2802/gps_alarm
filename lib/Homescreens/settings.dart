@@ -1183,9 +1183,9 @@ class _SettingsState extends State<Settings> {
             selectedRingtone = value;
             // Save selected ringtone
           });
-          _saveSettings(selectedRingtone!);
-           // _saveSelectedRingtone(value);
-           _playRingtone(selectedRingtone!);
+          _savesettings(selectedRingtone!);
+         // _saveSelectedRingtone(value);
+          _playRingtone(selectedRingtone!);
           // await flutterLocalNotificationsPlugin
           //     .resolvePlatformSpecificImplementation<
           //     AndroidFlutterLocalNotificationsPlugin>()
@@ -1217,25 +1217,25 @@ class _SettingsState extends State<Settings> {
   //   }
   // }
    String kSharedPrefOption = 'selected_option';
-  void _saveSettings(String ringtone) async {
-    final prefs = await SharedPreferences.getInstance();
-    if (_selectedOption == 'Both') {
-      _playRingtone(ringtone);
-      // Save both ringtone and vibration settings
-      await prefs.setString('selectedOption', _selectedOption);
-      await prefs.setBool(kSharedPrefVibrate!, true);
-      await prefs.setString(kSharedPrefBoth!, 'Both');
-      await prefs.setString('selectedRingtone', ringtone); // Save the selected ringtone
-    } else {
-      // Save ringtone based on selection, vibration based on switch
-      await prefs.setString('selectedOption', _selectedOption);
-      await prefs.setBool(kSharedPrefVibrate!, isSwitched);
-      await prefs.remove(kSharedPrefBoth!); // Remove the 'Both' flag if not selected
-      await prefs.setString('selectedRingtone', ringtone); // Save the selected ringtone
-    }
-
-    // Play the selected ringtone
-    }
+  // void _saveSettings(String ringtone) async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   if (_selectedOption == 'Both') {
+  //     _playRingtone(ringtone);
+  //     // Save both ringtone and vibration settings
+  //     await prefs.setString('selectedOption', _selectedOption);
+  //     await prefs.setBool(kSharedPrefVibrate!, true);
+  //     await prefs.setString(kSharedPrefBoth!, 'Both');
+  //     await prefs.setString('selectedRingtone', ringtone); // Save the selected ringtone
+  //   } else {
+  //     // Save ringtone based on selection, vibration based on switch
+  //     await prefs.setString('selectedOption', _selectedOption);
+  //     await prefs.setBool(kSharedPrefVibrate!, isSwitched);
+  //     await prefs.remove(kSharedPrefBoth!); // Remove the 'Both' flag if not selected
+  //     await prefs.setString('selectedRingtone', ringtone); // Save the selected ringtone
+  //   }
+  //
+  //   // Play the selected ringtone
+  //   }
   // Future<void> _loadSettings() async {
   //   try {
   //     final prefs = await SharedPreferences.getInstance();
@@ -1452,56 +1452,47 @@ class _SettingsState extends State<Settings> {
   // Function to store switch value
   void initState()  {
     super.initState();
-    _retrieveSettings();
+    _loadSettings();
     _loadSelectedUnit();
     _loadRingtones();
     //_loadSettings();
     _loadRadiusData();
-    // _savesettings();
+    _LoadSettings();
     // _saveBothSettings();
-
-
     // _handleSettingsSet();
   }
-  void _retrieveSettings() async {
+  Future<void> _savesettings(String ringtone) async
+  {
     final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('selectedRingtone', ringtone);
+    await prefs.setString('selected_alarm_option', _selectedOption!) ;
+    print('Saved alarm option: $_selectedOption');
+    print('Selected ringtone saved: $ringtone');
+  }
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    final selectedRingtone = prefs.getString('selectedRingtone');
+    final selectedOption = prefs.getString('selected_alarm_option');
+
+    // Use the loaded values as needed
+    print('Loaded alarm option: $selectedOption');
+    print('Selected ringtone loaded: $selectedRingtone');
+  }
+  Future<void> _Savesettings(String selectedOption) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('selected_alarm_option', selectedOption);
+    print('Saved alarm option: $selectedOption');
+  }
+
+  Future<void> _LoadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    final selectedOption = prefs.getString('selected_alarm_option') ?? 'Alarms'; // Default value if not found
     setState(() {
-      _selectedOption = prefs.getString('selectedOption') ?? 'Alarms';
-      isSwitched = prefs.getBool(kSharedPrefVibrate!) ?? false;
-      selectedRingtone = prefs.getString('selectedRingtone') ?? 'DefaultRingtone';
+      _selectedOption = selectedOption;
     });
+    print('Loaded alarm option: $_selectedOption');
   }
-  void _savesettings() {
-    if (_selectedOption == 'Both') {
-      // Save both ringtone and vibration settings
-      _saveBothSettings();
-    } else {
-      // Save ringtone based on selection, vibration based on switch
-      _saveRingtoneAndVibrationSettings();
-    }
-  }
-  void _saveBothSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-    final selectedRingtone = prefs.getString('selectedRingtone') ?? 'DefaultRingtone';
 
-    // Save both ringtone and vibration settings
-    await prefs.setString('selectedOption', _selectedOption);
-    await prefs.setString('selectedRingtone', selectedRingtone);
-    await prefs.setBool(kSharedPrefVibrate!, true);
-  print("selectedoption:" +selectedRingtone);
-  print("is vibrate:"+kSharedPrefVibrate!);
-    print('Settings saved successfully!');
-  }
-  void _saveRingtoneAndVibrationSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-    final selectedRingtone = prefs.getString('selectedRingtone') ?? 'DefaultRingtone';
-
-    // Save ringtone based on selection, vibration based on switch
-    await prefs.setString('selectedOption', _selectedOption);
-    await prefs.setString('selectedRingtone', selectedRingtone);
-    await prefs.setBool(kSharedPrefVibrate!, isSwitched);
-    print('only ringtone and vibration: Settings saved successfully!');
-  }
   void _saveSelectedUnit(String newValue) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('selectedUnit', newValue);
@@ -1663,13 +1654,13 @@ class _SettingsState extends State<Settings> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool isSwitched = false;
   String? _options;
-  String _selectedOption = 'Alarms';
-  void handleAlarmOpen() {
-    setState(() {
-      isSwitched = false; // Turn off vibration switch visually
-      _saveSettings(selectedRingtone!); // Update settings based on selection
-    });
-  }
+  String?_selectedOption;
+  // void handleAlarmOpen() {
+  //   setState(() {
+  //     isSwitched = false; // Turn off vibration switch visually
+  //     _saveSettings(selectedRingtone!); // Update settings based on selection
+  //   });
+  // }
   @override
   bool _imperial=false;
   Widget build(BuildContext context) {
@@ -1841,12 +1832,17 @@ class _SettingsState extends State<Settings> {
             DropdownButton<String>(
               value: _selectedOption,
               onChanged: (String? newValue) {
-                handleAlarmOpen();
+               // handleAlarmOpen();
                 setState(() {
                   _selectedOption = newValue!;
-                  _savesettings(); // Save the selected option
+                  _savesettings(selectedRingtone!);
+                  // Save the selected option
                 });
-              },
+                _savesettings(selectedRingtone!);
+                _Savesettings(newValue!);
+
+
+                },
               hint: Text("Alarms"),
               style: Theme.of(context).textTheme.bodyMedium,
               underline: Container(
@@ -2017,6 +2013,7 @@ class _SettingsState extends State<Settings> {
                 padding:  EdgeInsets.only(top:height/15.12,left:width/3),
                 child: FilledButton(
                   onPressed: () {
+                    _savesettings(selectedRingtone!);
                     _handleSettingsSet();
                   },  child: Text("Set"),
                   // Call the saveAlarm functio
