@@ -1,0 +1,2 @@
+<notificationchannel xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="com.inodesys.gps_alarm.notification.channel.ALARMS"  android:name="@string/alarm_notification_channel_name"  android:importance="high"  android:visibility="public">  <sound android:src="@raw/alarm_sound" />  <vibration android:pattern="@array/alarm_vibration" />  </notificationchannel>

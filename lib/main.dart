@@ -1746,7 +1746,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 import 'dart:math' as math;
-import 'package:audioplayers/audioplayers.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -1754,6 +1754,8 @@ import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:location/location.dart' as location;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -1769,13 +1771,29 @@ import 'about page.dart';
 import 'example.dart';
 import 'package:sound_mode/utils/ringer_mode_statuses.dart';
 
+
+
+
+
+
+
+
+
 const notificationChannelId = 'my_foreground';
 const notificationId = 888;
 
 const String channelId = 'your_channel_id';
 const String channelName = 'Your Channel Name';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // await JustAudioBackground.init(
+  //   androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
+  //   androidNotificationChannelName: 'Audio playback',
+  //   androidNotificationOngoing: true,
+  // );
+
+
   // const AndroidInitializationSettings initializationSettingsAndroid =
   // AndroidInitializationSettings('ic_notification');
   // const InitializationSettings initializationSettings = InitializationSettings(
@@ -1916,6 +1934,10 @@ class MyStream {
 Future<void> onStart(ServiceInstance service) async {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
   FlutterLocalNotificationsPlugin();
+
+
+
+
   await flutterLocalNotificationsPlugin.initialize(
     const InitializationSettings(
       android: AndroidInitializationSettings('ic_bg_service_small'),
@@ -1934,6 +1956,20 @@ Future<void> onStart(ServiceInstance service) async {
       print('Please enable permissions required');
     }
   }
+  final _player = AudioPlayer();
+
+
+ final source = AudioSource.uri(
+    Uri.parse('assets/audio/alarm.mp3'),
+    tag: MediaItem(
+      // Specify a unique ID for each media item:
+      id: '1',
+      // Metadata to display in the notification:
+      album: "Album name",
+      title: "Song name",
+      artUri: Uri.parse('assets/audio/alarm.mp3'),
+    ),
+  );
   // final prefs = await SharedPreferences.getInstance();
   // final selectedRingtone = prefs.getString('selectedRingtone') ?? "alarm6.mp3";
   // final isVibrateEnabled = prefs.getBool(kSharedPrefVibrate!) ?? false;
@@ -1957,23 +1993,58 @@ Future<void> onStart(ServiceInstance service) async {
   //   AudioCache audioCache = AudioCache();
   //   await audioCache.load(filePath);
 
-  late  final AudioPlayer _audioPlayer = AudioPlayer();
-  Future<void> _playRingtone(String ringtone) async {
-    // Ensure assets/alarm_ringtones/ is the correct path
-    final ringtonePath = '$ringtone';
-    try {
-      await _audioPlayer.play(AssetSource(ringtonePath));
-      // await _audioPlayer.setSource(AssetSource(ringtonePath));
-      // await _audioPlayer.resume(); // Start playing the ringtone
-    } catch (e) {
-      if (e is PlatformException) {
-        print('Audio playback error: ${e.message}'); // Log the entire error message
-      } else {
-        print('Unexpected error: $e');
-      }
-    }
-  }
+  // late  final AudioPlayer _audioPlayer = AudioPlayer();
+  // Future<void> _playRingtone(String ringtone) async {
+  //   // Ensure assets/alarm_ringtones/ is the correct path
+  //   final ringtonePath = '$ringtone';
+  //   try {
+  //     await _audioPlayer.play(AssetSource(ringtonePath));
+  //     // await _audioPlayer.setSource(AssetSource(ringtonePath));
+  //     // await _audioPlayer.resume(); // Start playing the ringtone
+  //   } catch (e) {
+  //     if (e is PlatformException) {
+  //       print('Audio playback error: ${e.message}'); // Log the entire error message
+  //     } else {
+  //       print('Unexpected error: $e');
+  //     }
+  //   }
+  // }
 
+                          // for just_audio
+
+
+  // MediaItem item = MediaItem(
+  //   id: 'assets/audio/alarm1.mp3', // Replace with your audio asset path
+  //   album: 'Album name',
+  //   title: 'Track title',
+  //   artist: 'Artist name',
+  //   duration: const Duration(milliseconds: 123456),
+  //   artUri: Uri.parse('assets/audio/alarm1.mp3'), // Replace if art is separate
+  // );
+  // void _audioPlayerTaskEntrypoint(dynamic data) async {
+  //   await player.play();
+  //   player.playerStateStream.listen((playerState) {
+  //     if (playerState.processingState == ProcessingState.completed) {
+  //       // Handle completion (e.g., loop, stop, next track)
+  //     }
+  //   });
+  // }
+  //
+  // Future<void> _startPlaying() async {
+  //   await AudioService.start( // Start the background audio service
+  //     backgroundTaskEntrypoint: _audioPlayerTaskEntrypoint,
+  //   );
+  //
+  //   if (item != null) { // If you have a MediaItem, use its ID
+  //     await player.setAudioSource(AudioSource.uri(Uri.parse(item.id)));
+  //   } else { // Otherwise, use the direct path
+  //     await player.setAudioSource(AudioSource.uri(Uri.parse('your_audio_path.mp3'))); // Replace with your path
+  //   }
+  //   await player.play(); // Start playback
+  // }
+  //
+  //
+  //
   final LocationSettings locationSettings =
   LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 100);
 
@@ -2008,7 +2079,7 @@ Future<void> onStart(ServiceInstance service) async {
           alarms.map((alarm) => alarm.toJson()).toList();
           await prefs.setStringList(
               'alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
-          await _playRingtone(selectedRingtone);
+          // await _playRingtone(selectedRingtone);
           print("locally play a sound:" +selectedRingtone);
           if(selectedOption == 'Alarms'){
                final prefs = await SharedPreferences.getInstance();
@@ -2061,6 +2132,8 @@ Future<void> onStart(ServiceInstance service) async {
                );
 
              }
+
+
              else if (selectedOption == 'Vibrate'){
                // Trigger notification with sound regardless of service state
                // final savedRingtone =
@@ -2153,8 +2226,8 @@ Future<void> onStart(ServiceInstance service) async {
     ),
     );
     }
-          await _playRingtone(selectedRingtone);
-          print("locally play a sound:" +selectedRingtone);
+          // await _playRingtone(selectedRingtone);
+          // print("locally play a sound:" +selectedRingtone);
 
          // else if (!isVibrateEnabled  || isVibrateEnabled ) {
          //    // Trigger notification with sound regardless of service state
@@ -2248,6 +2321,9 @@ Future<void> onStart(ServiceInstance service) async {
              //     ),
              //   );
              // }
+
+          await _player.setAudioSource(source);
+             await _player.play();
              print('preparing to stop service');
              break; // Exit loop after triggering the first alarm
         }

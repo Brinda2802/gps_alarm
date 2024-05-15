@@ -998,340 +998,350 @@ class _MyHomePageState extends State<MyHomePage> {
       radius = (prefs.getString('selectedUnit') == 'Imperial system (mi/ft)') ? milesdefault : meterdefault;
     });
   }
-
   var latlong;
   double radius=0;
+  // Future<void> _goToCurrentLocation() async {
+  //     if (currentLocation == null) {
+  //
+  //       await _requestLocationPermission();
+  //
+  //       return; // Wait for location to be updated
+  //     }
+  //
+  //     if (mapController != null) {
+  //       await mapController!.animateCamera(
+  //   CameraUpdate.newLatLngZoom(
+  //   LatLng(currentLocation!.latitude!, currentLocation!.longitude!),
+  //   15.0, // Adjust zoom level as needed
+  //   ),
+  //   );
+  //   }
+  //   }
   Future<void> _goToCurrentLocation() async {
     if (currentLocation == null) {
+      setState(() {
+        _isLoading = true; // Show loading animation
+      });
 
       await _requestLocationPermission();
+
+      setState(() {
+        _isLoading = false; // Hide loading animation
+      });
 
       return; // Wait for location to be updated
     }
 
-    if (mapController != null) {
-      await mapController!.animateCamera(
-        CameraUpdate.newLatLngZoom(
-          LatLng(currentLocation!.latitude!, currentLocation!.longitude!),
-          15.0, // Adjust zoom level as needed
-        ),
-      );
-    }
+    // Rest of your code...
   }
+
   updateradiusvalue(value){
     print("updatevalue:"+value.toString());
     setState(() {
-      radius=value;
-      print("updatevalue:"+value.toString());
+    radius=value;
+    print("updatevalue:"+value.toString());
     });
-  }
-  bool _hasCallSupport = false;
-  Future<void>? _launched;
-  String _phone = '';
-  final Uri toLaunch =
-  Uri(scheme: 'https', host: 'www.cylog.org', path: 'headers/');
-  TextEditingController controller = TextEditingController();
-  GoogleMapController? mapController;
-  location.LocationData? currentLocation;
-  location.Location _locationService = location.Location();
-  bool _isCameraMoving = true;
-
-  final LatLng _defaultLocation = const LatLng(
-      13.067439, 80.237617); // Default location
-
-  TextEditingController searchController = TextEditingController();
-  List<AlarmDetails> alarms = [];
-  @override
-  void initState() {
+    }
+    bool _hasCallSupport = false;
+    Future<void>? _launched;
+    String _phone = '';
+    final Uri toLaunch =
+    Uri(scheme: 'https', host: 'www.cylog.org', path: 'headers/');
+    TextEditingController controller = TextEditingController();
+    GoogleMapController? mapController;
+    location.LocationData? currentLocation;
+    location.Location _locationService = location.Location();
+    bool _isCameraMoving = false;
+    final LatLng _defaultLocation = const LatLng(
+    13.067439, 80.237617); // Default location
+    TextEditingController searchController = TextEditingController();
+    List<AlarmDetails> alarms = [];
+    @override
+    void initState() {
     super.initState();
     _requestLocationPermission();
     alramnamecontroller.text="Welcome";
     _loadRadiusData();
     loadData();
-    Timer(Duration(seconds: 20), () {
-      setState(() {
-        _isLoading = false;
-      });
+    Timer(Duration(seconds: 160), () {
+    setState(() {
+    _isLoading = false;
+    });
     });
 
-  }
-
-  Future<void> loadData() async {
+    }
+    Future<void> loadData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     List<String>? alarmsJson = prefs.getStringList('alarms');
 
     if (alarmsJson != null) {
-      alarms = alarmsJson.map((json) => AlarmDetails.fromJson(jsonDecode(json))).toList();
+    alarms = alarmsJson.map((json) => AlarmDetails.fromJson(jsonDecode(json))).toList();
     } else {
-      alarms = [];
+    alarms = [];
     }
 
     setState(() {});
-  }
-  final _formKey = GlobalKey<FormState>();
-
-
-  Future<void> _requestLocationPermission() async {
+    }
+    final _formKey = GlobalKey<FormState>();
+    Future<void> _requestLocationPermission() async {
     bool serviceEnabled = await _locationService.serviceEnabled();
     if (!serviceEnabled) {
-      serviceEnabled = await _locationService.requestService();
-      if (!serviceEnabled) {
-        return;
-      }
+    serviceEnabled = await _locationService.requestService();
+    if (!serviceEnabled) {
+    return;
+    }
     }
 
     location.PermissionStatus permissionStatus = await _locationService
         .hasPermission();
     if (permissionStatus == location.PermissionStatus.denied) {
-      permissionStatus = await _locationService.requestPermission();
-      if (permissionStatus != location.PermissionStatus.granted) {
-        return;
-      }
+    permissionStatus = await _locationService.requestPermission();
+    if (permissionStatus != location.PermissionStatus.granted) {
+    return;
+    }
     }
 
 
     log("location 1");
     _locationService.onLocationChanged.listen((
-        location.LocationData newLocation) async {
-      log("location changed");
-      if (_isCameraMoving) return;
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      if(mounted) {
-        setState(() {
-          if (newLocation.latitude != null && newLocation.longitude != null) {
-            _current = LatLng(newLocation.latitude!, newLocation.longitude!);
-          }
-          currentLocation = newLocation;
+    location.LocationData newLocation) async {
+    log("location changed");
+    if (_isCameraMoving) return;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if(mounted) {
+    setState(() {
+    if (newLocation.latitude != null && newLocation.longitude != null) {
+    _current = LatLng(newLocation.latitude!, newLocation.longitude!);
+    }
+    currentLocation = newLocation;
 
-          prefs.setDouble('current_latitude', newLocation.latitude!);
-          prefs.setDouble('current_longitude', newLocation.longitude!);
+    prefs.setDouble('current_latitude', newLocation.latitude!);
+    prefs.setDouble('current_longitude', newLocation.longitude!);
 
-          // Example usage: retrieve the stored location later
-          double? storedLatitude = prefs.getDouble('current_latitude');
-          double? storedLongitude = prefs.getDouble('current_longitude');
-          if (storedLatitude != null && storedLongitude != null) {
-            print('Stored location: ($storedLatitude, $storedLongitude)');
-            Marker? tap = _markers.length > 1 ? _markers.last : null;
+    // Example usage: retrieve the stored location later
+    double? storedLatitude = prefs.getDouble('current_latitude');
+    double? storedLongitude = prefs.getDouble('current_longitude');
+    if (storedLatitude != null && storedLongitude != null) {
+    print('Stored location: ($storedLatitude, $storedLongitude)');
+    Marker? tap = _markers.length > 1 ? _markers.last : null;
 
-            _markers.clear();
-            _markers.add(Marker(
-              markerId: MarkerId("_currentLocation"),
-              icon: BitmapDescriptor.defaultMarker,
-              position: currentLocation != null
-                  ? LatLng(
-                  currentLocation!.latitude!, currentLocation!.longitude!)
-                  : _defaultLocation,
-            ));
-            if (tap != null) {
-              _markers.add(tap);
-            }
-          }
-        });
-      }
+    _markers.clear();
+    _markers.add(Marker(
+    markerId: MarkerId("_currentLocation"),
+    icon: BitmapDescriptor.defaultMarker,
+    position: currentLocation != null
+    ? LatLng(
+    currentLocation!.latitude!, currentLocation!.longitude!)
+        : _defaultLocation,
+    ));
+    if (tap != null) {
+    _markers.add(tap);
+    }
+    }
+    });
+    }
 
-      if (mapController != null && _markers.length<2) {
-        mapController!.animateCamera(CameraUpdate.newLatLng(
-          LatLng(newLocation.latitude!, newLocation.longitude!),
-        ));
-      }
+    if (mapController != null && _markers.length<2) {
+    mapController!.animateCamera(CameraUpdate.newLatLng(
+    LatLng(newLocation.latitude!, newLocation.longitude!),
+    ));
+    }
     });
     log("location 2");
-  }
-
-
-  Future<void> _moveToLocation(String locationName) async {
+    }
+    Future<void> _moveToLocation(String locationName) async {
     List<geocoding.Location> locations = await geocoding.locationFromAddress(
-        locationName);
+    locationName);
     if (locations.isNotEmpty) {
-      LatLng destination = LatLng(
-          locations[0].latitude!, locations[0].longitude!);
+    LatLng destination = LatLng(
+    locations[0].latitude!, locations[0].longitude!);
 
-      if (mapController != null) {
-        mapController!.animateCamera(CameraUpdate.newLatLng(destination));
-      }
+    if (mapController != null) {
+    mapController!.animateCamera(CameraUpdate.newLatLng(destination));
     }
-  }
-  Set<Marker> _markers={
-
-  };
-
-  LatLng? _current = const LatLng(
-      13.067439, 80.237617);
-  LatLng? _target = null;
-  bool _handletap = false;
-  bool _isAlarmNameValid = false;
-  bool _isLoading = true;
-  TextEditingController notescontroller = TextEditingController();
-  // Initialize the TextEditingController with the default value
-  TextEditingController alramnamecontroller = TextEditingController(text: "Welcome");
-  Future<void> _launchInBrowser(Uri url) async {
+    }
+    }
+    Set<Marker> _markers= {
+    };
+    LatLng? _current = const LatLng(
+    13.067439, 80.237617);
+    LatLng? _target = null;
+    bool _handletap = false;
+    bool _isAlarmNameValid = false;
+    bool _isLoading = true;
+    TextEditingController notescontroller = TextEditingController();
+    // Initialize the TextEditingController with the default value
+    TextEditingController alramnamecontroller = TextEditingController(text: "Welcome");
+    Future<void> _launchInBrowser(Uri url) async {
     if (!await launchUrl(
-      url,
-      mode: LaunchMode.externalApplication,
+    url,
+    mode: LaunchMode.externalApplication,
     )) {
-      throw Exception('Could not launch $url');
+    throw Exception('Could not launch $url');
     }
-  }
-  String _appBarTitle = '';
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  int screenIndex=1;
-  // void handleScreenChanged(int index) {
-  //   switch (index) {
-  //     case 0: // Alarm List
-  //       Navigator.of(context).push(
-  //           MaterialPageRoute(builder: (context) => MyAlarmsPage()));
-  //       break;
-  //     case 1: // Alarm List
-  //       Navigator.of(context).push(
-  //           MaterialPageRoute(builder: (context) => MyHomePage()));
-  //       break;
-  //     case 2:
-  //       Navigator.of(context).push(
-  //           MaterialPageRoute(builder: (context) => Settings()));
-  //       break;
-  //     case 3:
-  //       final RenderBox box = context.findRenderObject() as RenderBox;
-  //       Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
-  //       Share.share(
-  //         'Check out my awesome app! Download it from the app store:',
-  //         subject: 'Share this amazing app!',
-  //         sharePositionOrigin: dummyRect,
-  //       );
-  //       break;
-  //     case 4:
-  //       _launchInBrowser(toLaunch);
-  //       break;
-  //     case 5:
-  //       Navigator.of(context).push(
-  //           MaterialPageRoute(builder: (context) => About()));
-  //       break;
-  //   }
-  // }
-  // void handleScreenChanged(int index) {
-  //   switch (index) {
-  //     case 0:
-  //       Navigator.of (context).pop();// Alarm List
-  //       Navigator.of(context).pushReplacement(
-  //           MaterialPageRoute(builder: (context) => MyAlarmsPage()));
-  //       break;
-  //     case 1:
-  //       Navigator.of (context).pop();// Alarm List
-  //       Navigator.of(context).push(
-  //           MaterialPageRoute(builder: (context) => MyHomePage()));
-  //       break;
-  //     case 2:
-  //       Navigator.of (context).pop();
-  //       Navigator.of(context).push(
-  //           MaterialPageRoute(builder: (context) => Settings()));
-  //       break;
-  //     case 3:
-  //       Navigator.of (context).pop();
-  //       final RenderBox box = context.findRenderObject() as RenderBox;
-  //       Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
-  //       Share.share(
-  //         'Check out my awesome app! Download it from the app store:',
-  //         subject: 'Share this amazing app!',
-  //         sharePositionOrigin: dummyRect,
-  //       );
-  //       break;
-  //     case 4:
-  //       Navigator.of (context).pop();
-  //       _launchInBrowser(toLaunch);
-  //       break;
-  //     case 5:
-  //       Navigator.of (context).pop();
-  //       Navigator.of(context).push(
-  //           MaterialPageRoute(builder: (context) => About()));
-  //       break;
-  //   }
-  // }
-  // void handleScreenChanged(int index) {
-  //   switch (index) {
-  //     case 0:
-  //       Navigator.of(context).pop();
-  //       // No pop needed for screen1 as it's likely the first screen
-  //      Navigator.of(context).push(
-  //        MaterialPageRoute(builder: (context)=>My)
-  //      )// Navigate to screen1
-  //       break;
-  //     case 1:
-  //       Navigator.of(context).pop();
-  //       // No pop needed for screen2 as it's likely the first screen
-  //      // Navigator.pushNamed(context, '/secondpage');
-  //        Navigator.popUntil(context, ModalRoute.withName('/secondpage'));
-  //       // Navigate to screen2
-  //       break;
-  //     case 2:
-  //       Navigator.of(context).pop();
-  //       // Navigator.pushNamed(context, '/thirdpage');
-  //       Navigator.popUntil(context, ModalRoute.withName('/thirdpage'));// Navigate to screen3
-  //       break;
-  //     case 3:
-  //       Navigator.of(context).pop();
-  //       // Share functionality, no navigation
-  //       final RenderBox box = context.findRenderObject() as RenderBox;
-  //       Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
-  //       Share.share(
-  //         'Check out my awesome app! Download it from the app store:',
-  //         subject: 'Share this amazing app!',
-  //         sharePositionOrigin: dummyRect,
-  //       );
-  //
-  //       break;
-  //     case 4:
-  //       Navigator.of(context).pop();
-  //       // Launch URL, no navigation
-  //       _launchInBrowser(toLaunch);
-  //       break;
-  //     case 5:
-  //       Navigator.of(context).pop();
-  //      // Navigator.pushNamed(context, '/fouthpage');
-  //       Navigator.popUntil(context, ModalRoute.withName('/fouthpage'));// Navigate to screen4
-  //       break;
-  //   }
-  // }
-  void handleScreenChanged(int index) {
+    }
+    String _appBarTitle = '';
+    final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+    int screenIndex=1;
+    // void handleScreenChanged(int index) {
+    //   switch (index) {
+    //     case 0: // Alarm List
+    //       Navigator.of(context).push(
+    //           MaterialPageRoute(builder: (context) => MyAlarmsPage()));
+    //       break;
+    //     case 1: // Alarm List
+    //       Navigator.of(context).push(
+    //           MaterialPageRoute(builder: (context) => MyHomePage()));
+    //       break;
+    //     case 2:
+    //       Navigator.of(context).push(
+    //           MaterialPageRoute(builder: (context) => Settings()));
+    //       break;
+    //     case 3:
+    //       final RenderBox box = context.findRenderObject() as RenderBox;
+    //       Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
+    //       Share.share(
+    //         'Check out my awesome app! Download it from the app store:',
+    //         subject: 'Share this amazing app!',
+    //         sharePositionOrigin: dummyRect,
+    //       );
+    //       break;
+    //     case 4:
+    //       _launchInBrowser(toLaunch);
+    //       break;
+    //     case 5:
+    //       Navigator.of(context).push(
+    //           MaterialPageRoute(builder: (context) => About()));
+    //       break;
+    //   }
+    // }
+    // void handleScreenChanged(int index) {
+    //   switch (index) {
+    //     case 0:
+    //       Navigator.of (context).pop();// Alarm List
+    //       Navigator.of(context).pushReplacement(
+    //           MaterialPageRoute(builder: (context) => MyAlarmsPage()));
+    //       break;
+    //     case 1:
+    //       Navigator.of (context).pop();// Alarm List
+    //       Navigator.of(context).push(
+    //           MaterialPageRoute(builder: (context) => MyHomePage()));
+    //       break;
+    //     case 2:
+    //       Navigator.of (context).pop();
+    //       Navigator.of(context).push(
+    //           MaterialPageRoute(builder: (context) => Settings()));
+    //       break;
+    //     case 3:
+    //       Navigator.of (context).pop();
+    //       final RenderBox box = context.findRenderObject() as RenderBox;
+    //       Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
+    //       Share.share(
+    //         'Check out my awesome app! Download it from the app store:',
+    //         subject: 'Share this amazing app!',
+    //         sharePositionOrigin: dummyRect,
+    //       );
+    //       break;
+    //     case 4:
+    //       Navigator.of (context).pop();
+    //       _launchInBrowser(toLaunch);
+    //       break;
+    //     case 5:
+    //       Navigator.of (context).pop();
+    //       Navigator.of(context).push(
+    //           MaterialPageRoute(builder: (context) => About()));
+    //       break;
+    //   }
+    // }
+    // void handleScreenChanged(int index) {
+    //   switch (index) {
+    //     case 0:
+    //       Navigator.of(context).pop();
+    //       // No pop needed for screen1 as it's likely the first screen
+    //      Navigator.of(context).push(
+    //        MaterialPageRoute(builder: (context)=>My)
+    //      )// Navigate to screen1
+    //       break;
+    //     case 1:
+    //       Navigator.of(context).pop();
+    //       // No pop needed for screen2 as it's likely the first screen
+    //      // Navigator.pushNamed(context, '/secondpage');
+    //        Navigator.popUntil(context, ModalRoute.withName('/secondpage'));
+    //       // Navigate to screen2
+    //       break;
+    //     case 2:
+    //       Navigator.of(context).pop();
+    //       // Navigator.pushNamed(context, '/thirdpage');
+    //       Navigator.popUntil(context, ModalRoute.withName('/thirdpage'));// Navigate to screen3
+    //       break;
+    //     case 3:
+    //       Navigator.of(context).pop();
+    //       // Share functionality, no navigation
+    //       final RenderBox box = context.findRenderObject() as RenderBox;
+    //       Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
+    //       Share.share(
+    //         'Check out my awesome app! Download it from the app store:',
+    //         subject: 'Share this amazing app!',
+    //         sharePositionOrigin: dummyRect,
+    //       );
+    //
+    //       break;
+    //     case 4:
+    //       Navigator.of(context).pop();
+    //       // Launch URL, no navigation
+    //       _launchInBrowser(toLaunch);
+    //       break;
+    //     case 5:
+    //       Navigator.of(context).pop();
+    //      // Navigator.pushNamed(context, '/fouthpage');
+    //       Navigator.popUntil(context, ModalRoute.withName('/fouthpage'));// Navigate to screen4
+    //       break;
+    //   }
+    // }
+    void handleScreenChanged(int index) {
     Navigator.of(context).pop();
     switch (index) {
-      case 0:
-        // No pop needed for screen1 as it's likely the first screen
-        //   Navigator.pushNamed(context, '/home'); // Navigate to screen1
-        Navigator.of(context).pop();
-        break;
-      case 1:
-        break;
-      case 2:
-        // Navigator.pushNamed(context, '/thirdpage');
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context)=>Settings())
-        ); //Navigate to screen3
-        break;
-      case 3:
-        // Share functionality, no navigation
-        final RenderBox box = context.findRenderObject() as RenderBox;
-        Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
-        Share.share(
-          'Check out my awesome app! Download it from the app store:',
-          subject: 'Share this amazing app!',
-          sharePositionOrigin: dummyRect,
-        );
-        break;
-      case 4:
-        // Launch URL, no navigation
-        _launchInBrowser(toLaunch);
-        break;
-      case 5:
-        // Navigator.pushNamed(context, '/fouthpage'); // Navigate to screen4
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context)=>About())
-        );
-        break;
+    case 0:
+    // No pop needed for screen1 as it's likely the first screen
+    //   Navigator.pushNamed(context, '/home'); // Navigate to screen1
+    //   Navigator.of(context).pushReplacement(
+    //       MaterialPageRoute(builder: (context)=>MyAlarmsPage()));
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    break;
+    case 1:
+    break;
+    case 2:
+    // Navigator.pushNamed(context, '/thirdpage');
+    Navigator.of(context).pushReplacement(
+    MaterialPageRoute(builder: (context)=>Settings())
+    ); //Navigate to screen3
+    break;
+    case 3:
+    // Share functionality, no navigation
+    final RenderBox box = context.findRenderObject() as RenderBox;
+    Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
+    Share.share(
+    'Check out my awesome app! Download it from the app store:',
+    subject: 'Share this amazing app!',
+    sharePositionOrigin: dummyRect,
+    );
+    break;
+    case 4:
+    // Launch URL, no navigation
+    _launchInBrowser(toLaunch);
+    break;
+    case 5:
+    // Navigator.pushNamed(context, '/fouthpage'); // Navigate to screen4
+    Navigator.of(context).pushReplacement(
+    MaterialPageRoute(builder: (context)=>About())
+    );
+    break;
     }
-  }
+    }
 
-  @override
-  Widget build(BuildContext context) {
+    @override
+    Widget build(BuildContext context) {
     double height=MediaQuery.of(context).size.height;
     double width=MediaQuery.of(context).size.width;
     final Uri toLaunch =
@@ -1400,8 +1410,16 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Stack(
         children: [
           Center(
-            child: CircularProgressIndicator(
-            ), // Adjust style as needed
+            child: AnimatedBuilder(
+              animation: AlwaysStoppedAnimation(0.0),
+              builder: (context, child) {
+                return Transform.rotate(
+                  angle: 3.14 * 2 * 0.5,
+                  // child: Icon(Icons.refresh), // Use any loading icon you prefer
+                );
+              },
+            ),
+           // CircularProgressIndicator(), // Adjust style as needed
           ),
           GoogleMap(
             mapType: MapType.normal,

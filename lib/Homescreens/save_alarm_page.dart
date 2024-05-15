@@ -36,6 +36,7 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
   List<AlarmDetails> alarms = [];
   bool _imperial = false;
   StreamSubscription? bgServiceListener;
+  bool _exitConfirmed = false;
   // double calculateDistance(LatLng point1, LatLng point2) {
   //   const double earthRadius = 6371000; // meters
   //
@@ -392,25 +393,25 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
     double width = MediaQuery.of(context).size.width;
     return WillPopScope(
       onWillPop: () async {
-        final shouldExit = await showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text('Exit App'),
-            content: Text('Are you sure you want to exit?'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false), // Close the dialog, don't exit
-                child: Text('Cancel'),
+            final shouldExit = await showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: Text('Exit App'),
+                content: Text('Are you sure you want to exit?'),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false), // Close the dialog, don't exit
+                    child: Text('Cancel'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(true), // Close the dialog, exit the app
+                    child: Text('Exit'),
+                  ),
+                ],
               ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true), // Close the dialog, exit the app
-                child: Text('Exit'),
-              ),
-            ],
-          ),
-        );
-        return shouldExit ?? false; // Default to not exiting the app
-      },
+            );
+            return shouldExit ?? false; // Default to not exiting the app
+          },
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,

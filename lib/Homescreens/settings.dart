@@ -1330,21 +1330,19 @@ class _SettingsState extends State<Settings> {
     }
   }
   void handleScreenChanged(int index) {
-
-
     switch (index) {
       case 0:
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => MyAlarmsPage()));
+        // Navigator.of(context).popUntil((route) => route.isFirst);
         break;
       case 1:
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => MyHomePage()));
         break;
       case 2:
-        Navigator.of(context).push(
-    MaterialPageRoute(builder: (context) => Settings()));
-
+        Navigator.of(context).pop();
+      // MaterialPageRoute(builder: (context) => Settings()));
         break;
       case 3:
         final RenderBox box = context.findRenderObject() as RenderBox;

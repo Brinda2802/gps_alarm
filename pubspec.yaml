@@ -63,8 +63,10 @@ dependencies:
   geolocator: ^11.0.0
   audio_service: ^0.18.13
   sound_mode: ^3.0.0
+  just_audio_background: ^0.0.1-beta.11
   just_audio: any # substitute version number
-  just_audio_background: any
+  on_audio_query: ^2.6.0
+
 
 #  audioplayers: ^0.20.1
 
