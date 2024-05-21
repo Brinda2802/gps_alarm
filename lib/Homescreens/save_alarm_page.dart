@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:location/location.dart' as location;
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -60,6 +61,29 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
   //   // Clamp the distance to the desired range (0.10 - 2.00 miles)
   //   return math.max(0.10, math.min(distanceInMiles, 2.00));
   // }
+
+  // AudioPlayer audioPlayer = AudioPlayer();
+  // final playlist = ConcatenatingAudioSource(
+  //   useLazyPreparation: true,
+  //   shuffleOrder: DefaultShuffleOrder(),
+  //   children: [
+  //     // AudioSource.uri(Uri.file("$path/$ringtone")),
+  //     AudioSource.uri(Uri.parse('assets/alarm5.mp3')),
+  //   ],
+  // );
+
+  final audioPlayer = AudioPlayer();
+
+// Define the audio source
+  final audioSource = ConcatenatingAudioSource(
+    // Set up lazy preparation and shuffle order
+    useLazyPreparation: true,
+    shuffleOrder: DefaultShuffleOrder(),
+    children: [
+      // Specify the URI for the audio file
+      AudioSource.uri(Uri.parse('asset:///assets/alarm9.mp3')),
+    ],
+  );
 
   double calculateDistance(LatLng point1, LatLng point2) {
     const double earthRadius = 6371000; // meters
@@ -685,6 +709,9 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
                                             .textTheme
                                             .bodyMedium,
                                       ),
+
+
+
                                     ],
                                   ),
                                 ),

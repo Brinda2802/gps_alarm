@@ -947,6 +947,7 @@
 
 
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:share_plus/share_plus.dart';
@@ -1025,10 +1026,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
       await _requestLocationPermission();
 
-      setState(() {
-        _isLoading = false; // Hide loading animation
-      });
-
       return; // Wait for location to be updated
     }
 
@@ -1084,72 +1081,147 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {});
     }
     final _formKey = GlobalKey<FormState>();
-    Future<void> _requestLocationPermission() async {
+    // Future<void> _requestLocationPermission() async {
+    // bool serviceEnabled = await _locationService.serviceEnabled();
+    // if (!serviceEnabled) {
+    // serviceEnabled = await _locationService.requestService();
+    // if (!serviceEnabled) {
+    // return;
+    // }
+    // }
+    //
+    // location.PermissionStatus permissionStatus = await _locationService
+    //     .hasPermission();
+    // if (permissionStatus == location.PermissionStatus.denied) {
+    // permissionStatus = await _locationService.requestPermission();
+    // if (permissionStatus != location.PermissionStatus.granted) {
+    // return;
+    // }
+    // }
+    //
+    //
+    // log("location 1");
+    // _locationService.onLocationChanged.listen((
+    // location.LocationData newLocation) async {
+    // log("location changed");
+    // if (_isCameraMoving) return;
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
+    // if(mounted) {
+    // setState(() {
+    // if (newLocation.latitude != null && newLocation.longitude != null) {
+    // _current = LatLng(newLocation.latitude!, newLocation.longitude!);
+    // }
+    // currentLocation = newLocation;
+    //
+    // prefs.setDouble('current_latitude', newLocation.latitude!);
+    // prefs.setDouble('current_longitude', newLocation.longitude!);
+    //
+    // // Example usage: retrieve the stored location later
+    // double? storedLatitude = prefs.getDouble('current_latitude');
+    // double? storedLongitude = prefs.getDouble('current_longitude');
+    // if (storedLatitude != null && storedLongitude != null) {
+    // print('Stored location: ($storedLatitude, $storedLongitude)');
+    // Marker? tap = _markers.length > 1 ? _markers.last : null;
+    //
+    // _markers.clear();
+    // _markers.add(Marker(
+    // markerId: MarkerId("_currentLocation"),
+    // icon: BitmapDescriptor.defaultMarker,
+    // position: currentLocation != null
+    // ? LatLng(
+    // currentLocation!.latitude!, currentLocation!.longitude!)
+    //     : _defaultLocation,
+    // ));
+    // if (tap != null) {
+    // _markers.add(tap);
+    // }
+    // }
+    // });
+    // }
+    //
+    // if (mapController != null && _markers.length<2) {
+    // mapController!.animateCamera(CameraUpdate.newLatLng(
+    // LatLng(newLocation.latitude!, newLocation.longitude!),
+    // ));
+    // }
+    // });
+    // log("location 2");
+    // }
+  Future<void> _requestLocationPermission() async {
     bool serviceEnabled = await _locationService.serviceEnabled();
     if (!serviceEnabled) {
-    serviceEnabled = await _locationService.requestService();
-    if (!serviceEnabled) {
-    return;
-    }
+      serviceEnabled = await _locationService.requestService();
+      if (!serviceEnabled) {
+        setState(()
+            // dart
+            // Copy code
+            {
+            _isLoading = false; // Hide loading animation
+            });
+        return;
+      }
     }
 
-    location.PermissionStatus permissionStatus = await _locationService
-        .hasPermission();
+    location.PermissionStatus permissionStatus = await _locationService.hasPermission();
     if (permissionStatus == location.PermissionStatus.denied) {
-    permissionStatus = await _locationService.requestPermission();
-    if (permissionStatus != location.PermissionStatus.granted) {
-    return;
+      permissionStatus = await _locationService.requestPermission();
+      if (permissionStatus != location.PermissionStatus.granted) {
+        setState(() {
+          _isLoading = false; // Hide loading animation
+        });
+        return;
+      }
     }
-    }
-
 
     log("location 1");
-    _locationService.onLocationChanged.listen((
-    location.LocationData newLocation) async {
-    log("location changed");
-    if (_isCameraMoving) return;
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if(mounted) {
-    setState(() {
-    if (newLocation.latitude != null && newLocation.longitude != null) {
-    _current = LatLng(newLocation.latitude!, newLocation.longitude!);
-    }
-    currentLocation = newLocation;
+    _locationService.onLocationChanged.listen((location.LocationData newLocation) async {
+      log("location changed");
+      if (_isCameraMoving) return;
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      if (mounted) {
+        setState(() {
+          if (newLocation.latitude != null && newLocation.longitude != null) {
+            _current = LatLng(newLocation.latitude!, newLocation.longitude!);
+          }
+          currentLocation = newLocation;
 
-    prefs.setDouble('current_latitude', newLocation.latitude!);
-    prefs.setDouble('current_longitude', newLocation.longitude!);
+          prefs.setDouble('current_latitude', newLocation.latitude!);
+          prefs.setDouble('current_longitude', newLocation.longitude!);
 
-    // Example usage: retrieve the stored location later
-    double? storedLatitude = prefs.getDouble('current_latitude');
-    double? storedLongitude = prefs.getDouble('current_longitude');
-    if (storedLatitude != null && storedLongitude != null) {
-    print('Stored location: ($storedLatitude, $storedLongitude)');
-    Marker? tap = _markers.length > 1 ? _markers.last : null;
+          // Example usage: retrieve the stored location later
+          double? storedLatitude = prefs.getDouble('current_latitude');
+          double? storedLongitude = prefs.getDouble('current_longitude');
+          if (storedLatitude != null && storedLongitude != null) {
+            print('Stored location: ($storedLatitude, $storedLongitude)');
+            Marker? tap = _markers.length > 1 ? _markers.last : null;
 
-    _markers.clear();
-    _markers.add(Marker(
-    markerId: MarkerId("_currentLocation"),
-    icon: BitmapDescriptor.defaultMarker,
-    position: currentLocation != null
-    ? LatLng(
-    currentLocation!.latitude!, currentLocation!.longitude!)
-        : _defaultLocation,
-    ));
-    if (tap != null) {
-    _markers.add(tap);
-    }
-    }
-    });
-    }
+            _markers.clear();
+            _markers.add(Marker(
+              markerId: MarkerId("_currentLocation"),
+              icon: BitmapDescriptor.defaultMarker,
+              position: currentLocation != null
+                  ? LatLng(
+                  currentLocation!.latitude!, currentLocation!.longitude!)
+                  : _defaultLocation,
+            ));
+            if (tap != null) {
+              _markers.add(tap);
+            }
+          }
+        });
 
-    if (mapController != null && _markers.length<2) {
-    mapController!.animateCamera(CameraUpdate.newLatLng(
-    LatLng(newLocation.latitude!, newLocation.longitude!),
-    ));
-    }
+        if (mapController != null && _markers.length < 2) {
+          mapController!.animateCamera(CameraUpdate.newLatLng(
+            LatLng(newLocation.latitude!, newLocation.longitude!),
+          ));
+          setState(() {
+            _isLoading = false; // Hide loading animation after camera moves
+          });
+        }
+      }
     });
     log("location 2");
-    }
+  }
     Future<void> _moveToLocation(String locationName) async {
     List<geocoding.Location> locations = await geocoding.locationFromAddress(
     locationName);
@@ -1307,9 +1379,15 @@ class _MyHomePageState extends State<MyHomePage> {
     //   Navigator.pushNamed(context, '/home'); // Navigate to screen1
     //   Navigator.of(context).pushReplacement(
     //       MaterialPageRoute(builder: (context)=>MyAlarmsPage()));
-      Navigator.of(context).popUntil((route) => route.isFirst);
+    //   Navigator.of(context).popUntil((route) => route.isFirst);
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => MyAlarmsPage()),
+            (Route<dynamic> route) => false, // This condition will remove all routes
+      );
     break;
     case 1:
+    Navigator.of(context).pop();
+    //Navigate to screen3
     break;
     case 2:
     // Navigator.pushNamed(context, '/thirdpage');
@@ -1339,7 +1417,6 @@ class _MyHomePageState extends State<MyHomePage> {
     break;
     }
     }
-
     @override
     Widget build(BuildContext context) {
     double height=MediaQuery.of(context).size.height;
@@ -1421,44 +1498,90 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
            // CircularProgressIndicator(), // Adjust style as needed
           ),
-          GoogleMap(
-            mapType: MapType.normal,
-            myLocationButtonEnabled: false,
-            zoomControlsEnabled: false,
-            initialCameraPosition: CameraPosition(
-              zoom: 15,
-              target: _defaultLocation,
-            ),
-            onMapCreated: (GoogleMapController controller) {
-              mapController = controller;
-              setState(() {
-                _isLoading = false;
-              });
-            },
-            markers: _markers,
-            // onMarkerDragEnd: (LatLng newPosition) {
-            //   setState(() {
-            //     _targetLocation = newPosition;
-            //   });
-            // },
-            onLongPress: _handleTap,
-              onCameraMoveStarted: () {
-              setState(() {
-                _isCameraMoving = false;
-              });
-            },
-            onCameraIdle: () {
-              setState(() {
-                _isCameraMoving = false;
-              });
-            },
-
-          ),
+          // GoogleMap(
+          //   mapType: MapType.normal,
+          //   myLocationButtonEnabled: false,
+          //   zoomControlsEnabled: false,
+          //   initialCameraPosition: CameraPosition(
+          //     zoom: 15,
+          //     target: _defaultLocation,
+          //   ),
+          //   onMapCreated: (GoogleMapController controller) {
+          //     mapController = controller;
+          //     setState(() {
+          //       _isLoading = false; // Hide loading animation when the map is created
+          //     });
+          //   },
+          //   markers: _markers.toSet(),
+          //   onLongPress: _handleTap,
+          //   onCameraMoveStarted: () {
+          //     setState(() {
+          //       _isCameraMoving = true;
+          //     });
+          //   },
+          //   onCameraIdle: () {
+          //     setState(() {
+          //       _isCameraMoving = false;
+          //     });
+          //   },
+          // ),
+          // if (_isLoading)
+          //   Center(
+          //     child: CircularProgressIndicator(), // Adjust style as needed
+          //   ),
           // Positioned(
           //     top: 200,
           //     left: 70,
           //     right: 20,
           //     child: Image.asset("assets/locationmark11.png")),
+          GoogleMap(
+              mapType: MapType.normal,
+              myLocationButtonEnabled: false,
+              zoomControlsEnabled: false,
+              initialCameraPosition: CameraPosition(
+                zoom: 15,
+                target: _defaultLocation,
+              ),
+              onMapCreated: (GoogleMapController controller) {
+                mapController = controller;
+              },
+              markers: _markers.toSet(),
+              onLongPress: _handleTap,
+              onCameraMoveStarted: () {
+                setState(() {
+                  _isCameraMoving = true;
+                });
+              },
+              onCameraIdle: () {
+                setState(() {
+                  _isCameraMoving = false;
+                });
+              },
+            ),
+          if (_isLoading)
+            Stack(
+              children: [
+                BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                  child: Container(
+                    color: Colors.black.withOpacity(0.5), // Semi-transparent background
+                  ),
+                ),
+                Center(
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      color: Colors.white, // Background color of the loader container
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Center(
+                      child: CircularProgressIndicator(), // Adjust style as needed
+                    ),
+                  ),
+                ),
+      ],
+            ),
           Visibility(
             visible: _isLoading,
             child: Center(

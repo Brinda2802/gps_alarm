@@ -1092,6 +1092,8 @@
 
 
 
+import 'dart:io';
+
 import 'package:audioplayers/audioplayers.dart'; // Add this line
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -1332,8 +1334,12 @@ class _SettingsState extends State<Settings> {
   void handleScreenChanged(int index) {
     switch (index) {
       case 0:
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => MyAlarmsPage()));
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => MyAlarmsPage()),
+              (Route<dynamic> route) => false, // This condition will remove all routes
+        );
+        // Navigator.of(context).pushReplacement(
+        //     MaterialPageRoute(builder: (context) => MyAlarmsPage()));
         // Navigator.of(context).popUntil((route) => route.isFirst);
         break;
       case 1:
@@ -1362,6 +1368,7 @@ class _SettingsState extends State<Settings> {
         break;
     }
   }
+
   // void handleScreenChanged(int index) {
   //   switch (index) {
   //     case 0:
@@ -1481,7 +1488,6 @@ class _SettingsState extends State<Settings> {
     await prefs.setString('selected_alarm_option', selectedOption);
     print('Saved alarm option: $selectedOption');
   }
-
   Future<void> _LoadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     final selectedOption = prefs.getString('selected_alarm_option') ?? 'Alarms'; // Default value if not found
@@ -1490,7 +1496,6 @@ class _SettingsState extends State<Settings> {
     });
     print('Loaded alarm option: $_selectedOption');
   }
-
   void _saveSelectedUnit(String newValue) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('selectedUnit', newValue);
@@ -1874,26 +1879,26 @@ class _SettingsState extends State<Settings> {
                 ),
               ),
 
-// Visibility for Vibrate settings
-//               Visibility(
-//                 visible: _selectedOption == 'Vibrate' || _selectedOption == 'both',
-//                 child: Row(
-//                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                   children: [
-//                     Text('Vibrate', style: Theme.of(context).textTheme.titleLarge,),
-//                     // Switch(
-//                     //   value: isSwitched,
-//                     //   onChanged: (bool value) {
-//                     //     setState(() {
-//                     //       isSwitched = value;
-//                     //       // Call function to store switch value
-//                     //       _saveSettings(selectedRingtone!);
-//                     //     });
-//                     //   },
-//                     // ),
-//                   ],
-//                 ),
-//               ),
+    // Visibility for Vibrate settings
+    //               Visibility(
+    //                 visible: _selectedOption == 'Vibrate' || _selectedOption == 'both',
+    //                 child: Row(
+    //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //                   children: [
+    //                     Text('Vibrate', style: Theme.of(context).textTheme.titleLarge,),
+    //                     // Switch(
+    //                     //   value: isSwitched,
+    //                     //   onChanged: (bool value) {
+    //                     //     setState(() {
+    //                     //       isSwitched = value;
+    //                     //       // Call function to store switch value
+    //                     //       _saveSettings(selectedRingtone!);
+    //                     //     });
+    //                     //   },
+    //                     // ),
+    //                   ],
+    //                 ),
+    //               ),
 
               // Text('Alarm',
               //   style:Theme.of(context).textTheme.titleLarge,),

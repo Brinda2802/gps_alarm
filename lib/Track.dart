@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 import 'package:geocoding/geocoding.dart';
@@ -44,6 +45,8 @@ class Track extends StatefulWidget {
 }
 
 class _TrackState extends State<Track> {
+  final GlobalKey repaintBoundaryKey = GlobalKey();
+  Image? capturedImage;
   double radius=0;
   updateradiusvalue(value){
     print("updatevalue:"+value.toString());
@@ -71,18 +74,23 @@ class _TrackState extends State<Track> {
       });
     }
   }
+  bool _isLoading = true;
   bool isAnimated=false;
   bool _notificationsEnabled = false;
   TextEditingController controller = TextEditingController();
   location.LocationData? currentLocation;
   location.Location _locationService = location.Location();
-  bool _isCameraMoving = true;
-  final LatLng _defaultLocation = const LatLng(
+  bool _isCameraMoving = false;
+  final LatLng _defaultLocation 
+  = const LatLng(
       13.067439, 80.237617); // Default location
   TextEditingController searchController = TextEditingController();
   List<AlarmDetails> alarms = [];
   Set<Marker> _markers={};
   Set<Circle> _circles={};
+  LatLng? _current; // Current location
+   // Target location
+
   @override
   void initState() {
     super.initState();
@@ -490,6 +498,28 @@ class _TrackState extends State<Track> {
 //      // Exit if notification already shown
 //
 //   }
+  LatLngBounds _calculateMarkerBounds(LatLng current, LatLng target) {
+    return LatLngBounds(
+      southwest: LatLng(
+        current.latitude < target.latitude ? current.latitude : target.latitude,
+        current.longitude < target.longitude ? current.longitude : target.longitude,
+      ),
+      northeast: LatLng(
+        current.latitude > target.latitude ? current.latitude : target.latitude,
+        current.longitude > target.longitude ? current.longitude : target.longitude,
+      ),
+    );
+  }
+
+  // Function to pad LatLngBounds (adjust as needed)
+  LatLngBounds padLatLngBounds(LatLngBounds bounds, double padding) {
+    double latDiff = bounds.northeast.latitude - bounds.southwest.latitude;
+    double lngDiff = bounds.northeast.longitude - bounds.southwest.longitude;
+    return LatLngBounds(
+      southwest: LatLng(bounds.southwest.latitude - padding * latDiff, bounds.southwest.longitude - padding * lngDiff),
+      northeast: LatLng(bounds.northeast.latitude + padding * latDiff, bounds.northeast.longitude + padding * lngDiff),
+    );
+  }
   Future<void> _requestLocationPermission() async {
     bool serviceEnabled = await _locationService.serviceEnabled();
     if (!serviceEnabled) {
@@ -521,7 +551,6 @@ class _TrackState extends State<Track> {
           _current = LatLng(newLocation.latitude!, newLocation.longitude!);
         }
         currentLocation = newLocation;
-
         _markers.clear();
         _markers.add(Marker(
           markerId: MarkerId("_currentLocation"),
@@ -530,7 +559,10 @@ class _TrackState extends State<Track> {
               ? LatLng(
               currentLocation!.latitude!, currentLocation!.longitude!)
               : _defaultLocation,
+
         ));
+        // _isLoading = false;
+        // print("loader will be stop");
       });
 
       await markLocation();
@@ -541,25 +573,48 @@ class _TrackState extends State<Track> {
       //     LatLng(newLocation.latitude!, newLocation.longitude!),
       //   ));
       // }
+
+
+      setState(() {
+        _isLoading = false;
+        print("loader will be stop");
+      });
       if (mapController != null && !isAnimated ) {
+
         isAnimated = true;
+
         // Calculate bounds containing both markers
-        LatLngBounds bounds = LatLngBounds      (
-          southwest: _calculateMarkerBounds(_current, _target).southwest,
-          northeast: _calculateMarkerBounds(_current, _target).northeast,
-        );
+        // LatLngBounds bounds = LatLngBounds      (
+        //   southwest: _calculateMarkerBounds(_current, _target).southwest,
+        //   northeast: _calculateMarkerBounds(_current, _target).northeast,
+        // );
+        // // Animate camera to fit both markers with some padding
+        // double padding = 0.05; // Adjust padding as needed
+        // CameraUpdate cameraUpdate = CameraUpdate.newLatLngBounds(
+        //   padLatLngBounds(bounds,0.10),padding
+        // );
+        LatLngBounds markerBounds = _calculateMarkerBounds(_current!, _target!);
+
         // Animate camera to fit both markers with some padding
-        double padding = 0.05; // Adjust padding as needed
+        double padding = 50.0; // Adjust padding as needed (in pixels)
         CameraUpdate cameraUpdate = CameraUpdate.newLatLngBounds(
-          padLatLngBounds(bounds,0.60),padding
+          padLatLngBounds(markerBounds, 0.10), // 10% padding
+          padding,
         );
+
         await mapController!.animateCamera(cameraUpdate);
+        setState(() {
+          _isLoading = false;
+          print("loader will be stop");
+        });
+
       }
       print("alarm ring");
       checkAlarm();
     });
     log("location 2");
   }
+
   void _showCustomBottomSheet(BuildContext context)async {
     double height=MediaQuery.of(context).size.height;
     double width=MediaQuery.of(context).size.width;
@@ -981,40 +1036,40 @@ class _TrackState extends State<Track> {
   //     },
   //   );
   // }
-  LatLngBounds padLatLngBounds(LatLngBounds bounds, double padding) {
-    double southWestLat = bounds.southwest.latitude - padding;
-    double southWestLng = bounds.southwest.longitude - padding;
-    double northEastLat = bounds.northeast.latitude + padding;
-    double northEastLng = bounds.northeast.longitude + padding;
-
-    return LatLngBounds(
-      southwest: LatLng(southWestLat, southWestLng),
-      northeast: LatLng(northEastLat, northEastLng),
-    );
-  }
-  LatLngBounds _calculateMarkerBounds(LatLng? marker1, LatLng? marker2) {
-    double southWestLat = double.infinity, southWestLng = double.infinity;
-    double northEastLat = double.negativeInfinity, northEastLng = double.negativeInfinity;
-
-    if (marker1 != null) {
-      southWestLat = math.min(southWestLat, marker1.latitude);
-      southWestLng = math.min(southWestLng, marker1.longitude);
-      northEastLat = math.max(northEastLat, marker1.latitude);
-      northEastLng = math.max(northEastLng, marker1.longitude);
-    }
-
-    if (marker2 != null) {
-      southWestLat = math.min(southWestLat, marker2.latitude);
-      southWestLng = math.min(southWestLng, marker2.longitude);
-      northEastLat = math.max(northEastLat, marker2.latitude);
-      northEastLng = math.max(northEastLng, marker2.longitude);
-    }
-
-    return LatLngBounds(
-      southwest: LatLng(southWestLat, southWestLng),
-      northeast: LatLng(northEastLat, northEastLng),
-    );
-  }
+  // LatLngBounds padLatLngBounds(LatLngBounds bounds, double padding) {
+  //   double southWestLat = bounds.southwest.latitude - padding;
+  //   double southWestLng = bounds.southwest.longitude - padding;
+  //   double northEastLat = bounds.northeast.latitude + padding;
+  //   double northEastLng = bounds.northeast.longitude + padding;
+  //
+  //   return LatLngBounds(
+  //     southwest: LatLng(southWestLat, southWestLng),
+  //     northeast: LatLng(northEastLat, northEastLng),
+  //   );
+  // }
+  // LatLngBounds _calculateMarkerBounds(LatLng? marker1, LatLng? marker2) {
+  //   double southWestLat = double.infinity, southWestLng = double.infinity;
+  //   double northEastLat = double.negativeInfinity, northEastLng = double.negativeInfinity;
+  //
+  //   if (marker1 != null) {
+  //     southWestLat = math.min(southWestLat, marker1.latitude);
+  //     southWestLng = math.min(southWestLng, marker1.longitude);
+  //     northEastLat = math.max(northEastLat, marker1.latitude);
+  //     northEastLng = math.max(northEastLng, marker1.longitude);
+  //   }
+  //
+  //   if (marker2 != null) {
+  //     southWestLat = math.min(southWestLat, marker2.latitude);
+  //     southWestLng = math.min(southWestLng, marker2.longitude);
+  //     northEastLat = math.max(northEastLat, marker2.latitude);
+  //     northEastLng = math.max(northEastLng, marker2.longitude);
+  //   }
+  //
+  //   return LatLngBounds(
+  //     southwest: LatLng(southWestLat, southWestLng),
+  //     northeast: LatLng(northEastLat, northEastLng),
+  //   );
+  // }
   void _startLocationUpdates() {
     // Listen for location cha
     _locationService.onLocationChanged.listen((location.LocationData newLocation) async {
@@ -1051,6 +1106,9 @@ class _TrackState extends State<Track> {
           3000.0, // Adjust zoom level as needed
         ),
       );
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
   // void handleScreenChanged(int index) {
@@ -1100,69 +1158,10 @@ class _TrackState extends State<Track> {
     double width=MediaQuery.of(context).size.width;
     return Scaffold(
 
-      //key: _scaffoldKey,
-      // drawer: NavigationDrawer(
-      //   onDestinationSelected: (int index) {
-      //     handleScreenChanged(index); // Assuming you have a handleScreenChanged function
-      //   },
-      //   selectedIndex: screenIndex,
-      //   children: <Widget>[
-      //     SizedBox(
-      //       //height: 32,
-      //       height:height/23.625,
-      //     ),
-      //     NavigationDrawerDestination(
-      //
-      //       icon: Icon(Icons.alarm_on_outlined), // Adjust size as needed
-      //       label: Text('Saved Alarms'),
-      //       // Set selected based on screenIndex
-      //     ),
-      //     NavigationDrawerDestination(
-      //       icon: Icon(Icons.alarm),
-      //       label: Text('Set a Alarm'),
-      //       // Set selected based on screenIndex
-      //     ),
-      //     NavigationDrawerDestination(
-      //       icon: Icon(Icons.settings_outlined),
-      //       label: Text('Settings'),
-      //       // Set selected based on screenIndex
-      //     ),
-      //     Divider(),
-      //     Padding(
-      //       padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
-      //       child: Text(
-      //         'Communicate', // Assuming this is the header
-      //         style: Theme.of(context).textTheme.titleSmall,
-      //       ),
-      //     ),
-      //     NavigationDrawerDestination(
-      //       icon: Icon(Icons.share_outlined),
-      //       label: Text('Share'),
-      //
-      //       // Set selected based on screenIndex
-      //     ),
-      //     NavigationDrawerDestination(
-      //       icon: Icon(Icons.rate_review_outlined),
-      //       label: Text('Rate/Review'),
-      //       // Set selected based on screenIndex
-      //     ),
-      //     Divider(),
-      //     Padding(
-      //       padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
-      //       child: Text(
-      //         'App', // Assuming this is the header
-      //         style: Theme.of(context).textTheme.titleSmall,
-      //       ),
-      //     ),
-      //     NavigationDrawerDestination(
-      //       icon: Icon(Icons.error_outline_outlined),
-      //       label: Text('About'),
-      //       // Set selected based on screenIndex
-      //     ),
-      //   ],
-      // ),
+
 body:  Stack(
   children: [
+    _isLoading == true ?Center(child: CircularProgressIndicator()):
     GoogleMap(
     circles: _circles,
     zoomGesturesEnabled: true,
@@ -1170,8 +1169,9 @@ body:  Stack(
     myLocationButtonEnabled: false,
     zoomControlsEnabled: false,
     initialCameraPosition: CameraPosition(
-      zoom: 15,
-      target: _defaultLocation,
+      zoom: 15, target: _defaultLocation,
+
+
     ),
     // onMapCreated: (GoogleMapController controller) {
     //   mapController = controller;
@@ -1179,18 +1179,18 @@ body:  Stack(
       onMapCreated: (GoogleMapController controller) {
         mapController = controller;
         isMapInitialized = true;
-        if (isMapInitialized) {
-          // Determine the current zoom level
-          double _defaultLocation = mapController!.getZoomLevel() as double;
-
-          // Calculate the difference between current and target zoom levels
-          double zoomLevelDifference = _defaultLocation - (_target!.latitude+_target!.longitude);
-
-          // Adjust the zoom level of the map to match the target level
-          mapController?.animateCamera(
-            CameraUpdate.zoomBy(zoomLevelDifference),
-          );
-        }
+        // if (isMapInitialized) {
+        //   // Determine the current zoom level
+        //   double _defaultLocation = mapController!.getZoomLevel() as double;
+        //
+        //   // Calculate the difference between current and target zoom levels
+        //   double zoomLevelDifference = _defaultLocation - (_target!.latitude+_target!.longitude);
+        //
+        //   // Adjust the zoom level of the map to match the target level
+        //   mapController?.animateCamera(
+        //     CameraUpdate.zoomBy(zoomLevelDifference),
+        //   );
+        // }
       },
 
 
@@ -1199,7 +1199,8 @@ body:  Stack(
 
     onCameraMoveStarted: () {
       setState(() {
-        _isCameraMoving = true;
+        _isCameraMoving = false;
+
       });
     },
     onCameraIdle: () {
@@ -1209,25 +1210,16 @@ body:  Stack(
     },
 
   ),
-    // Padding(
-    //   padding:  EdgeInsets.only(top: height/7.56,left:25),
-    //   child: Container(
-    //     height:70,
-    //     width:300,
-    //     decoration: BoxDecoration(
-    //       color: Colors.white70,
-    //       border: Border.all(
-    //         color: Colors.black,
-    //       ),
-    //       borderRadius: BorderRadius.circular(10),
-    //     ), child: Center(child: Text("To reposition a marker, tap on it\nand then drag it to the new location.",
-    //     textAlign:TextAlign.center,style: Theme.of(context).textTheme.titleMedium,)),),
-    // ),
     Positioned(
       right: 24,bottom: 120,
       // padding:  EdgeInsets.only(top:height/1.68,left: 280),
       child:IconButton.filledTonal(
-        onPressed: _goToCurrentLocation,
+        onPressed: (){
+          _goToCurrentLocation();
+          setState(() {
+            _isLoading = false;
+          });
+        },
         icon: Icon(Icons.my_location),
         // child: Icon(Icons.my_location),
       ),
