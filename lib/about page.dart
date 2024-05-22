@@ -1,11 +1,64 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'Homescreens/save_alarm_page.dart';
 import 'Homescreens/settings.dart';
 import 'Map screen page.dart';
+
+class AlarmManager {
+  late final AudioPlayer _audioPlayer;
+  late String? _selectedRingtone;
+
+  AlarmManager() {
+    _audioPlayer = AudioPlayer();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    _selectedRingtone = prefs.getString('selectedRingtone');
+    final selectedOption = prefs.getString('selected_alarm_option');
+
+    // Log the loaded values for debugging
+    print('Loaded alarm option: $selectedOption');
+    print('Selected ringtone loaded: $_selectedRingtone');
+
+    if (_selectedRingtone != null) {
+      await _setRingtoneSource(_selectedRingtone!);
+    }
+  }
+
+  Future<void> _setRingtoneSource(String ringtone) async {
+    final ringtoneUri = Uri.parse('asset:///assets/alarm_ringtones/$ringtone');
+    final audioSource = ConcatenatingAudioSource(
+      useLazyPreparation: true,
+      shuffleOrder: DefaultShuffleOrder(),
+      children: [
+        AudioSource.uri(ringtoneUri),
+      ],
+    );
+
+    try {
+      await _audioPlayer.setAudioSource(audioSource);
+      // Optionally, you can start playing the ringtone immediately
+      // await _audioPlayer.play();
+    } catch (e) {
+      print('Error setting audio source: $e');
+    }
+  }
+
+  Future<void> playRingtone() async {
+    try {
+      await _audioPlayer.play();
+    } catch (e) {
+      print('Error playing ringtone: $e');
+    }
+  }
+}
 
 
 class About extends StatefulWidget {
@@ -16,10 +69,32 @@ class About extends StatefulWidget {
 }
 final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 class _AboutState extends State<About> {
+  final AlarmManager alarmManager = AlarmManager();
+
   final Uri toLaunch =
   Uri(scheme: 'https', host: 'www.cylog.org', path: 'headers/');
   double radius=0;
   Future<void>? _launched;
+  final audioPlayer = AudioPlayer();
+  // Define the audio source
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    final selectedRingtone = prefs.getString('selectedRingtone');
+    final selectedOption = prefs.getString('selected_alarm_option');
+
+    // Use the loaded values as needed
+    print('Loaded alarm option: $selectedOption');
+    print('Selected ringtone loaded: $selectedRingtone');
+  }
+  final audioSource = ConcatenatingAudioSource(
+    // Set up lazy preparation and shuffle order
+    useLazyPreparation: true,
+    shuffleOrder: DefaultShuffleOrder(),
+    children: [
+      // Specify the URI for the audio file
+      AudioSource.uri(Uri.parse('asset:///assets/alarm5.mp3')),
+    ],
+  );
   void handleScreenChanged(int index) {
     switch (index) {
       case 0:
@@ -252,6 +327,17 @@ class _AboutState extends State<About> {
                ),
                Text(" 1.Set a location: Open the app and choose the desired destination for your map.\n \n 2.Pick Your Wake Up Style: Select a calming sound or vibration to wake you up gently at the end of your nap.\n  \n 3.Set Location-Based Reminder (Android Only): If you're using GPSalarm on Android and want a nap reminder based on your location,\nenable location services within the app and enter your destination.\n \n 4.For any remarks or support contact support@Qsyss.com",textAlign: TextAlign.left,
                  style: Theme.of(context).textTheme.bodyMedium,),
+              GestureDetector(
+                onTap: (){
+                  alarmManager.playRingtone();
+                  print("the song will be playing");
+                },
+                  child: Icon(CupertinoIcons.play_arrow_solid,size: 30,)),
+              GestureDetector(
+                onTap: () {
+                  audioPlayer.stop();
+                },
+                  child: Icon(CupertinoIcons.stop,size: 30,))
             ],
           ),
         ),

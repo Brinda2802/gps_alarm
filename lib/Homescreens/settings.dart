@@ -1127,7 +1127,7 @@ class _SettingsState extends State<Settings> {
     });
   }
   List<String> ringtones = [
-    ];
+  ];
   bool listFileExists = true;
   String? _selectedUnit; // Variable to store the selected unit
   // Dropdown options
@@ -1186,7 +1186,7 @@ class _SettingsState extends State<Settings> {
             // Save selected ringtone
           });
           _savesettings(selectedRingtone!);
-         // _saveSelectedRingtone(value);
+          // _saveSelectedRingtone(value);
           _playRingtone(selectedRingtone!);
           // await flutterLocalNotificationsPlugin
           //     .resolvePlatformSpecificImplementation<
@@ -1218,7 +1218,7 @@ class _SettingsState extends State<Settings> {
   //     print('Error saving settings: $e');
   //   }
   // }
-   String kSharedPrefOption = 'selected_option';
+  String kSharedPrefOption = 'selected_option';
   // void _saveSettings(String ringtone) async {
   //   final prefs = await SharedPreferences.getInstance();
   //   if (_selectedOption == 'Both') {
@@ -1348,7 +1348,7 @@ class _SettingsState extends State<Settings> {
         break;
       case 2:
         Navigator.of(context).pop();
-      // MaterialPageRoute(builder: (context) => Settings()));
+        // MaterialPageRoute(builder: (context) => Settings()));
         break;
       case 3:
         final RenderBox box = context.findRenderObject() as RenderBox;
@@ -1763,7 +1763,7 @@ class _SettingsState extends State<Settings> {
                   _loadSelectedUnit();
                   _saveSelectedUnit(newValue!);
                   _isMetricSystem = newValue == 'Metric system (m/km)';
-                  },
+                },
                 hint: Text('Metric system (m/km)'),
                 style: Theme.of(context).textTheme.bodyMedium,
                 underline: Container(
@@ -1832,35 +1832,35 @@ class _SettingsState extends State<Settings> {
               //     );
               //   }).toList(),
               // ),
-            DropdownButton<String>(
-              value: _selectedOption,
-              onChanged: (String? newValue) {
-               // handleAlarmOpen();
-                setState(() {
-                  _selectedOption = newValue!;
+              DropdownButton<String>(
+                value: _selectedOption,
+                onChanged: (String? newValue) {
+                  // handleAlarmOpen();
+                  setState(() {
+                    _selectedOption = newValue!;
+                    _savesettings(selectedRingtone!);
+                    // Save the selected option
+                  });
                   _savesettings(selectedRingtone!);
-                  // Save the selected option
-                });
-                _savesettings(selectedRingtone!);
-                _Savesettings(newValue!);
+                  _Savesettings(newValue!);
 
 
                 },
-              hint: Text("Alarms"),
-              style: Theme.of(context).textTheme.bodyMedium,
-              underline: Container(
-                height: height / 37.8,
-                color: Colors.transparent,
+                hint: Text("Alarms"),
+                style: Theme.of(context).textTheme.bodyMedium,
+                underline: Container(
+                  height: height / 37.8,
+                  color: Colors.transparent,
+                ),
+                icon: Icon(Icons.arrow_drop_down),
+                isExpanded: true,
+                items: ['Alarms', 'Vibrate','both'].map((option) {
+                  return DropdownMenuItem<String>(
+                    value: option,
+                    child: Text(option),
+                  );
+                }).toList(),
               ),
-              icon: Icon(Icons.arrow_drop_down),
-              isExpanded: true,
-              items: ['Alarms', 'Vibrate','both'].map((option) {
-                return DropdownMenuItem<String>(
-                  value: option,
-                  child: Text(option),
-                );
-              }).toList(),
-            ),
               Divider(),
               SizedBox(
                 height:height/37.8,
@@ -1879,26 +1879,26 @@ class _SettingsState extends State<Settings> {
                 ),
               ),
 
-    // Visibility for Vibrate settings
-    //               Visibility(
-    //                 visible: _selectedOption == 'Vibrate' || _selectedOption == 'both',
-    //                 child: Row(
-    //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //                   children: [
-    //                     Text('Vibrate', style: Theme.of(context).textTheme.titleLarge,),
-    //                     // Switch(
-    //                     //   value: isSwitched,
-    //                     //   onChanged: (bool value) {
-    //                     //     setState(() {
-    //                     //       isSwitched = value;
-    //                     //       // Call function to store switch value
-    //                     //       _saveSettings(selectedRingtone!);
-    //                     //     });
-    //                     //   },
-    //                     // ),
-    //                   ],
-    //                 ),
-    //               ),
+              // Visibility for Vibrate settings
+              //               Visibility(
+              //                 visible: _selectedOption == 'Vibrate' || _selectedOption == 'both',
+              //                 child: Row(
+              //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //                   children: [
+              //                     Text('Vibrate', style: Theme.of(context).textTheme.titleLarge,),
+              //                     // Switch(
+              //                     //   value: isSwitched,
+              //                     //   onChanged: (bool value) {
+              //                     //     setState(() {
+              //                     //       isSwitched = value;
+              //                     //       // Call function to store switch value
+              //                     //       _saveSettings(selectedRingtone!);
+              //                     //     });
+              //                     //   },
+              //                     // ),
+              //                   ],
+              //                 ),
+              //               ),
 
               // Text('Alarm',
               //   style:Theme.of(context).textTheme.titleLarge,),

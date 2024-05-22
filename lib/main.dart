@@ -1944,20 +1944,20 @@ Future<void> onStart(ServiceInstance service) async {
       print('Please enable permissions required');
     }
   }
- //  final _player = AudioPlayer();
- //
- //
- // final source = AudioSource.uri(
- //    Uri.parse('assets/audio/alarm.mp3'),
- //    tag: MediaItem(
- //      // Specify a unique ID for each media item:
- //      id: '1',
- //      // Metadata to display in the notification:
- //      album: "Album name",
- //      title: "Song name",
- //      artUri: Uri.parse('assets/audio/alarm.mp3'),
- //    ),
- //  );
+  //  final _player = AudioPlayer();
+  //
+  //
+  // final source = AudioSource.uri(
+  //    Uri.parse('assets/audio/alarm.mp3'),
+  //    tag: MediaItem(
+  //      // Specify a unique ID for each media item:
+  //      id: '1',
+  //      // Metadata to display in the notification:
+  //      album: "Album name",
+  //      title: "Song name",
+  //      artUri: Uri.parse('assets/audio/alarm.mp3'),
+  //    ),
+  //  );
   // final prefs = await SharedPreferences.getInstance();
   // final selectedRingtone = prefs.getString('selectedRingtone') ?? "alarm6.mp3";
   // final isVibrateEnabled = prefs.getBool(kSharedPrefVibrate!) ?? false;
@@ -2010,7 +2010,7 @@ Future<void> onStart(ServiceInstance service) async {
   //   }
   // }
 
-                          // for just_audio
+  // for just_audio
 
 
   // MediaItem item = MediaItem(
@@ -2082,254 +2082,254 @@ Future<void> onStart(ServiceInstance service) async {
           // await _playRingtone(selectedRingtone);
           print("locally play a sound:" +selectedRingtone);
           if(selectedOption == 'Alarms'){
-               final prefs = await SharedPreferences.getInstance();
-               final savedRingtone = prefs.getString('selectedRingtone') ?? "alarm6.mp3";
-               // Trigger notification with sound regardless of service state
-               print(savedRingtone);
-               // Play the alarm sound
-               // await playAlarmSound("locally saved the sound:"+savedRingtone);
-               flutterLocalNotificationsPlugin.show(
-                 notificationId,
-                 alarm.alarmName,
-                 'Reached destination radius',
-                 NotificationDetails(
-                   android: AndroidNotificationDetails(
-                     Uuid().v4(),
-                     'MY FOREGROUND SERVICE',
-                     icon: 'ic_bg_service_small',
-                     sound: RawResourceAndroidNotificationSound(
-                         savedRingtone.replaceAll(".mp3", "")),
-                     priority: Priority.max,
-                     importance: Importance.max,
-                     additionalFlags: Int32List.fromList(<int>[4]),
-                     enableVibration: false,
-                     fullScreenIntent: true,
-                     playSound: true,
-                     // vibrationPattern: Int64List.fromList(<int>[
-                     //   0, // Start immediately
-                     //   1000, // Vibrate for 1 second
-                     //   500, // Pause for 0.5 seconds
-                     //   1000, // Vibrate for 1 second
-                     // ]),
-                     ticker: 'ticker',
-                     actions: [
-                       // Dismiss action
-                       AndroidNotificationAction(
-                         Uuid().v4(),
-                         'Dismiss',
-                       ),
-                       // Stop action
-                       // AndroidNotificationAction(
-                       //   'stop_action',
-                       //   'Stop',
-                       // ),
+            final prefs = await SharedPreferences.getInstance();
+            final savedRingtone = prefs.getString('selectedRingtone') ?? "alarm6.mp3";
+            // Trigger notification with sound regardless of service state
+            print(savedRingtone);
+            // Play the alarm sound
+            // await playAlarmSound("locally saved the sound:"+savedRingtone);
+            flutterLocalNotificationsPlugin.show(
+              notificationId,
+              alarm.alarmName,
+              'Reached destination radius',
+              NotificationDetails(
+                android: AndroidNotificationDetails(
+                  Uuid().v4(),
+                  'MY FOREGROUND SERVICE',
+                  icon: 'ic_bg_service_small',
+                  sound: RawResourceAndroidNotificationSound(
+                      savedRingtone.replaceAll(".mp3", "")),
+                  priority: Priority.max,
+                  importance: Importance.max,
+                  additionalFlags: Int32List.fromList(<int>[4]),
+                  enableVibration: false,
+                  fullScreenIntent: true,
+                  playSound: true,
+                  // vibrationPattern: Int64List.fromList(<int>[
+                  //   0, // Start immediately
+                  //   1000, // Vibrate for 1 second
+                  //   500, // Pause for 0.5 seconds
+                  //   1000, // Vibrate for 1 second
+                  // ]),
+                  ticker: 'ticker',
+                  actions: [
+                    // Dismiss action
+                    AndroidNotificationAction(
+                      Uuid().v4(),
+                      'Dismiss',
+                    ),
+                    // Stop action
+                    // AndroidNotificationAction(
+                    //   'stop_action',
+                    //   'Stop',
+                    // ),
 
-                       // Snooze action
-                     ],
-                     styleInformation: DefaultStyleInformation(true, true),
-                   ),
-                 ),
-               );
+                    // Snooze action
+                  ],
+                  styleInformation: DefaultStyleInformation(true, true),
+                ),
+              ),
+            );
 
-             }
+          }
           else if (selectedOption == 'Vibrate'){
-               // Trigger notification with sound regardless of service state
-               // final savedRingtone =
-               //     prefs.getString('selectedRingtone') ?? "alarm6.mp3";
-               // print(savedRingtone);
-               flutterLocalNotificationsPlugin.show(
-                 notificationId,
-                 alarm.alarmName,
-                 'Reached destination radius',
-                 NotificationDetails(
-                   android: AndroidNotificationDetails(
-                     Uuid().v4(),
-                     'MY FOREGROUND SERVICE',
-                     icon: 'ic_bg_service_small',
-                     priority: Priority.high,
-                     importance: Importance.max,
-                     playSound: false,
-                     enableVibration: true,
-                     additionalFlags: Int32List.fromList(<int>[4]),
-                      vibrationPattern: Int64List.fromList(<int>[
-                       0, // Start immediately
-                       1000, // Vibrate for 1 second
-                       500, // Pause for 0.5 seconds
-                       1000, // Vibrate for 1 second
-                     ]),
-                     ticker: 'ticker',
-                     actions: [
-                       // Dismiss action
-                       AndroidNotificationAction(
-                         Uuid().v4(),
-                         'Dismiss',
-                       ),
-                       // Stop action
-                       // AndroidNotificationAction(
-                       //   'stop_action',
-                       //   'Stop',
-                       // ),
+            // Trigger notification with sound regardless of service state
+            // final savedRingtone =
+            //     prefs.getString('selectedRingtone') ?? "alarm6.mp3";
+            // print(savedRingtone);
+            flutterLocalNotificationsPlugin.show(
+              notificationId,
+              alarm.alarmName,
+              'Reached destination radius',
+              NotificationDetails(
+                android: AndroidNotificationDetails(
+                  Uuid().v4(),
+                  'MY FOREGROUND SERVICE',
+                  icon: 'ic_bg_service_small',
+                  priority: Priority.high,
+                  importance: Importance.max,
+                  playSound: false,
+                  enableVibration: true,
+                  additionalFlags: Int32List.fromList(<int>[4]),
+                  vibrationPattern: Int64List.fromList(<int>[
+                    0, // Start immediately
+                    1000, // Vibrate for 1 second
+                    500, // Pause for 0.5 seconds
+                    1000, // Vibrate for 1 second
+                  ]),
+                  ticker: 'ticker',
+                  actions: [
+                    // Dismiss action
+                    AndroidNotificationAction(
+                      Uuid().v4(),
+                      'Dismiss',
+                    ),
+                    // Stop action
+                    // AndroidNotificationAction(
+                    //   'stop_action',
+                    //   'Stop',
+                    // ),
 
-                       // Snooze action
-                     ],
-                     styleInformation: DefaultStyleInformation(true, true),
-                   ),
-                 ),
-               );
-             }
-             else if (selectedOption == 'both') {
-               final prefs = await SharedPreferences.getInstance();
-               final savedRingtone = prefs.getString('selectedRingtone') ?? "alarm6.mp3";
-               // final isVibrateEnabled = prefs.getBool(kSharedPrefVibrate!) ?? false;
-             // Trigger notification with sound regardless of service state
+                    // Snooze action
+                  ],
+                  styleInformation: DefaultStyleInformation(true, true),
+                ),
+              ),
+            );
+          }
+          else if (selectedOption == 'both') {
+            final prefs = await SharedPreferences.getInstance();
+            final savedRingtone = prefs.getString('selectedRingtone') ?? "alarm6.mp3";
+            // final isVibrateEnabled = prefs.getBool(kSharedPrefVibrate!) ?? false;
+            // Trigger notification with sound regardless of service state
 
-    print(savedRingtone);
-    flutterLocalNotificationsPlugin.show(
-    notificationId,
-    alarm.alarmName,
-    'Reached destination radius',
-    NotificationDetails(
-    android: AndroidNotificationDetails(
-    Uuid().v4(),
-    'MY FOREGROUND SERVICE',
-    icon: 'ic_bg_service_small',
-    sound: RawResourceAndroidNotificationSound(
-    savedRingtone.replaceAll(".mp3", "")),
-    priority: Priority.high,
-    importance: Importance.max,
-    additionalFlags: Int32List.fromList(<int>[4]),
-      vibrationPattern:Int64List.fromList(<int>[
-      0, // Start immediately
-      1000, // Vibrate for 1 second
-      500, // Pause for 0.5 seconds
-      1000, // Vibrate for 1 second
-    ]),
-    ticker: 'ticker',
-    actions: [
-    // Dismiss action
-    AndroidNotificationAction(
-    Uuid().v4(),
-    'Dismiss',
-    ),
-    // Stop action
-    // AndroidNotificationAction(
-    //   'stop_action',
-    //   'Stop',
-    // ),
+            print(savedRingtone);
+            flutterLocalNotificationsPlugin.show(
+              notificationId,
+              alarm.alarmName,
+              'Reached destination radius',
+              NotificationDetails(
+                android: AndroidNotificationDetails(
+                  Uuid().v4(),
+                  'MY FOREGROUND SERVICE',
+                  icon: 'ic_bg_service_small',
+                  sound: RawResourceAndroidNotificationSound(
+                      savedRingtone.replaceAll(".mp3", "")),
+                  priority: Priority.high,
+                  importance: Importance.max,
+                  additionalFlags: Int32List.fromList(<int>[4]),
+                  vibrationPattern:Int64List.fromList(<int>[
+                    0, // Start immediately
+                    1000, // Vibrate for 1 second
+                    500, // Pause for 0.5 seconds
+                    1000, // Vibrate for 1 second
+                  ]),
+                  ticker: 'ticker',
+                  actions: [
+                    // Dismiss action
+                    AndroidNotificationAction(
+                      Uuid().v4(),
+                      'Dismiss',
+                    ),
+                    // Stop action
+                    // AndroidNotificationAction(
+                    //   'stop_action',
+                    //   'Stop',
+                    // ),
 
-    // Snooze action
-    ],
-    styleInformation: DefaultStyleInformation(true, true),
-    ),
-    ),
-    );
-    }
-         //  await audioPlayer.setAudioSource(playlist,
-         //      initialPosition: Duration.zero);
-         //     print("background play a sound");
-         //  audioPlayer.setLoopMode(LoopMode.all);
-         //  audioPlayer.setSpeed(1);
-         //  audioPlayer.play();
-         //  // await _playRingtone(selectedRingtone);
-         //  // print("locally play a sound:" +selectedRingtone);
-         //
-         // // else if (!isVibrateEnabled  || isVibrateEnabled ) {
-         // //    // Trigger notification with sound regardless of service state
-         // //    final savedRingtone =
-         // //        prefs.getString('selectedRingtone') ?? "alarm6.mp3";
-         // //    print(savedRingtone);
-         // //    flutterLocalNotificationsPlugin.show(
-         // //      notificationId,
-         // //      alarm.alarmName,
-         // //      'Reached your place',
-         // //      NotificationDetails(
-         // //        android: AndroidNotificationDetails(
-         // //          Uuid().v4(),
-         // //          'MY FOREGROUND SERVICE',
-         // //          icon: 'ic_bg_service_small',
-         // //          sound: RawResourceAndroidNotificationSound(
-         // //              savedRingtone.replaceAll(".mp3", "")),
-         // //          priority: Priority.high,
-         // //          importance: Importance.max,
-         // //          enableVibration: true,
-         // //          additionalFlags: Int32List.fromList(<int>[4]),
-         // //          vibrationPattern: Int64List.fromList(<int>[
-         // //            0, // Start immediately
-         // //            1000, // Vibrate for 1 second
-         // //            500, // Pause for 0.5 seconds
-         // //            1000, // Vibrate for 1 second
-         // //          ]),
-         // //          ticker: 'ticker',
-         // //          actions: [
-         // //            // Dismiss action
-         // //            AndroidNotificationAction(
-         // //              Uuid().v4(),
-         // //              'Dismiss',
-         // //            ),
-         // //            // Stop action
-         // //            // AndroidNotificationAction(
-         // //            //   'stop_action',
-         // //            //   'Stop',
-         // //            // ),
-         // //
-         // //            // Snooze action
-         // //          ],
-         // //          styleInformation: DefaultStyleInformation(true, true),
-         // //        ),
-         // //      ),
-         // //    );
-         // //  }
-         // //     else if (!isVibrateEnabled  || isVibrateEnabled ) {
-         // //       // Trigger notification with sound regardless of service state
-         // //       final savedRingtone =
-         // //           prefs.getString('selectedRingtone') ?? "alarm6.mp3";
-         // //       print(savedRingtone);
-         // //       flutterLocalNotificationsPlugin.show(
-         // //         notificationId,
-         // //         alarm.alarmName,
-         // //         'Reached your place',
-         // //         NotificationDetails(
-         // //           android: AndroidNotificationDetails(
-         // //             Uuid().v4(),
-         // //             'MY FOREGROUND SERVICE',
-         // //             icon: 'ic_bg_service_small',
-         // //             sound: RawResourceAndroidNotificationSound(
-         // //                 savedRingtone.replaceAll(".mp3", "")),
-         // //             priority: Priority.high,
-         // //             importance: Importance.max,
-         // //             enableVibration: true,
-         // //             additionalFlags: Int32List.fromList(<int>[4]),
-         // //             vibrationPattern: Int64List.fromList(<int>[
-         // //               0, // Start immediately
-         // //               1000, // Vibrate for 1 second
-         // //               500, // Pause for 0.5 seconds
-         // //               1000, // Vibrate for 1 second
-         // //             ]),
-         // //             ticker: 'ticker',
-         // //             actions: [
-         // //               // Dismiss action
-         // //               AndroidNotificationAction(
-         // //                 Uuid().v4(),
-         // //                 'Dismiss',
-         // //               ),
-         // //               // Stop action
-         // //               // AndroidNotificationAction(
-         // //               //   'stop_action',
-         // //               //   'Stop',
-         // //               // ),
-         // //
-         // //               // Snooze action
-         // //             ],
-         // //             styleInformation: DefaultStyleInformation(true, true),
-         // //           ),
-         // //         ),
-         // //       );
-         // //     }
-         // //
-         // //  await _player.setAudioSource(source);
-         // //     await _player.play();
-             print('preparing to stop service');
-             break; // Exit loop after triggering the first alarm
+                    // Snooze action
+                  ],
+                  styleInformation: DefaultStyleInformation(true, true),
+                ),
+              ),
+            );
+          }
+          //  await audioPlayer.setAudioSource(playlist,
+          //      initialPosition: Duration.zero);
+          //     print("background play a sound");
+          //  audioPlayer.setLoopMode(LoopMode.all);
+          //  audioPlayer.setSpeed(1);
+          //  audioPlayer.play();
+          //  // await _playRingtone(selectedRingtone);
+          //  // print("locally play a sound:" +selectedRingtone);
+          //
+          // // else if (!isVibrateEnabled  || isVibrateEnabled ) {
+          // //    // Trigger notification with sound regardless of service state
+          // //    final savedRingtone =
+          // //        prefs.getString('selectedRingtone') ?? "alarm6.mp3";
+          // //    print(savedRingtone);
+          // //    flutterLocalNotificationsPlugin.show(
+          // //      notificationId,
+          // //      alarm.alarmName,
+          // //      'Reached your place',
+          // //      NotificationDetails(
+          // //        android: AndroidNotificationDetails(
+          // //          Uuid().v4(),
+          // //          'MY FOREGROUND SERVICE',
+          // //          icon: 'ic_bg_service_small',
+          // //          sound: RawResourceAndroidNotificationSound(
+          // //              savedRingtone.replaceAll(".mp3", "")),
+          // //          priority: Priority.high,
+          // //          importance: Importance.max,
+          // //          enableVibration: true,
+          // //          additionalFlags: Int32List.fromList(<int>[4]),
+          // //          vibrationPattern: Int64List.fromList(<int>[
+          // //            0, // Start immediately
+          // //            1000, // Vibrate for 1 second
+          // //            500, // Pause for 0.5 seconds
+          // //            1000, // Vibrate for 1 second
+          // //          ]),
+          // //          ticker: 'ticker',
+          // //          actions: [
+          // //            // Dismiss action
+          // //            AndroidNotificationAction(
+          // //              Uuid().v4(),
+          // //              'Dismiss',
+          // //            ),
+          // //            // Stop action
+          // //            // AndroidNotificationAction(
+          // //            //   'stop_action',
+          // //            //   'Stop',
+          // //            // ),
+          // //
+          // //            // Snooze action
+          // //          ],
+          // //          styleInformation: DefaultStyleInformation(true, true),
+          // //        ),
+          // //      ),
+          // //    );
+          // //  }
+          // //     else if (!isVibrateEnabled  || isVibrateEnabled ) {
+          // //       // Trigger notification with sound regardless of service state
+          // //       final savedRingtone =
+          // //           prefs.getString('selectedRingtone') ?? "alarm6.mp3";
+          // //       print(savedRingtone);
+          // //       flutterLocalNotificationsPlugin.show(
+          // //         notificationId,
+          // //         alarm.alarmName,
+          // //         'Reached your place',
+          // //         NotificationDetails(
+          // //           android: AndroidNotificationDetails(
+          // //             Uuid().v4(),
+          // //             'MY FOREGROUND SERVICE',
+          // //             icon: 'ic_bg_service_small',
+          // //             sound: RawResourceAndroidNotificationSound(
+          // //                 savedRingtone.replaceAll(".mp3", "")),
+          // //             priority: Priority.high,
+          // //             importance: Importance.max,
+          // //             enableVibration: true,
+          // //             additionalFlags: Int32List.fromList(<int>[4]),
+          // //             vibrationPattern: Int64List.fromList(<int>[
+          // //               0, // Start immediately
+          // //               1000, // Vibrate for 1 second
+          // //               500, // Pause for 0.5 seconds
+          // //               1000, // Vibrate for 1 second
+          // //             ]),
+          // //             ticker: 'ticker',
+          // //             actions: [
+          // //               // Dismiss action
+          // //               AndroidNotificationAction(
+          // //                 Uuid().v4(),
+          // //                 'Dismiss',
+          // //               ),
+          // //               // Stop action
+          // //               // AndroidNotificationAction(
+          // //               //   'stop_action',
+          // //               //   'Stop',
+          // //               // ),
+          // //
+          // //               // Snooze action
+          // //             ],
+          // //             styleInformation: DefaultStyleInformation(true, true),
+          // //           ),
+          // //         ),
+          // //       );
+          // //     }
+          // //
+          // //  await _player.setAudioSource(source);
+          // //     await _player.play();
+          print('preparing to stop service');
+          break; // Exit loop after triggering the first alarm
         }
       }
       alarms = alarms.where((element) => element.isEnabled).toList();
@@ -2339,7 +2339,7 @@ Future<void> onStart(ServiceInstance service) async {
         service.stopSelf();
       }
     }
-      });
+  });
 
   service.on('stopService').listen((event) {
     print('stopping service');

@@ -18,6 +18,7 @@ import 'package:lottie/lottie.dart';
 import '../Apiutils.dart';
 import '../Map screen page.dart';
 import '../about page.dart';
+import '../example.dart';
 import '../main.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 

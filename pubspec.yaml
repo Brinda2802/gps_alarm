@@ -66,6 +66,9 @@ dependencies:
   just_audio_background: ^0.0.1-beta.11
   just_audio: any # substitute version number
   on_audio_query: ^2.6.0
+  just_audio_platform_interface: ^4.0.0
+  just_audio_web: ^0.4.0
+
 
 
 #  audioplayers: ^0.20.1
@@ -107,6 +110,7 @@ flutter:
   assets:
      - assets/
      - assets/alarm5.mp3
+     - assets/alarm_ringtones/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

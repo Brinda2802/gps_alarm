@@ -1592,7 +1592,8 @@ class _MyHomePageState extends State<MyHomePage> {
             top: 50,
             left: 70,
             right: 20,
-            child: placesAutoCompleteTextField(),),
+            child: placesAutoCompleteTextField(),
+          ),
           Padding(
             padding:  EdgeInsets.only(top: height/7.56,left:width/3.6),
             child: Container(
@@ -1993,92 +1994,86 @@ class _MyHomePageState extends State<MyHomePage> {
     double width=MediaQuery.of(context).size.width;
     return Material(
       borderRadius: BorderRadius.circular(30.0),
-      child: Container(
-        // padding: EdgeInsets.symmetric(horizontal: 10),
-        child: GooglePlaceAutoCompleteTextField(
-          textEditingController: controller,
-          googleAPIKey: "AIzaSyA3byIibe-X741Bw5rfEzOHZEKuWdHvCbw",
-          // boxDecoration: BoxDecoration(
-          //   borderRadius: BorderRadius.circular(double.infinity),
-          // ),
-          boxDecoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(30.0), // Adjust the radius as needed
-            // border: Border.all(color: Colors.black26), // Add border color
-          ),
-          inputDecoration: InputDecoration(
-
-            hintText: "Alarm location",
-            border: InputBorder.none,
-            suffixIcon: Icon(Icons.search,size: 25,color: Colors.black,),
-            enabledBorder: InputBorder.none,
-          ),
-          debounceTime: 400,
-          countries: ["in", "fr"],
-          isLatLngRequired: true,
-          getPlaceDetailWithLatLng: (Prediction prediction) async {
-
-            print("placeDetails" + prediction.lat.toString());
-            print("placeDetails - Lat: ${prediction.lat}, Lng: ${prediction.lng}");
-            double lat = double.parse(prediction.lat!);
-            double lng = double.parse(prediction.lng!);
-            //
-            // // Call _handleTap to add a marker at the selected location
-            await _handleTap(LatLng(lat,lng ));
-
-
-            if (mapController != null) {
-              mapController!.animateCamera(CameraUpdate.newLatLng(
-                LatLng(lat, lng),
-              ));
-            }
-          },
-
-          // itemClick: (Prediction prediction) async {
-          //   print(prediction.lat);
-          //   print(prediction.lng);
-          //
-          //  await _handleTap(LatLng(prediction.lat as double, prediction.lng as double));
-          //   controller.text = prediction.description ?? "";
-          //   controller.selection = TextSelection.fromPosition(
-          //       TextPosition(offset: prediction.description?.length ?? 0));
-          // },
-          itemClick: (Prediction prediction) async {
-            // Extract the latitude and longitude from the prediction
-
-            print("enter");
-
-            // Set the text field value to the prediction description
-            controller.text = prediction.description ?? "";
-            controller.selection = TextSelection.fromPosition(
-                TextPosition(offset: prediction.description?.length ?? 0));
-          },
-
-
-
-          seperatedBuilder: Divider(),
-          containerHorizontalPadding: 10,
-
-          // OPTIONAL// If you want to customize list view item builder
-          itemBuilder: (context, index, Prediction prediction) {
-            return Container(
-              padding: EdgeInsets.all(10),
-              child: Row(
-                children: [
-                  Icon(Icons.location_on),
-                  SizedBox(
-                    width: width/51.428,
-                  ),
-                  Expanded(child: Text("${prediction.description ?? ""}"))
-                ],
-              ),
-            );
-          },
-
-          isCrossBtnShown: true,
-
-          // default 600 ms ,
+      child: GooglePlaceAutoCompleteTextField(
+        textEditingController: controller,
+        googleAPIKey: "AIzaSyA3byIibe-X741Bw5rfEzOHZEKuWdHvCbw",
+        // boxDecoration: BoxDecoration(
+        //   borderRadius: BorderRadius.circular(double.infinity),
+        // ),
+        boxDecoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(30.0), // Adjust the radius as needed
+          // border: Border.all(color: Colors.black26), // Add border color
         ),
+        inputDecoration: InputDecoration(
+          hintText: "Alarm location",
+          border: InputBorder.none,
+          suffixIcon: Icon(Icons.search,size: 25,color: Colors.black,),
+          enabledBorder: InputBorder.none,
+          contentPadding: EdgeInsets.only(top: 12.0, left: 15.0), // Adjust the padding to move the hint text
+        ),
+        debounceTime: 400,
+        countries: ["in", "fr"],
+        isLatLngRequired: true,
+        getPlaceDetailWithLatLng: (Prediction prediction) async {
+          print("placeDetails" + prediction.lat.toString());
+          print("placeDetails - Lat: ${prediction.lat}, Lng: ${prediction.lng}");
+          double lat = double.parse(prediction.lat!);
+          double lng = double.parse(prediction.lng!);
+          //
+          // // Call _handleTap to add a marker at the selected location
+          await _handleTap(LatLng(lat,lng ));
+          if (mapController != null) {
+            mapController!.animateCamera(CameraUpdate.newLatLng(
+              LatLng(lat, lng),
+            ));
+          }
+        },
+
+        // itemClick: (Prediction prediction) async {
+        //   print(prediction.lat);
+        //   print(prediction.lng);
+        //
+        //  await _handleTap(LatLng(prediction.lat as double, prediction.lng as double));
+        //   controller.text = prediction.description ?? "";
+        //   controller.selection = TextSelection.fromPosition(
+        //       TextPosition(offset: prediction.description?.length ?? 0));
+        // },
+        itemClick: (Prediction prediction) async {
+          // Extract the latitude and longitude from the prediction
+
+          print("enter");
+
+          // Set the text field value to the prediction description
+          controller.text = prediction.description ?? "";
+          controller.selection = TextSelection.fromPosition(
+              TextPosition(offset: prediction.description?.length ?? 0));
+        },
+
+
+
+        seperatedBuilder: Divider(),
+        containerHorizontalPadding: 10,
+
+        // OPTIONAL// If you want to customize list view item builder
+        itemBuilder: (context, index, Prediction prediction) {
+          return Container(
+            padding: EdgeInsets.all(10),
+            child: Row(
+              children: [
+                Icon(Icons.location_on),
+                SizedBox(
+                  width: width/51.428,
+                ),
+                Expanded(child: Text("${prediction.description ?? ""}"))
+              ],
+            ),
+          );
+        },
+
+        isCrossBtnShown: true,
+
+        // default 600 ms ,
       ),
     );
   }
