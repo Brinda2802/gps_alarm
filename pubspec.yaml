@@ -110,7 +110,7 @@ flutter:
   assets:
      - assets/
      - assets/alarm5.mp3
-     - assets/alarm_ringtones/
+
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

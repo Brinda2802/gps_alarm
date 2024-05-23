@@ -1747,6 +1747,7 @@ import 'dart:io';
 import 'dart:ui';
 import 'dart:math' as math;
 
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -1768,6 +1769,7 @@ import 'package:geolocator/geolocator.dart';
 import 'Homescreens/save_alarm_page.dart';
 import 'Homescreens/settings.dart';
 import 'Map screen page.dart';
+import 'Track.dart';
 import 'about page.dart';
 import 'example.dart';
 import 'package:sound_mode/utils/ringer_mode_statuses.dart';
@@ -1778,9 +1780,10 @@ const notificationId = 888;
 
 const String channelId = 'your_channel_id';
 const String channelName = 'Your Channel Name';
-
+late AudioHandler _audioHandler;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   // await JustAudioBackground.init(
   //   androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
   //   androidNotificationChannelName: 'Audio playback',
@@ -1859,7 +1862,15 @@ Future<void> main() async {
       await Permission.location.request().isGranted &&
       await ls.serviceEnabled()) {
     await initializeService();
+
   }
+  _audioHandler = await AudioService.init(
+    builder: () => MyAudioHandler(),
+    config: AudioServiceConfig(
+      androidNotificationChannelId: 'com.mycompany.myapp.channel.audio',
+      androidNotificationChannelName: 'Music playback',
+    ),
+  );
   runApp(const MyApp());
 }
 
@@ -1933,17 +1944,7 @@ Future<void> onStart(ServiceInstance service) async {
       android: AndroidInitializationSettings('ic_bg_service_small'),
     ),
   );
-  RingerModeStatus ringerStatus = await SoundMode.ringerModeStatus;
-  print(ringerStatus);
 
-  // To change the device's sound mode: silent to normal.
-  if(ringerStatus == 'silent'){
-    try {
-      await SoundMode.setSoundMode(RingerModeStatus.normal);
-    } on PlatformException {
-      print('Please enable permissions required');
-    }
-  }
   //  final _player = AudioPlayer();
   //
   //
@@ -2081,11 +2082,24 @@ Future<void> onStart(ServiceInstance service) async {
               'alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
           // await _playRingtone(selectedRingtone);
           print("locally play a sound:" +selectedRingtone);
-          if(selectedOption == 'Alarms'){
+          if(selectedOption == 'alarms'){
             final prefs = await SharedPreferences.getInstance();
             final savedRingtone = prefs.getString('selectedRingtone') ?? "alarm6.mp3";
             // Trigger notification with sound regardless of service state
             print(savedRingtone);
+            // RingerModeStatus ringerStatus = await SoundMode.ringerModeStatus;
+            // print("Ringer status: $ringerStatus");
+
+            // if (ringerStatus == RingerModeStatus.silent) {
+            //   try {
+            //     await SoundMode.setSoundMode(RingerModeStatus.normal);
+            //     print('Sound mode set to normal');
+            //   } on PlatformException {
+            //     print('Please enable permissions required');
+            //   }
+            // } else {
+            //   print('Device is not in silent mode');
+            // }
             // Play the alarm sound
             // await playAlarmSound("locally saved the sound:"+savedRingtone);
             flutterLocalNotificationsPlugin.show(
@@ -2105,6 +2119,7 @@ Future<void> onStart(ServiceInstance service) async {
                   enableVibration: false,
                   fullScreenIntent: true,
                   playSound: true,
+
                   // vibrationPattern: Int64List.fromList(<int>[
                   //   0, // Start immediately
                   //   1000, // Vibrate for 1 second
@@ -2118,13 +2133,7 @@ Future<void> onStart(ServiceInstance service) async {
                       Uuid().v4(),
                       'Dismiss',
                     ),
-                    // Stop action
-                    // AndroidNotificationAction(
-                    //   'stop_action',
-                    //   'Stop',
-                    // ),
 
-                    // Snooze action
                   ],
                   styleInformation: DefaultStyleInformation(true, true),
                 ),
@@ -2132,7 +2141,7 @@ Future<void> onStart(ServiceInstance service) async {
             );
 
           }
-          else if (selectedOption == 'Vibrate'){
+          else if (selectedOption == 'vibrate'){
             // Trigger notification with sound regardless of service state
             // final savedRingtone =
             //     prefs.getString('selectedRingtone') ?? "alarm6.mp3";

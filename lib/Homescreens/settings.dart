@@ -1832,45 +1832,79 @@ class _SettingsState extends State<Settings> {
               //     );
               //   }).toList(),
               // ),
-              DropdownButton<String>(
-                value: _selectedOption,
-                onChanged: (String? newValue) {
-                  // handleAlarmOpen();
+              // DropdownButton<String>(
+              //   value: _selectedOption,
+              //   onChanged: (String? newValue) {
+              //     // handleAlarmOpen();
+              //     setState(() {
+              //       _selectedOption = newValue!;
+              //       _savesettings(selectedRingtone!);
+              //       // Save the selected option
+              //     });
+              //     _savesettings(selectedRingtone!);
+              //     _Savesettings(newValue!);
+              //
+              //
+              //   },
+              //   hint: Text("Alarms"),
+              //   style: Theme.of(context).textTheme.bodyMedium,
+              //   underline: Container(
+              //     height: height / 37.8,
+              //     color: Colors.transparent,
+              //   ),
+              //   icon: Icon(Icons.arrow_drop_down),
+              //   isExpanded: true,
+              //   items: ['Alarms', 'Vibrate','both'].map((option) {
+              //     return DropdownMenuItem<String>(
+              //       value: option,
+              //       child: Text(option),
+              //     );
+              //   }).toList(),
+              // ),
+              RadioListTile<String>(
+                title: Text('Alarms'),
+                value: 'alarms',
+                groupValue: _selectedOption,
+                onChanged: (String? value) {
                   setState(() {
-                    _selectedOption = newValue!;
+                    _selectedOption = value;
                     _savesettings(selectedRingtone!);
-                    // Save the selected option
                   });
-                  _savesettings(selectedRingtone!);
-                  _Savesettings(newValue!);
-
-
                 },
-                hint: Text("Alarms"),
-                style: Theme.of(context).textTheme.bodyMedium,
-                underline: Container(
-                  height: height / 37.8,
-                  color: Colors.transparent,
-                ),
-                icon: Icon(Icons.arrow_drop_down),
-                isExpanded: true,
-                items: ['Alarms', 'Vibrate','both'].map((option) {
-                  return DropdownMenuItem<String>(
-                    value: option,
-                    child: Text(option),
-                  );
-                }).toList(),
+              ),
+              RadioListTile<String>(
+                title: Text('Vibrate'),
+                value: 'vibrate',
+                groupValue: _selectedOption,
+                onChanged: (String? value) {
+                  setState(() {
+                    _selectedOption = value;
+                    _savesettings(selectedRingtone!);
+                  });
+                },
+              ),
+              RadioListTile<String>(
+                title: Text('Both'),
+                value: 'both',
+                groupValue: _selectedOption,
+                onChanged: (String? value) {
+                  setState(() {
+                    _selectedOption = value;
+                    _savesettings(selectedRingtone!);
+                  });
+                },
               ),
               Divider(),
-              SizedBox(
-                height:height/37.8,
-              ),
+
               Visibility(
-                visible: _selectedOption == 'Alarms'  ||  _selectedOption == 'both' ,
+                visible: _selectedOption == 'alarms'  ||  _selectedOption == 'both' ,
                 child: Container(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      SizedBox(
+                        height:height/37.8,
+                      ),
                       Text('Alarm', style: Theme.of(context).textTheme.titleLarge,),
                       _buildRingtoneDropdown(),
                       Divider(),

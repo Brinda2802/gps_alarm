@@ -1,3 +1,4 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
@@ -9,55 +10,27 @@ import 'Homescreens/save_alarm_page.dart';
 import 'Homescreens/settings.dart';
 import 'Map screen page.dart';
 
-class AlarmManager {
-  late final AudioPlayer _audioPlayer;
-  late String? _selectedRingtone;
+class MyAudioHandler extends BaseAudioHandler
+    with QueueHandler, // mix in default queue callback implementations
+        SeekHandler { // mix in default seek callback implementations
 
-  AlarmManager() {
-    _audioPlayer = AudioPlayer();
-    _loadSettings();
-  }
+  final _player = AudioPlayer();// e.g. just_audio
+  final audioSource = ConcatenatingAudioSource(
+    // Set up lazy preparation and shuffle order
+    useLazyPreparation: true,
+    shuffleOrder: DefaultShuffleOrder(),
+    children: [
+      // Specify the URI for the audio file
+      AudioSource.uri(Uri.parse('asset:///assets/alarm9.mp3')),
+    ],
+  );
 
-  Future<void> _loadSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-    _selectedRingtone = prefs.getString('selectedRingtone');
-    final selectedOption = prefs.getString('selected_alarm_option');
-
-    // Log the loaded values for debugging
-    print('Loaded alarm option: $selectedOption');
-    print('Selected ringtone loaded: $_selectedRingtone');
-
-    if (_selectedRingtone != null) {
-      await _setRingtoneSource(_selectedRingtone!);
-    }
-  }
-
-  Future<void> _setRingtoneSource(String ringtone) async {
-    final ringtoneUri = Uri.parse('asset:///assets/alarm_ringtones/$ringtone');
-    final audioSource = ConcatenatingAudioSource(
-      useLazyPreparation: true,
-      shuffleOrder: DefaultShuffleOrder(),
-      children: [
-        AudioSource.uri(ringtoneUri),
-      ],
-    );
-
-    try {
-      await _audioPlayer.setAudioSource(audioSource);
-      // Optionally, you can start playing the ringtone immediately
-      // await _audioPlayer.play();
-    } catch (e) {
-      print('Error setting audio source: $e');
-    }
-  }
-
-  Future<void> playRingtone() async {
-    try {
-      await _audioPlayer.play();
-    } catch (e) {
-      print('Error playing ringtone: $e');
-    }
-  }
+  // The most common callbacks:
+  Future<void> play() => _player.play();
+  Future<void> pause() => _player.pause();
+  Future<void> stop() => _player.stop();
+  Future<void> seek(Duration position) => _player.seek(position);
+  Future<void> skipToQueueItem(int i) => _player.seek(Duration.zero, index: i);
 }
 
 
@@ -69,13 +42,11 @@ class About extends StatefulWidget {
 }
 final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 class _AboutState extends State<About> {
-  final AlarmManager alarmManager = AlarmManager();
-
   final Uri toLaunch =
   Uri(scheme: 'https', host: 'www.cylog.org', path: 'headers/');
   double radius=0;
   Future<void>? _launched;
-  final audioPlayer = AudioPlayer();
+
   // Define the audio source
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
@@ -86,15 +57,6 @@ class _AboutState extends State<About> {
     print('Loaded alarm option: $selectedOption');
     print('Selected ringtone loaded: $selectedRingtone');
   }
-  final audioSource = ConcatenatingAudioSource(
-    // Set up lazy preparation and shuffle order
-    useLazyPreparation: true,
-    shuffleOrder: DefaultShuffleOrder(),
-    children: [
-      // Specify the URI for the audio file
-      AudioSource.uri(Uri.parse('asset:///assets/alarm5.mp3')),
-    ],
-  );
   void handleScreenChanged(int index) {
     switch (index) {
       case 0:
@@ -329,14 +291,16 @@ class _AboutState extends State<About> {
                  style: Theme.of(context).textTheme.bodyMedium,),
               GestureDetector(
                 onTap: (){
-                  alarmManager.playRingtone();
+
+                   // Print a message indicating that the audio is being played
+                  print("Playing audio");
                   print("the song will be playing");
                 },
                   child: Icon(CupertinoIcons.play_arrow_solid,size: 30,)),
               GestureDetector(
                 onTap: () {
-                  audioPlayer.stop();
-                },
+
+                  },
                   child: Icon(CupertinoIcons.stop,size: 30,))
             ],
           ),
