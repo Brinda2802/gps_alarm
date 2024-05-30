@@ -68,6 +68,8 @@ dependencies:
   on_audio_query: ^2.6.0
   just_audio_platform_interface: ^4.0.0
   just_audio_web: ^0.4.0
+  alarmplayer: ^1.1.1
+  vibration: ^1.8.4
 
 
 

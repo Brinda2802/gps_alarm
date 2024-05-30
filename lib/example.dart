@@ -5318,3 +5318,36 @@
 //
 //
 //
+/*RadioListTile<String>(
+title: Text('Alarms'),
+value: 'alarms',
+groupValue: _selectedOption,
+onChanged: (String? value) {
+setState(() {
+_selectedOption = value;
+_savesettings(selectedRingtone!);
+});
+},
+),
+RadioListTile<String>(
+title: Text('Vibrate'),
+value: 'vibrate',
+groupValue: _selectedOption,
+onChanged: (String? value) {
+setState(() {
+_selectedOption = value;
+_savesettings(selectedRingtone!);
+});
+},
+),
+RadioListTile<String>(
+title: Text('Alarms in Silent mode'),
+value: 'both',
+groupValue: _selectedOption,
+onChanged: (String? value) {
+setState(() {
+_selectedOption = value;
+_savesettings(selectedRingtone!);
+});
+},
+),*/

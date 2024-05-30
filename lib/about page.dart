@@ -291,8 +291,7 @@ class _AboutState extends State<About> {
                  style: Theme.of(context).textTheme.bodyMedium,),
               GestureDetector(
                 onTap: (){
-
-                   // Print a message indicating that the audio is being played
+                  // Print a message indicating that the audio is being played
                   print("Playing audio");
                   print("the song will be playing");
                 },

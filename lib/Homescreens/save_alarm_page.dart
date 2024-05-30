@@ -1,14 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
+import 'package:alarmplayer/alarmplayer.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:just_audio/just_audio.dart';
-import 'package:location/location.dart' as location;
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitiled/Homescreens/settings.dart';
@@ -18,7 +17,6 @@ import 'package:lottie/lottie.dart';
 import '../Apiutils.dart';
 import '../Map screen page.dart';
 import '../about page.dart';
-import '../example.dart';
 import '../main.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 
@@ -38,53 +36,6 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
   List<AlarmDetails> alarms = [];
   bool _imperial = false;
   StreamSubscription? bgServiceListener;
-  bool _exitConfirmed = false;
-  // double calculateDistance(LatLng point1, LatLng point2) {
-  //   const double earthRadius = 6371000; // meters
-  //
-  //   // Convert degrees to radians
-  //   double lat1 = degreesToRadians(point1.latitude);
-  //   double lat2 = degreesToRadians(point2.latitude);
-  //   double lon1 = degreesToRadians(point1.longitude);
-  //   double lon2 = degreesToRadians(point2.longitude);
-  //
-  //   // Haversine formula for distance calculation
-  //   double dLat = lat2 - lat1;
-  //   double dLon = lon2 - lon1;
-  //   double a = math.sin(dLat / 2) * math.sin(dLat / 2) +
-  //       math.cos(lat1) * math.cos(lat2) * math.sin(dLon / 2) * math.sin(dLon / 2);
-  //   double c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
-  //   double distanceInMeters = earthRadius * c;
-  //
-  //   // Convert to imperial units (miles) if needed
-  //   double distanceInMiles = _imperial ? distanceInMeters * 0.000621371 : distanceInMeters / 1000;
-  //
-  //   // Clamp the distance to the desired range (0.10 - 2.00 miles)
-  //   return math.max(0.10, math.min(distanceInMiles, 2.00));
-  // }
-
-  // AudioPlayer audioPlayer = AudioPlayer();
-  // final playlist = ConcatenatingAudioSource(
-  //   useLazyPreparation: true,
-  //   shuffleOrder: DefaultShuffleOrder(),
-  //   children: [
-  //     // AudioSource.uri(Uri.file("$path/$ringtone")),
-  //     AudioSource.uri(Uri.parse('assets/alarm5.mp3')),
-  //   ],
-  // );
-
-  final audioPlayer = AudioPlayer();
-
-// Define the audio source
-  final audioSource = ConcatenatingAudioSource(
-    // Set up lazy preparation and shuffle order
-    useLazyPreparation: true,
-    shuffleOrder: DefaultShuffleOrder(),
-    children: [
-      // Specify the URI for the audio file
-      AudioSource.uri(Uri.parse('asset:///assets/alarm9.mp3')),
-    ],
-  );
 
   double calculateDistance(LatLng point1, LatLng point2) {
     const double earthRadius = 6371000; // meters
@@ -103,52 +54,31 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
     double c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
     double distance = earthRadius * c;
 
-    return _imperial ? (distance/1609) : (distance/1000);
+    return _imperial ? (distance / 1609) : (distance / 1000);
   }
-//distance / 1000
-  // double calculateDistanceInKm(LatLng point1, LatLng point2) {
-  //   const double earthRadius = 6371000; // meters
-  //
-  //   double lat1 = degreesToRadians(point1.latitude);
-  //   double lat2 = degreesToRadians(point2.latitude);
-  //   double lon1 = degreesToRadians(point1.longitude);
-  //   double lon2 = degreesToRadians(point2.longitude);
-  //
-  //   double dLat = lat2 - lat1;
-  //   double dLon = lon2 - lon1;
-  //
-  //   double a = math.sin(dLat / 2) * math.sin(dLat / 2) +
-  //       math.cos(lat1) * math.cos(lat2) * math.sin(dLon / 2) * math.sin(dLon / 2);
-  //   num c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
-  //   double distanceInMeters = earthRadius * c;
-  //   // Convert meters to kilometers and return the result
-  //   return distanceInMeters / 1000;
-  // }
 
   @override
   void dispose() {
     bgServiceListener?.cancel();
     super.dispose();
   }
+
   @override
   void initState() {
     super.initState();
     _loadSelectedUnit();
     loadData();
-    // saveData();
 
-    bgServiceListener = FlutterBackgroundService().on('stopped')
-      .listen((event) {
-        if (mounted) {
-          print('mounted');
-          loadData();
-        }
-        else {
-          print('not mounted');
-        }
+    bgServiceListener =
+        FlutterBackgroundService().on('stopped').listen((event) {
+      if (mounted) {
+        print('mounted');
+        loadData();
+      } else {
+        print('not mounted');
+      }
     });
   }
-
 
   Future<void> _loadSelectedUnit() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -160,47 +90,9 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
     print("selectedUnit:" + selectedUnit!);
     setState(() {
       _imperial = (selectedUnit == 'Imperial system (mi/ft)');
-
     });
   }
 
-  // Future<void> sendEmail() async {
-  //   final email = Email(
-  //     body: 'GPSAlarm',
-  //     subject: 'feedback',
-  //     recipients: ['brindhakarthi02@gmail.com'],
-  //   );
-  //
-  //   try {
-  //     await FlutterEmailSender.send(email);
-  //   } on Exception catch (e) {
-  //     print('Error launching email: $e');
-  //   }
-  // }
-  // Future<void> sendEmail() async {
-  //   final email = Email(
-  //         body: 'GPSAlarm',
-  //         subject: 'feedback',
-  //         recipients: ['brindhakarthi02@gmail.com'],
-  //       );
-  //   try {
-  //     await FlutterEmailSender.send(email);
-  //     // Your email sending code using mailer or flutter_email_sender
-  //   } on PlatformException catch (e) {
-  //     if (e.code == 'not_available') {
-  //       print('No email client found!');
-  //       // Show a user-friendly message explaining the issue
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(
-  //           content: Text('No email client found on this device. Please configure a default email app.'),
-  //         ),
-  //       );
-  //     } else {
-  //       // Handle other potential errors
-  //       print('Error sending email: ${e.message}');
-  //     }
-  //   }
-  // }
   Future<void> sendEmail(BuildContext context) async {
     final email = Email(
       body: 'GPSAlarm',
@@ -279,92 +171,6 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
     }
   }
 
-  // void handleScreenChanged(int index) {
-  //   switch (index) {
-  //     case 0:
-  //       // Navigator.of (context).pop();// Alarm List
-  //       // Navigator.of(context).pushReplacement(
-  //       //     MaterialPageRoute(builder: (context) => MyAlarmsPage()));
-  //       Navigator.popUntil(context, ModalRoute.withName('/screen1'));
-  //       break;
-  //     case 1:
-  //       // Navigator.of (context).pop();// Alarm List
-  //       // Navigator.of(context).push(
-  //       //     MaterialPageRoute(builder: (context) => MyHomePage()));
-  //       Navigator.popUntil(context, ModalRoute.withName('/screen2'));
-  //       break;
-  //     case 2:
-  //       // Navigator.of (context).pop();
-  //       // Navigator.of(context).push(
-  //       //     MaterialPageRoute(builder: (context) => Settings()));
-  //       Navigator.popUntil(context, ModalRoute.withName('/screen3'));
-  //       break;
-  //     case 3:
-  //       // Navigator.of (context).pop();
-  //       final RenderBox box = context.findRenderObject() as RenderBox;
-  //       Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
-  //       Share.share(
-  //         'Check out my awesome app! Download it from the app store:',
-  //         subject: 'Share this amazing app!',
-  //         sharePositionOrigin: dummyRect,
-  //       );
-  //       break;
-  //     case 4:
-  //       // Navigator.of (context).pop();
-  //       _launchInBrowser(toLaunch);
-  //       break;
-  //     case 5:
-  //       // Navigator.of (context).pop();
-  //       // Navigator.of(context).push(
-  //       //     MaterialPageRoute(builder: (context) => About()));
-  //       Navigator.popUntil(context, ModalRoute.withName('/screen4'));
-  //       break;
-  //   }
-  // }
-  // void saveAlarm(BuildContext context) async {
-  //   if (alramnamecontroller.text.isEmpty ||
-  //       radius == null) {
-  //     Navigator.of(context).pop();
-  //     // Show a Snackbar prompting the user to fill in the required fields
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(
-  //         content: Text('Please fill in all the required fields.'),
-  //
-  //       ),
-  //     );
-  //     return; // Exit the function without saving the data
-  //   }
-  //   print("locationradius:" +radius.toString(),);
-  //
-  //   setState(() {
-  //
-  //     AlarmDetails newAlarm = AlarmDetails(
-  //       alarmName: alramnamecontroller.text,
-  //       notes: notescontroller.text,
-  //       locationRadius:  radius,
-  //       isAlarmOn: true, isFavourite: false, lat: _target!.latitude, lng: _target!.longitude, id:Uuid().v4(), isEnabled: true,
-  //     );
-  //     alarms.add(newAlarm);
-  //   });
-  //
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   List<Map<String, dynamic>> alarmsJson =
-  //   alarms.map((alarm) => alarm.toJson()).toList();
-  //   await prefs.setStringList(
-  //       'alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
-  //
-  //   loadData();
-  //   Navigator.of(context).pop();
-  //
-  //   Navigator.of(context).push(
-  //     MaterialPageRoute(
-  //       builder: (context) => MyAlarmsPage(
-  //
-  //
-  //       ),
-  //     ),
-  //   );
-  // }
   void handleScreenChanged(int index) {
     switch (index) {
       case 0:
@@ -372,8 +178,6 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
         break;
       case 1:
         Navigator.of(context).pop();
-        // No pop needed for screen2 as it's likely the first screen
-        //   Navigator.pushNamed(context, '/secondpage'); // Navigate to screen2
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => MyHomePage()));
         break;
@@ -385,7 +189,6 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
         break;
       case 3:
         Navigator.of(context).pop();
-        // Share functionality, no navigation
         final RenderBox box = context.findRenderObject() as RenderBox;
         Rect dummyRect = Rect.fromCenter(
             center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
@@ -397,12 +200,11 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
         break;
       case 4:
         Navigator.of(context).pop();
-        // Launch URL, no navigation
+
         _launchInBrowser(toLaunch);
         break;
       case 5:
         Navigator.of(context).pop();
-        // Navigator.pushNamed(context, '/fouthpage'); // Navigate to screen4
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => About()));
         break;
@@ -418,91 +220,33 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
     double width = MediaQuery.of(context).size.width;
     return WillPopScope(
       onWillPop: () async {
-            final shouldExit = await showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: Text('Exit App'),
-                content: Text('Are you sure you want to exit?'),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false), // Close the dialog, don't exit
-                    child: Text('Cancel'),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(true), // Close the dialog, exit the app
-                    child: Text('Exit'),
-                  ),
-                ],
+        final shouldExit = await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Exit App'),
+            content: Text('Are you sure you want to exit?'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                // Close the dialog, don't exit
+                child: Text('Cancel'),
               ),
-            );
-            return shouldExit ?? false; // Default to not exiting the app
-          },
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                // Close the dialog, exit the app
+                child: Text('Exit'),
+              ),
+            ],
+          ),
+        );
+        return shouldExit ?? false; // Default to not exiting the app
+      },
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
           // backgroundColor: Color(0xffFFEF9A9A),
           title: Text("GPS Alarm"),
         ),
-        // drawer: NavigationDrawer(
-        //   onDestinationSelected: (int index) {
-        //     handleScreenChanged(index); // Assuming you have a handleScreenChanged function
-        //   },
-        //   selectedIndex: screenIndex,
-        //   children: <Widget>[
-        //     SizedBox(
-        //       //height: 32,
-        //       height:height/23.625,
-        //     ),
-        //     NavigationDrawerDestination(
-        //
-        //       icon: Icon(Icons.alarm_on_outlined), // Adjust size as needed
-        //       label: Text('Saved Alarms'),
-        //       // Set selected based on screenIndex
-        //     ),
-        //     NavigationDrawerDestination(
-        //       icon: Icon(Icons.alarm),
-        //       label: Text('Set a Alarm'),
-        //       // Set selected based on screenIndex
-        //     ),
-        //     NavigationDrawerDestination(
-        //       icon: Icon(Icons.settings_outlined),
-        //       label: Text('Settings'),
-        //       // Set selected based on screenIndex
-        //     ),
-        //     Divider(),
-        //     Padding(
-        //       padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
-        //       child: Text(
-        //         'Communicate', // Assuming this is the header
-        //         style: Theme.of(context).textTheme.titleSmall,
-        //       ),
-        //     ),
-        //     NavigationDrawerDestination(
-        //       icon: Icon(Icons.share_outlined),
-        //       label: Text('Share'),
-        //
-        //       // Set selected based on screenIndex
-        //     ),
-        //     NavigationDrawerDestination(
-        //       icon: Icon(Icons.rate_review_outlined),
-        //       label: Text('Rate/Review'),
-        //       // Set selected based on screenIndex
-        //     ),
-        //     Divider(),
-        //     Padding(
-        //       padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
-        //       child: Text(
-        //         'App', // Assuming this is the header
-        //         style: Theme.of(context).textTheme.titleSmall,
-        //       ),
-        //     ),
-        //     NavigationDrawerDestination(
-        //       icon: Icon(Icons.error_outline_outlined),
-        //       label: Text('About'),
-        //       // Set selected based on screenIndex
-        //     ),
-        //   ],
-        // ),
         drawer: NavigationDrawer(
           onDestinationSelected: (int index) {
             handleScreenChanged(
@@ -539,7 +283,7 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
             NavigationDrawerDestination(
               icon: Icon(Icons.share_outlined),
               label: Text('Share'),
-      
+
               // Set selected based on screenIndex
             ),
             NavigationDrawerDestination(
@@ -568,11 +312,17 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     children: [
-                      Lottie.asset(
-                        'assets/newlocationalarm.json',
-                        // Your empty list Lottie animation
-                        width: 300, // Adjust as needed
-                        height: 300, // Adjust as needed
+                      GestureDetector(
+                        onTap: () {
+                          Alarmplayer alarmplayer = Alarmplayer();
+                          alarmplayer.StopAlarm();
+                        },
+                        child: Lottie.asset(
+                          'assets/newlocationalarm.json',
+                          // Your empty list Lottie animation
+                          width: 300, // Adjust as needed
+                          height: 300, // Adjust as needed
+                        ),
                       ),
                       Text("No Alarms",
                           style: Theme.of(context).textTheme.titleLarge),
@@ -583,7 +333,8 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
                 ),
               )
             : Padding(
-                padding: EdgeInsets.only(left: width / 45, right: width / 45,bottom: 48),
+                padding: EdgeInsets.only(
+                    left: width / 45, right: width / 45, bottom: 48),
                 child: ListView.separated(
                   itemCount: alarms.length,
                   separatorBuilder: (context, index) {
@@ -610,10 +361,9 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
                                         TextOverflow.ellipsis, // Add this line
                                   ),
                                 ),
-      
                                 Switch(
                                   // This bool value toggles the switch.
-                                  value: alarms[index].isEnabled ,
+                                  value: alarms[index].isEnabled,
                                   onChanged: (value) async {
                                     setState(() {
                                       alarms[index].isEnabled = value;
@@ -625,55 +375,26 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
                                         print('starting service from toggle');
                                         await service.startService();
                                       }
-                                    }
-                                    else {
-                                      // if (alarms.where((element) => element.isEnabled).isEmpty) {
-                                      //   alarms[index].isEnabled = false;
-                                      //   print('stopping service as no alarms are enabled');
-                                      //   service.invoke('stopService');
-                                      // }
+                                    } else {
                                       print('checking for stop');
                                       print(alarms.toString());
-                                      if(alarms.where((element) => element.isEnabled).isEmpty && await service.isRunning()) {
+                                      if (alarms
+                                              .where((element) =>
+                                                  element.isEnabled)
+                                              .isEmpty &&
+                                          await service.isRunning()) {
                                         print('preparing to stop');
                                         service.invoke('stopService');
                                       }
                                     }
                                   },
                                 ),
-                                // Text(
-                                //   currentLocation != null
-                                //       ? calculateDistance(
-                                //               LatLng(currentLocation!.latitude,
-                                //                   currentLocation!.longitude),
-                                //               LatLng(alarms[index].lat,
-                                //                   alarms[index].lng))
-                                //           .toStringAsFixed(0)
-                                //       : "3km",
-                                //   style: TextStyle(
-                                //     fontSize: 15,
-                                //
-                                //     fontWeight: FontWeight.w500,
-                                //   ),
-                                // ),
-                                // Text(
-                                //   "km",
-                                //   style: TextStyle(
-                                //     fontSize: 15,
-                                //     // color: Colors.green,
-                                //     fontWeight: FontWeight.w500,
-                                //   ),
-                                // ),
                               ],
                             ),
-      
                             Text(
                               "${alarms[index].notes}",
                               style: Theme.of(context).textTheme.bodyLarge,
                             ),
-                            // SizedBox(
-                            //   height: 15,
-                            // ),
                             Row(
                               children: [
                                 Expanded(
@@ -681,15 +402,16 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
                                     children: [
                                       Icon(
                                         Icons.location_on,
-                                        color:
-                                            Theme.of(context).colorScheme.primary,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
                                       ),
                                       Text(
                                         currentLocation != null
-                                            ?
-                                        (calculateDistance(
+                                            ? (calculateDistance(
                                                     LatLng(
-                                                        currentLocation!.latitude,
+                                                        currentLocation!
+                                                            .latitude,
                                                         currentLocation!
                                                             .longitude),
                                                     LatLng(
@@ -704,15 +426,12 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
                                             .textTheme
                                             .bodyMedium,
                                       ),
-                                      Text(_imperial?
-                                        "miles":"Km",
+                                      Text(
+                                        _imperial ? "miles" : "Km",
                                         style: Theme.of(context)
                                             .textTheme
                                             .bodyMedium,
                                       ),
-
-
-
                                     ],
                                   ),
                                 ),
@@ -742,7 +461,7 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
                                   onPressed: () {
                                     final alarmToDelete = alarms[
                                         index]; // Store the alarm for later
-      
+
                                     // Show confirmation dialog
                                     showDialog(
                                       context: context,
@@ -765,10 +484,15 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
                                                   alarms.removeAt(index);
                                                 });
                                                 saveData();
-                                                final service = FlutterBackgroundService();
-                                                if(alarms.where((element) => element.isEnabled).isEmpty && await service.isRunning()) {
-                                                print('preparing to stop');
-                                                service.invoke('stopService');
+                                                final service =
+                                                    FlutterBackgroundService();
+                                                if (alarms
+                                                        .where((element) =>
+                                                            element.isEnabled)
+                                                        .isEmpty &&
+                                                    await service.isRunning()) {
+                                                  print('preparing to stop');
+                                                  service.invoke('stopService');
                                                 }
                                                 Navigator.of(context)
                                                     .pop(); // Close the dialog
@@ -783,18 +507,20 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
                                   icon: Icon(Icons.delete),
                                   color: Theme.of(context).colorScheme.error,
                                 ),
-      
+
                                 IconButton(
                                   onPressed: () {
-                                    Navigator.of(context).push(MaterialPageRoute(
-                                        builder: (context) => Track(
-                                              alarm: alarms[index],
-                                            )));
+                                    Navigator.of(context)
+                                        .push(MaterialPageRoute(
+                                            builder: (context) => Track(
+                                                  alarm: alarms[index],
+                                                )));
                                   },
                                   icon: Icon(Icons.edit),
-                                  color: Theme.of(context).colorScheme.secondary,
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
                                 ),
-      
+
                                 // Switch(
                                 //   value: alarms[index].isEnabled,
                                 //   onChanged: (value) {
@@ -809,7 +535,6 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
                           ],
                         ),
                       ),
-      
                     );
                   },
                 ),
