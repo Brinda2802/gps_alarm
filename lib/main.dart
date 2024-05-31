@@ -1997,8 +1997,6 @@ void onDidReceiveNotificationResponse(NotificationResponse  notificationResponse
   }
 }
 
-// Function to extract action type from payload (implementation depends on your payload format)
-
 Future<bool> containsOption(String option) async {
   final prefs = await SharedPreferences.getInstance();
   final selectedOptions = prefs.getStringList('selectedOptions') ?? [];
@@ -2171,9 +2169,6 @@ Future<void> onStart(ServiceInstance service) async {
   //   callback: () => print("Alarm finished playing!"),
   // );
 
-
-
-
   Future<void> playAlarm() async {
     // Get saved ringtone preference
     final prefs = await SharedPreferences.getInstance();
@@ -2199,8 +2194,6 @@ Future<void> onStart(ServiceInstance service) async {
       // await alarmplayer.stop(); // Stop the alarm if necessary
     }
 
-    // Callback for when the alarm finishes (optional)
-    //alarmplayer.onFinished = () => print("Alarm finished playing!");
   }
 
 

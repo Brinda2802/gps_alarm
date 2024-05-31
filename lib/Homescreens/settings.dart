@@ -45,6 +45,7 @@ class _SettingsState extends State<Settings> {
     'Alarms in Silent Mode': 'alarms in silent mode'
   };
   Set<String> _selectedOptions = Set<String>();
+
   DropdownButton<String> _buildRingtoneDropdown() {
     return DropdownButton<String>(
       value: selectedRingtone,
@@ -79,7 +80,9 @@ class _SettingsState extends State<Settings> {
       ),
     );
   }
+
   String kSharedPrefOption = 'selected_option';
+
   Future<void> _loadRadiusData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -94,6 +97,7 @@ class _SettingsState extends State<Settings> {
       _isMetricSystem = prefs.getBool('unitSystem') ?? true;
     });
   }
+
   Future<void> _loadRingtones() async {
     try {
       if (listFileExists) {
@@ -115,6 +119,7 @@ class _SettingsState extends State<Settings> {
       selectedRingtone = prefs.getString('selectedRingtone') ?? "alarm6.mp3";
     });
   }
+
   Future<void> _saveRadiusData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setDouble('meterRadius', meterRadius * 1000); // Store in meters
@@ -124,6 +129,7 @@ class _SettingsState extends State<Settings> {
     await prefs.setBool(
         'unitSystem', _isMetricSystem); // Save current preference
   }
+
   Future<void> _saveSelectedRingtone(String ringtone) async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -134,6 +140,7 @@ class _SettingsState extends State<Settings> {
       print('Error saving selected ringtone: $e');
     }
   }
+
   void handleScreenChanged(int index) {
     switch (index) {
       case 0:
@@ -174,7 +181,6 @@ class _SettingsState extends State<Settings> {
     }
   }
 
-
   Future<void> _playRingtone(String ringtone) async {
     // Ensure assets/alarm_ringtones/ is the correct path
     final ringtonePath = '$ringtone';
@@ -193,7 +199,6 @@ class _SettingsState extends State<Settings> {
   }
 
   Future<void> _saveAllSettings() async {
-
     await _saveRadiusData();
 
     final prefs = await SharedPreferences.getInstance();
@@ -201,7 +206,6 @@ class _SettingsState extends State<Settings> {
   }
 
   void _handleSettingsSet() async {
-
     _audioPlayer.stop();
     await _saveAllSettings();
     Navigator.of(context).pushReplacement(
@@ -222,14 +226,11 @@ class _SettingsState extends State<Settings> {
   // Function to store switch value
   void initState() {
     super.initState();
-    //_loadSettings();
     _loadSelectedUnit();
     _loadRingtones();
-    //_loadSettings();
     _loadRadiusData();
     _loadSettings();
   }
-
 
   Future<void> _saveSettings(String ringtone) async {
     final prefs = await SharedPreferences.getInstance();
@@ -264,21 +265,7 @@ class _SettingsState extends State<Settings> {
     });
   }
 
-  // Future<void> _loadRadiusData() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   setState(() {
-  //     meterRadius = (prefs.getDouble('meterRadius') ?? 100) / 1000;
-  //     milesRadius = prefs.getDouble('milesRadius') ?? 0.10;
-  //     print("meterradius:"+meterRadius.toString());
-  //     print("milesradius:"+milesRadius.toString());
-  //   });
-  // }
-  // Future<void> _saveRadiusData() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   await prefs.setDouble('meterRadius', meterRadius*1000);
-  //   await prefs.setDouble('milesRadius', milesRadius);
-  //
-  // }
+
   Future<void> _launchInBrowser(Uri url) async {
     if (!await launchUrl(
       url,
@@ -287,137 +274,15 @@ class _SettingsState extends State<Settings> {
       throw Exception('Could not launch $url');
     }
   }
-
-  // Future<void> _loadOptions() async {
-  //   try {
-  //     // Load ringtones
-  //     if (listFileExists) {
-  //       ringtones = await rootBundle.loadString('assets/list.txt').then(
-  //             (data) => data.split(','),
-  //       );
-  //     } else {
-  //       // Handle the case where list.txt is missing (optional)
-  //     }
-  //
-  //     // Load selected ringtone
-  //     SharedPreferences prefs = await SharedPreferences.getInstance();
-  //     setState(() {
-  //       selectedRingtone = prefs.getString('selectedRingtone') ?? "alarm6.mp3";
-  //       _selectedOption = prefs.getString('selectedOption') ?? 'Alarms';
-  //       isSwitched = prefs.getBool('isSwitched') ?? false;
-  //       print("selectedRingtone" +selectedRingtone!);
-  //       print("selectedoption" +_selectedOption!);
-  //     });
-  //   } on FlutterError catch (e) {
-  //     // Handle error if list.txt is missing or inaccessible
-  //     print("Error loading options: $e");
-  //   }
-  // }
-
-  // Future<void> _loadRadiusData() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   setState(() {
-  //     // Load meter radius (convert from kilometers if stored)
-  //     meterRadius = prefs.getDouble('meterRadius')?.toDouble() ?? 100;
-  //     meterRadius /= 1000; // Convert kilometers to meters if previously stored
-  //
-  //     // Load miles radius
-  //     milesRadius = prefs.getDouble('milesRadius') ?? 0.10;
-  //
-  //     // Load unit system preference (default to metric)
-  //     _isMetricSystem = prefs.getBool('unitSystem') ?? true;
-  //   });
-  // }
-  Future<void>? _launched;
   int screenIndex = 2;
   final Uri toLaunch =
       Uri(scheme: 'https', host: 'www.cylog.org', path: 'headers/');
 
-  // void handleScreenChanged(int index) {
-  //   switch (index) {
-  //     case 0: // Alarm List
-  //       Navigator.of(context).push(
-  //           MaterialPageRoute(builder: (context) => MyAlarmsPage()));
-  //       // Replace with your AlarmListPage widget
-  //       break;
-  //     case 1: // Alarm List
-  //       Navigator.of(context).push(
-  //           MaterialPageRoute(builder: (context) => MyHomePage()));
-  //
-  //       // Replace with your AlarmListPage widget
-  //       break;
-  //
-  //     case 2:
-  //
-  //       Navigator.of(context).pushReplacement(
-  //           MaterialPageRoute(builder: (context) => Settings())); // Replace with your SavedAlarmsPage widget
-  //       break;
-  //     case 3:
-  //       final RenderBox box = context.findRenderObject() as RenderBox;
-  //       Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
-  //       Share.share(
-  //         'Check out my awesome app: ! Download it from the app store: ',
-  //         subject: 'Share this amazing app!',
-  //         sharePositionOrigin: dummyRect,
-  //       );
-  //       break;
-  //     case 4:
-  //
-  //       _launchInBrowser(toLaunch);
-  //
-  //
-  //       break;
-  //     case 5:
-  //
-  //       Navigator.of(context).push(
-  //           MaterialPageRoute(builder: (context) => About()));
-  //
-  //       break;
-  //
-  //   }
-  // }
-  // void handleScreenChanged(int index) {
-  //   switch (index) {
-  //     case 0: // Alarm List
-  //       Navigator.of(context).push(
-  //           MaterialPageRoute(builder: (context) => MyAlarmsPage()));
-  //       break;
-  //     case 1: // Alarm List
-  //       Navigator.of(context).push(
-  //           MaterialPageRoute(builder: (context) => MyHomePage()));
-  //       break;
-  //     case 2:
-  //       Navigator.of(context).push(
-  //           MaterialPageRoute(builder: (context) => Settings()));
-  //       break;
-  //     case 3:
-  //       final RenderBox box = context.findRenderObject() as RenderBox;
-  //       Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
-  //       Share.share(
-  //         'Check out my awesome app! Download it from the app store:',
-  //         subject: 'Share this amazing app!',
-  //         sharePositionOrigin: dummyRect,
-  //       );
-  //       break;
-  //     case 4:
-  //       _launchInBrowser(toLaunch);
-  //       break;
-  //     case 5:
-  //       Navigator.of(context).push(
-  //           MaterialPageRoute(builder: (context) => About()));
-  //       break;
-  //   }
-  // }
+
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool isSwitched = false;
-  String? _options;
-  String? _selectedOption;
   SharedPreferences? prefs;
 
-  Future<void> _initState() async {
-    prefs = await SharedPreferences.getInstance();
-    // Load _showSilentModeOption from SharedPreferences after initialization
-  }
 
   @override
   bool _imperial = false;
@@ -440,17 +305,16 @@ class _SettingsState extends State<Settings> {
           NavigationDrawerDestination(
             icon: Icon(Icons.alarm_on_outlined), // Adjust size as needed
             label: Text('Saved Alarms'),
-            // Set selected based on screenIndex
           ),
           NavigationDrawerDestination(
             icon: Icon(Icons.alarm),
             label: Text('Set a Alarm'),
-            // Set selected based on screenIndex
+
           ),
           NavigationDrawerDestination(
             icon: Icon(Icons.settings_outlined),
             label: Text('Settings'),
-            // Set selected based on screenIndex
+
           ),
           Divider(),
           Padding(
@@ -463,13 +327,10 @@ class _SettingsState extends State<Settings> {
           NavigationDrawerDestination(
             icon: Icon(Icons.share_outlined),
             label: Text('Share'),
-
-            // Set selected based on screenIndex
           ),
           NavigationDrawerDestination(
             icon: Icon(Icons.rate_review_outlined),
             label: Text('Rate/Review'),
-            // Set selected based on screenIndex
           ),
           Divider(),
           Padding(
@@ -541,38 +402,7 @@ class _SettingsState extends State<Settings> {
                   );
                 }).toList(),
               ),
-              /* DropdownButton<String> _buildRingtoneDropdown() {
-            return DropdownButton<String>(
-        value: selectedRingtone,
-        icon: const Icon(Icons.arrow_drop_down),
-        isExpanded: true,
 
-        items: ringtones.map((ringtone) => DropdownMenuItem<String>(
-          value: ringtone,
-          child: Text(ringtone.split('/').last),
-        )).toList(),
-        onChanged: (String? value) async {
-          if (value != null) {
-            setState(() {
-              selectedRingtone = value;
-              // Save selected ringtone
-            });
-            _saveSelectedRingtone(value);
-            _playRingtone(selectedRingtone!);
-
-            // await flutterLocalNotificationsPlugin
-            //     .resolvePlatformSpecificImplementation<
-            //     AndroidFlutterLocalNotificationsPlugin>()
-            //     ?.deleteNotificationChannel("my_foreground");
-          }
-        },
-        hint: Text( "Select Ringtone", style: Theme.of(context).textTheme.bodyMedium),
-        underline: Container(
-          height: 2,
-          color: Colors.transparent,
-        ),
-            );
-          }*/
               Divider(),
               SizedBox(
                 height: height / 37.8,
@@ -581,105 +411,7 @@ class _SettingsState extends State<Settings> {
                 'Options',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
-              // DropdownButton<String>(
-              //   value: dropdownValue,
-              //   onChanged: (String? newValue) {
-              //     setState(() {
-              //       dropdownValue = newValue!;
-              //     });
-              //   },
-              //   items: <String>['Alarms', 'Vibrate', 'Alarms and Vibrate']
-              //       .map<DropdownMenuItem<String>>((String value) {
-              //     return DropdownMenuItem<String>(
-              //       value: value,
-              //       child: Text(value),
-              //     );
-              //   }).toList(),
-              // ),
-              // DropdownButton<String>(
-              //   value: _selectedOption,
-              //   onChanged: (String? newValue) {
-              //     // handleAlarmOpen();
-              //     setState(() {
-              //       _selectedOption = newValue!;
-              //       _savesettings(selectedRingtone!);
-              //       // Save the selected option
-              //     });
-              //     _savesettings(selectedRingtone!);
-              //     _Savesettings(newValue!);
-              //
-              //
-              //   },
-              //   hint: Text("Alarms"),
-              //   style: Theme.of(context).textTheme.bodyMedium,
-              //   underline: Container(
-              //     height: height / 37.8,
-              //     color: Colors.transparent,
-              //   ),
-              //   icon: Icon(Icons.arrow_drop_down),
-              //   isExpanded: true,
-              //   items: ['Alarms', 'Vibrate','both'].map((option) {
-              //     return DropdownMenuItem<String>(
-              //       value: option,
-              //       child: Text(option),
-              //     );
-              //   }).toList(),
-              // ),
-              // Column(
-              //   children: [
-              //     ..._optionMap.keys.map((option) {
-              //       if (option == 'Alarms in Silent Mode' && !_showSilentModeOption) {
-              //         return SizedBox.shrink(); // Hide the option if _showSilentModeOption is false
-              //       }
-              //       return CheckboxListTile(
-              //         title: Text(option),
-              //         value: _selectedOptions.contains(_optionMap[option]),
-              //         onChanged: (bool? value) {
-              //           setState(() {
-              //             if (value!) {
-              //               _selectedOptions.add(_optionMap[option]!);
-              //               if (option == 'Alarms') {
-              //                 _showSilentModeOption = true;
-              //                 // Save _showSilentModeOption to SharedPreferences
-              //                 prefs?.setBool('showSilentModeOption', _showSilentModeOption);
-              //               }
-              //             }  else {
-              //               _selectedOptions.remove(_optionMap[option]);
-              //               if (option == 'Alarms') {
-              //                 _showSilentModeOption =
-              //                 false; // Hide Silent Mode option
-              //                  _selectedOptions.remove(_optionMap['Alarms in Silent Mode']);
-              //               }
-              //             }
-              //             print(_selectedOptions);
-              //             _saveSettings(selectedRingtone!);
-              //           });
-              //         },
-              //       );
-              //
-              //     }).toList(),
-              //     Visibility(
-              //       visible: _selectedOptions.contains(_optionMap['Alarms']) ||
-              //           _selectedOptions.contains(_optionMap['Alarms in Silent Mode']),
-              //       child: Container(
-              //         child: Column(
-              //           crossAxisAlignment: CrossAxisAlignment.start,
-              //           children: [
-              //             Divider(),
-              //             SizedBox(
-              //               height: MediaQuery.of(context).size.height / 37.8,
-              //             ),
-              //             Text(
-              //               'Alarm',
-              //               style: Theme.of(context).textTheme.titleLarge,
-              //             ),
-              //             _buildRingtoneDropdown(),
-              //           ],
-              //         ),
-              //       ),
-              //     ),
-              //   ],
-              // ),
+
               Column(
                 children: [
                   ..._optionMap.keys.map((option) {
@@ -747,57 +479,6 @@ class _SettingsState extends State<Settings> {
                   ),
                 ],
               ),
-
-              // Visibility for Vibrate settings
-              //               Visibility(
-              //                 visible: _selectedOption == 'Vibrate' || _selectedOption == 'both',
-              //                 child: Row(
-              //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //                   children: [
-              //                     Text('Vibrate', style: Theme.of(context).textTheme.titleLarge,),
-              //                     // Switch(
-              //                     //   value: isSwitched,
-              //                     //   onChanged: (bool value) {
-              //                     //     setState(() {
-              //                     //       isSwitched = value;
-              //                     //       // Call function to store switch value
-              //                     //       _saveSettings(selectedRingtone!);
-              //                     //     });
-              //                     //   },
-              //                     // ),
-              //                   ],
-              //                 ),
-              //               ),
-
-              // Text('Alarm',
-              //   style:Theme.of(context).textTheme.titleLarge,),
-              // Container(
-              //   child: _buildRingtoneDropdown(),
-              // ),
-              // Divider(),
-              // SizedBox(
-              //   height:height/37.8,
-              // ),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //   children: [
-              //     Text('Vibrate',
-              //       style:Theme.of(context).textTheme.titleLarge,),
-              //     Switch(
-              //       value: isSwitched,
-              //       onChanged: (bool value) {
-              //         setState(() {
-              //           isSwitched = value; // Update the state of the switch when it's toggled
-              //         });
-              //       },
-              //     ),
-              //   ],
-              // ),
-              // SizedBox(
-              //   height:height/37.8,
-              // ),
-              //
-              // Divider(),
               Divider(),
               SizedBox(
                 height: height / 37.8,
@@ -849,8 +530,6 @@ class _SettingsState extends State<Settings> {
                               _saveRadiusData();
                             },
                           ),
-
-                          // Text('Meter Radius: ${meterRadius.toStringAsFixed(2)}', style: TextStyle(fontSize: 16)),
                         ],
                       ),
                     ),
@@ -910,7 +589,7 @@ class _SettingsState extends State<Settings> {
                     _handleSettingsSet();
                   },
                   child: Text("Set"),
-                  // Call the saveAlarm functio
+
                 ),
               ),
             ],
@@ -940,5 +619,3 @@ class _SettingsState extends State<Settings> {
 //   }
 // }
 }
-
-
