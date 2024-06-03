@@ -1747,8 +1747,6 @@ import 'dart:io';
 import 'dart:ui';
 import 'dart:math' as math;
 import 'package:audio_service/audio_service.dart';
-import 'package:audioplayers/audioplayers.dart';
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -1759,9 +1757,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as location;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sound_mode/sound_mode.dart';
 import 'package:sound_mode/utils/constants.dart';
 import 'package:untitiled/main.dart';
+import 'package:untitiled/settingsexample.dart';
 import 'package:uuid/uuid.dart';
 import 'Apiutils.dart';
 import 'Homescreens/homescreen.dart';
@@ -2026,149 +2024,6 @@ Future<void> onStart(ServiceInstance service) async {
       onDidReceiveBackgroundNotificationResponse:onDidReceiveNotificationResponse,
   );
 
-
-// Alarmplayer alarmplayer = Alarmplayer();
-  //
-  // alarmplayer.Alarm(
-  //     url: "assets/alarm4.mp3",  // Path of sound file.
-  //     volume: 0.5,              // optional, set the volume, default 1.
-  //     looping: true   ,          // optional, if you want to loop you're alarm or not
-  //     callback: ()              // this is the callback, it's getting executed if you're alarm
-  // => {print("i'm done!")}   // is done playing. Note if you're alarm is on loop you're callback won't be executed
-  // );
-
-  //  final _player = AudioPlayer();
-  //
-  //
-  // final source = AudioSource.uri(
-  //    Uri.parse('assets/audio/alarm.mp3'),
-  //    tag: MediaItem(
-  //      // Specify a unique ID for each media item:
-  //      id: '1',
-  //      // Metadata to display in the notification:
-  //      album: "Album name",
-  //      title: "Song name",
-  //      artUri: Uri.parse('assets/audio/alarm.mp3'),
-  //    ),
-  //  );
-  // final prefs = await SharedPreferences.getInstance();
-  // final selectedRingtone = prefs.getString('selectedRingtone') ?? "alarm6.mp3";
-  // final isVibrateEnabled = prefs.getBool(kSharedPrefVibrate!) ?? false;
-  // final isBothEnabled = prefs.getString(kSharedPrefBoth!) == 'Both';
-
-  // final prefs = await SharedPreferences.getInstance();
-  // final savedRingtone = prefs.getString('selectedRingtone') ?? "alarm6.mp3";
-  // final isVibrateEnabled = prefs.getBool(kSharedPrefVibrate!) ?? false;
-  // String ?_selectedOption ;
-  // final prefs = await SharedPreferences.getInstance();
-  // await prefs.setString('selected_alarm_option', _selectedOption!);
-  // print('Saved alarm option: $_selectedOption');
-
-  // AudioPlayer audioPlayer = AudioPlayer();
-  // final playlist = ConcatenatingAudioSource(
-  //   useLazyPreparation: true,
-  //   shuffleOrder: DefaultShuffleOrder(),
-  //   children: [
-  //     // AudioSource.uri(Uri.file("$path/$ringtone")),
-  //     AudioSource.uri(Uri.parse('asset:///assets/audio/alarm5.mp3')),
-  //
-  //   ],
-  // );
-//   Alarmplayer alarmplayer = Alarmplayer();
-//   bool playing = false;
-//
-//   void switchPlaying(){
-//     playing = !playing;
-//   }
-//
-// // ... (initialization code)
-//
-//   onSelectNotification: (payload) async {
-//     alarmplayer.StopAlarm();
-//     // Handle notification tap here (e.g., navigate to a specific screen)
-//     print("Notification tapped: $payload");
-//   };
-//   var notificationId1 = DateTime.now().millisecondsSinceEpoch;
-//   final payload = notificationId1.toString();
-//   alarmplayer.Alarm(
-//       url: "assets/alarm2.mp3",  // Path of sound file.
-//       volume: 1,              // optional, set the volume, default 1.
-//       looping: true  ,           // optional, if you want to loop you're alarm or not
-//       callback: ()              // this is the callback, it's getting executed if you're alarm
-//       => {print("i'm done!")}   // is done playing. Note if you're alarm is on loop you're callback won't be executed
-//   );
-
-
-  // Future<void> playAlarm() async  {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   final String? savedRingtone = prefs.getString('selectedRingtone') ?? "alarm6.mp3";
-  //
-  //   // Handle potential null value from SharedPreferences (optional)
-  //   if (savedRingtone == null) {
-  //     print("Error: No selected ringtone found in SharedPreferences!");
-  //     return; // Exit the function if no ringtone is selected
-  //   }
-  //
-  //   String ringtonePath = 'assets/$savedRingtone'; // Construct the complete path
-  //
-  //   Alarmplayer alarmplayer = AlarmPlayer();
-  //   alarmplayer.Alarm(
-  //     url: ringtonePath, // Use the constructed path
-  //     volume: 1.0, // Adjust volume as needed (0.0 to 1.0)
-  //     looping: false, // Set looping behavior
-  //     callback: () => print("Alarm finished playing!"), // Optional callback
-  //   );
-  //
-  //   // ... (rest of your code)
-  // }
-
-  // void AlarmPlayer({
-  //   required String url,
-  //   double volume = 1.0,
-  //   bool looping = false,
-  //   Function()? callback,
-  // }) async {
-  //   final ap.AudioPlayer audioPlayer = ap.AudioPlayer();
-  //
-  //   try {
-  //     final audioSource = ap.UrlSource(url); // Create a UrlSource object
-  //
-  //     await audioPlayer.play(audioSource); // Play the audio
-  //     print("Playing alarm from: $url");
-  //
-  //
-  //
-  //
-  //   } on Exception catch (e) {
-  //     print("General error playing alarm: $e");
-  //   } finally {
-  //     // Ensure cleanup (optional)
-  //     await audioPlayer.stop(); // Stop playback if necessary
-  //     await audioPlayer.dispose(); // Dispose of the player instance
-  //   }
-  // }
-  //
-  // Future<void> playRingtone() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   final savedRingtone = prefs.getString('selectedRingtone') ?? "alarm6.mp3";
-  //
-  //   String ringtonePath = 'android/app/src/main/res/raw/$savedRingtone';
-  //
-  //   AlarmPlayer(
-  //     url: ringtonePath,
-  //     volume: 1, // Adjust volume as needed
-  //     looping: false, // Set looping behavior
-  //     callback: () => print("Alarm finished playing!"),
-  //   );
-  // }
-  // Alarmplayer alarmplayer = Alarmplayer();
-  // alarmplayer.Alarm(
-  //   url: "assets/alarm4.mp3",
-  //   volume: 1, // Adjust volume as needed
-  //   looping: false, // Set looping behavior
-  //   callback: () => print("Alarm finished playing!"),
-  // );
-
   Future<void> playAlarm() async {
     // Get saved ringtone preference
     final prefs = await SharedPreferences.getInstance();
@@ -2195,9 +2050,6 @@ Future<void> onStart(ServiceInstance service) async {
     }
 
   }
-
-
-  String? Selectoption;
   var notificationId1 = DateTime.now().millisecondsSinceEpoch;
   // final payload = notificationId1.toString();
   // final prefs = await SharedPreferences.getInstance();
@@ -2301,69 +2153,6 @@ Future<void> onStart(ServiceInstance service) async {
               await prefs.setStringList(
                   'alarms',
                   alarmsJson.map((json) => jsonEncode(json)).toList());
-              //await _playRingtone(selectedRingtone);
-              // if (selectedOptions.contains('alarms') &&
-              //     selectedOptions.contains('vibrate')) {
-              //   final prefs = await SharedPreferences.getInstance();
-              //   final savedRingtone = prefs.getString('selectedRingtone') ?? "alarm6.mp3";
-              //   flutterLocalNotificationsPlugin.show(
-              //     notificationId,
-              //     alarm.alarmName,
-              //     'Reached destination radius',
-              //     NotificationDetails(
-              //       android: AndroidNotificationDetails(
-              //         Uuid().v4(),
-              //         'MY FOREGROUND SERVICE',
-              //         icon: 'ic_bg_service_small',
-              //         priority: Priority.high,
-              //         importance: Importance.max,
-              //         playSound: true,
-              //         sound: RawResourceAndroidNotificationSound(
-              //             savedRingtone.replaceAll(".mp3", "")),
-              //         enableVibration: true,
-              //         ticker: 'ticker',
-              //         actions: [
-              //           // Dismiss action
-              //           AndroidNotificationAction(
-              //             Uuid().v4(),
-              //             'Dismiss',
-              //           ),
-              //           // Stop action
-              //           // AndroidNotificationAction(
-              //           //   'stop_action',
-              //           //   'Stop',
-              //           // ),
-              //
-              //           // Snooze action
-              //         ],
-              //         styleInformation: DefaultStyleInformation(true, true),
-              //       ),
-              //     ),
-              //   );
-              //   await  Future.delayed(const Duration(milliseconds: 250), () {
-              //     Vibration.vibrate(
-              //       pattern: [500, 1000, 500, 2000, 500, 3000, 500, 500],
-              //       intensities: [
-              //         0,
-              //         128,
-              //         0,
-              //         255,
-              //         0,
-              //         64,
-              //         0,
-              //         255,
-              //         0,
-              //         255,
-              //         0,
-              //         255,
-              //         0,
-              //         255
-              //       ],
-              //     );
-              //   });
-              //
-              // }
-
               final savedRingtone = prefs.getString('selectedRingtone') ??
                   "alarm6.mp3";
               flutterLocalNotificationsPlugin.show(
@@ -2389,11 +2178,6 @@ Future<void> onStart(ServiceInstance service) async {
                         Uuid().v4(),
                         'Dismiss',
                       ),
-                      // Stop action
-                      // AndroidNotificationAction(
-                      //   'stop_action',
-                      //   'Stop',
-                      // ),
 
                       // Snooze action
                     ],
@@ -2799,6 +2583,7 @@ Future<void> onStart(ServiceInstance service) async {
     subscription.cancel();
   });
 }
+
 Future<void> stopService() async {
   // 1. Cancel location updates:// Cancels the location stream
 
