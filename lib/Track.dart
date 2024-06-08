@@ -550,7 +550,6 @@ class _TrackState extends State<Track> {
       setState(() {
         if (newLocation.latitude != null && newLocation.longitude != null) {
           _current = LatLng(newLocation.latitude!, newLocation.longitude!);
-          _goToCurrentLocation();
           setState(() {
             _isLoading = false;
           });

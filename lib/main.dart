@@ -1747,6 +1747,7 @@ import 'dart:io';
 import 'dart:ui';
 import 'dart:math' as math;
 import 'package:audio_service/audio_service.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -1924,34 +1925,34 @@ bool _shouldHandleNotifications = true;
 dismissNotification(int? notificationId) async {
   await flutterLocalNotificationsPlugin.cancel(Uuid().v4() as int);
 }
-
 String extractActionTypeFromPayload(String? payload) {
-  String? actionType; // Make the variable nullable
+  String? actionType;
 
-  // Extract action type from payload
   if (payload != null) {
     if (payload.contains('dismiss')) {
       actionType = 'dismiss';
-      Alarmplayer alarmplayer = Alarmplayer();
-      alarmplayer.StopAlarm();
+
       print("dismiss1");
     } else {
       // Handle other cases (extract other action types)
     }
   }
+
   if (actionType == null) {
     _shouldHandleNotifications = false;
     Alarmplayer alarmplayer = Alarmplayer();
     alarmplayer.StopAlarm();
-    Vibration.cancel();
+    Vibration.cancel;
+
     print("dismiss2");
     print("cancel notification");
-    // Handle the case where no action type is found
-    return 'unknown'; // Return a default value
-    // throw Exception('No action type found in payload');  // Throw an exception
+    return 'unknown';
+    // Return a default value
   }
-  return actionType;
+return actionType;
 }
+
+
 
 void onDidReceiveNotificationResponse(
     NotificationResponse notificationResponse) async {
@@ -2022,9 +2023,7 @@ Future<void> onStart(ServiceInstance service) async {
     onDidReceiveBackgroundNotificationResponse:
     onDidReceiveNotificationResponse,
   );
-
   await _startLocationUpdates(service);
-
   List<AlarmDetails> alarms = [];
   SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.reload();
@@ -2048,12 +2047,6 @@ Future<void> onStart(ServiceInstance service) async {
     subscription.cancel();
   });
 }
-
-// Future<void> _checkPermission(ServiceInstance service) async {
-//   if (await Permission.location.request().isGranted) {
-//     _startLocationUpdates(service);
-//   }
-// }
 Future<void> _startLocationUpdates(ServiceInstance service) async {
   Position? _lastPosition;
   Position? initialPosition;
@@ -2131,10 +2124,8 @@ Future<void> _startLocationUpdates(ServiceInstance service) async {
                   // Dismiss action
                   AndroidNotificationAction(
                     Uuid().v4(),
-                    'Dismiss',
+                    'dismiss',
                   ),
-
-                  // Snooze action
                 ],
                 styleInformation: DefaultStyleInformation(true, true),
               ),
@@ -2171,8 +2162,9 @@ Future<void> _startLocationUpdates(ServiceInstance service) async {
                 255
               ],
             );
-          }
 
+
+          }
           print('preparing to stop service');
           break; // Exit loop after triggering the first alarm
         }
@@ -2226,20 +2218,16 @@ Future<double> calculateMinDistance(Position position, List<AlarmDetails> alarms
   SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.reload();
   List<String>? alarmsJson = prefs.getStringList('alarms');
-
   if (alarmsJson != null) {
     alarms.addAll(alarmsJson
         .map((json) => AlarmDetails.fromJson(jsonDecode(json)))
         .where((element) => element.isEnabled)
         .toList());
   }
-
   double minDistance = double.infinity;
   AlarmDetails? nearestAlarm;
-
   for (var alarm in alarms) {
     if (!alarm.isEnabled) continue;
-
     double alarmDistance = Geolocator.distanceBetween(
       position.latitude,
       position.longitude,
