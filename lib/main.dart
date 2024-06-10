@@ -1952,8 +1952,6 @@ String extractActionTypeFromPayload(String? payload) {
 return actionType;
 }
 
-
-
 void onDidReceiveNotificationResponse(
     NotificationResponse notificationResponse) async {
   if (!_shouldHandleNotifications) {
@@ -2045,7 +2043,8 @@ Future<void> onStart(ServiceInstance service) async {
     service.invoke('stopped');
     service.stopSelf();
     subscription.cancel();
-  });
+  }
+  );
 }
 Future<void> _startLocationUpdates(ServiceInstance service) async {
   Position? _lastPosition;
@@ -2176,8 +2175,14 @@ Future<void> _startLocationUpdates(ServiceInstance service) async {
       }
     }
 
-      });
 
+      });
+  service.on('stopService').listen((event) {
+    print('stopping service');
+    service.invoke('stopped');
+    service.stopSelf();
+    subscription.cancel();
+  });
 }
 // Future<double> calculateMinDistance(Position position, List<AlarmDetails> alarms) async {
 //
