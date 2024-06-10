@@ -1778,6 +1778,7 @@ import 'package:vibration/vibration.dart';
 
 const notificationChannelId = 'my_foreground';
 const notificationId = 888;
+const notificationId2 = 999;
 const String channelId = 'your_channel_id';
 const String channelName = 'Your Channel Name';
 late AudioHandler _audioHandler;
@@ -1922,55 +1923,65 @@ class MyStream {
 
 bool _shouldHandleNotifications = true;
 
-dismissNotification(int? notificationId) async {
-  await flutterLocalNotificationsPlugin.cancel(Uuid().v4() as int);
+dismissNotification(int? notificationId2) async {
+  await flutterLocalNotificationsPlugin.cancel(notificationId2!);
 }
-String extractActionTypeFromPayload(String? payload) {
+Future<String> extractActionTypeFromPayload(String? payload) async {
   String? actionType;
 
   if (payload != null) {
     if (payload.contains('dismiss')) {
+      Alarmplayer alarmplayer = Alarmplayer();
+      alarmplayer.StopAlarm();
+      Vibration.cancel;
       actionType = 'dismiss';
-
       print("dismiss1");
     } else {
-      // Handle other cases (extract other action types)
+
     }
   }
 
   if (actionType == null) {
     _shouldHandleNotifications = false;
     Alarmplayer alarmplayer = Alarmplayer();
-    alarmplayer.StopAlarm();
-    Vibration.cancel;
-
+    await alarmplayer.StopAlarm();
+    await  Vibration.cancel;
     print("dismiss2");
     print("cancel notification");
     return 'unknown';
     // Return a default value
   }
-return actionType;
+  return payload!.contains('dismiss') ? 'dismiss' : 'other';
 }
-
-void onDidReceiveNotificationResponse(
-    NotificationResponse notificationResponse) async {
+void onDidReceiveNotificationResponse(NotificationResponse notificationResponse) async {
   if (!_shouldHandleNotifications) {
     return; // Don't process the notification response
   }
-  // handle action
+
   final String? payload = notificationResponse.payload;
   if (payload != null) {
+    Alarmplayer alarmplayer = Alarmplayer();
+   await alarmplayer.StopAlarm();
+   Vibration.cancel();
     debugPrint('notification payload: $payload');
-    // Extract relevant data from payload (e.g., action type)
+
+    // Extract notificationId from the payload
+    final notificationId2 = int.tryParse(payload.split('notificationId2:').last);
+    if (notificationId2 ! == null) {
+      Alarmplayer alarmplayer = Alarmplayer();
+      await alarmplayer.StopAlarm();
+      Vibration.cancel();
+      debugPrint('notification payload: $payload');
+      debugPrint('Invalid notificationId');
+      return;
+    }
+// Extract action type (if needed)
     final actionType = extractActionTypeFromPayload(payload);
-    // Handle dismissal based on action type (pseudocode)
+
     if (actionType == 'dismiss') {
       Alarmplayer alarmplayer = Alarmplayer();
       alarmplayer.StopAlarm();
-      // Dismiss notification using a platform-specific method (explained later)
-      dismissNotification(notificationResponse.id);
-    } else {
-
+      dismissNotification(notificationId);
     }
   }
 }
@@ -2008,7 +2019,7 @@ Future<void> playAlarm() async {
     // await alarmplayer.stop(); // Stop the alarm if necessary
   }
 }
-late StreamSubscription<Position?> subscription;
+
 @pragma('vm:entry-point')
 Future<void> onStart(ServiceInstance service) async {
   const InitializationSettings initializationSettings = InitializationSettings(
@@ -2022,30 +2033,31 @@ Future<void> onStart(ServiceInstance service) async {
     onDidReceiveNotificationResponse,
   );
   await _startLocationUpdates(service);
-  List<AlarmDetails> alarms = [];
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  prefs.reload();
-  List<String>? alarmsJson = prefs.getStringList('alarms');
-  if (alarmsJson != null) {
-    alarms.addAll(alarmsJson
-        .map((json) => AlarmDetails.fromJson(jsonDecode(json)))
-        .where((element) => element.isEnabled)
-        .toList());
-  }
-
-  if (alarms.isEmpty) {
-    subscription.cancel();
-    service.invoke('stopped');
-    service.stopSelf();
-  }
-  service.on('stopService').listen((event) {
-    print('stopping service');
-    service.invoke('stopped');
-    service.stopSelf();
-    subscription.cancel();
-  }
-  );
+  // List<AlarmDetails> alarms = [];
+  // SharedPreferences prefs = await SharedPreferences.getInstance();
+  // prefs.reload();
+  // List<String>? alarmsJson = prefs.getStringList('alarms');
+  // if (alarmsJson != null) {
+  //   alarms.addAll(alarmsJson
+  //       .map((json) => AlarmDetails.fromJson(jsonDecode(json)))
+  //       .where((element) => element.isEnabled)
+  //       .toList());
+  // }
+  //
+  // if (alarms.isEmpty) {
+  //   subscription.cancel();
+  //   service.invoke('stopped');
+  //   service.stopSelf();
+  // }
+  // service.on('stopService').listen((event) {
+  //   print('stopping service');
+  //   service.invoke('stopped');
+  //   service.stopSelf();
+  //   subscription.cancel();
+  // }
+  // );
 }
+late StreamSubscription<Position?> subscription;
 Future<void> _startLocationUpdates(ServiceInstance service) async {
   Position? _lastPosition;
   Position? initialPosition;
@@ -2061,7 +2073,6 @@ Future<void> _startLocationUpdates(ServiceInstance service) async {
         .toList());
   }
   double _distanceFilter = await calculateMinDistance(initialPosition, alarms) ; // Initial distance filter in meters
-
   print("distancefilter:$_distanceFilter");
 
   var locationOptions = LocationSettings(
@@ -2099,6 +2110,9 @@ Future<void> _startLocationUpdates(ServiceInstance service) async {
           alarms.map((alarm) => alarm.toJson()).toList();
           await prefs.setStringList(
               'alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
+          print(prefs.getStringList('alarms'));
+          await prefs.reload();
+          print(prefs.getStringList('alarms'));
           final savedRingtone =
               prefs.getString('selectedRingtone') ?? "alarm6.mp3";
           flutterLocalNotificationsPlugin.show(
@@ -2125,10 +2139,11 @@ Future<void> _startLocationUpdates(ServiceInstance service) async {
                     Uuid().v4(),
                     'dismiss',
                   ),
-                ],
+                  ],
                 styleInformation: DefaultStyleInformation(true, true),
               ),
             ),
+            payload: 'notificationId:$notificationId2',
           );
 
           if (await containsOption('alarms in silent mode')) {
@@ -2164,25 +2179,32 @@ Future<void> _startLocationUpdates(ServiceInstance service) async {
 
 
           }
+          _positionStreamSubscription?.cancel();
           print('preparing to stop service');
           break; // Exit loop after triggering the first alarm
         }
-        _positionStreamSubscription?.cancel();
+
       }
       alarms = alarms.where((element) => element.isEnabled).toList();
+      if(alarms.isEmpty ) {
+        _positionStreamSubscription?.cancel();
+        service.invoke('stopped');
+        print('stopped service');
+        service.stopSelf();
+      }
       if (alarms.isNotEmpty) {
         _startLocationUpdates(service);
       }
     }
+  });
 
-
-      });
   service.on('stopService').listen((event) {
     print('stopping service');
     service.invoke('stopped');
     service.stopSelf();
     subscription.cancel();
-  });
+  }
+  );
 }
 // Future<double> calculateMinDistance(Position position, List<AlarmDetails> alarms) async {
 //

@@ -36,6 +36,7 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
   List<AlarmDetails> alarms = [];
   bool _imperial = false;
   StreamSubscription? bgServiceListener;
+  late SharedPreferences prefs;
 
   double calculateDistance(LatLng point1, LatLng point2) {
     const double earthRadius = 6371000; // meters
@@ -56,6 +57,26 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
 
     return _imperial ? (distance / 1609) : (distance / 1000);
   }
+    @override
+  void initState() {
+    super.initState();
+    initScreen();
+  }
+
+  Future<void> initScreen() async {
+    prefs = await SharedPreferences.getInstance();
+    _loadSelectedUnit();
+    loadData();
+    bgServiceListener =
+        FlutterBackgroundService().on('stopped').listen((event) {
+          if (mounted) {
+            print('mounted');
+          loadData();
+          } else {
+            print('not mounted');
+          }
+        });
+  }
 
   @override
   void dispose() {
@@ -63,25 +84,7 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
     super.dispose();
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _loadSelectedUnit();
-    loadData();
-
-    bgServiceListener =
-        FlutterBackgroundService().on('stopped').listen((event) {
-      if (mounted) {
-        print('mounted');
-        loadData();
-      } else {
-        print('not mounted');
-      }
-    });
-  }
-
   Future<void> _loadSelectedUnit() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
     String? selectedUnit = prefs.getString('selectedUnit');
     double meterdefault = prefs.getDouble('meterRadius') ?? 2000;
     double milesdefault = prefs.getDouble('milesRadius') ?? 1.04;
@@ -127,9 +130,13 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
   }
 
   Future<void> loadData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    print(prefs.getStringList('alarms'));
     await prefs.reload();
+    final value = prefs.getStringList('alarms');
+    print("value: $value");
     List<String>? alarmsJson = prefs.getStringList('alarms');
+    print('reloaded:');
+    print(alarmsJson);
     if (alarmsJson != null) {
       setState(() {
         alarms = alarmsJson
@@ -143,13 +150,12 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
       if (storedLatitude != null && storedLongitude != null) {
         currentLocation = LatLng(storedLatitude, storedLongitude);
         print('original location: ($storedLatitude, $storedLongitude)');
-        // Marker? tap = _markers.length > 1 ? _markers.last : null;
       }
     });
   }
 
+
   Future<void> saveData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
 
     List<Map<String, dynamic>> alarmsJson =
         alarms.map((alarm) => alarm.toJson()).toList();
@@ -361,34 +367,30 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
                                         TextOverflow.ellipsis, // Add this line
                                   ),
                                 ),
-                                Switch(
-                                  // This bool value toggles the switch.
-                                  value: alarms[index].isEnabled,
-                                  onChanged: (value) async {
-                                    setState(() {
-                                      alarms[index].isEnabled = value;
-                                    });
-                                    await saveData();
-                                    final service = FlutterBackgroundService();
-                                    if (value) {
-                                      if (!(await service.isRunning())) {
-                                        print('starting service from toggle');
-                                        await service.startService();
-                                      }
-                                    } else {
-                                      print('checking for stop');
-                                      print(alarms.toString());
-                                      if (alarms
-                                              .where((element) =>
-                                                  element.isEnabled)
-                                              .isEmpty &&
-                                          await service.isRunning()) {
-                                        print('preparing to stop');
-                                        service.invoke('stopService');
-                                      }
-                                    }
-                                  },
-                                ),
+                                   Switch(
+                    value: alarms[index].isEnabled,
+                    onChanged: (value) async {
+                    setState(() {
+                    alarms[index].isEnabled = value;
+                    });
+                    await saveData();
+                    final service = FlutterBackgroundService();
+                    if (value) {
+                    if (!(await service.isRunning())) {
+                    print('starting service from toggle');
+                    await service.startService();
+                    }
+                    } else {
+                    print('checking for stop');
+                    print(alarms.toString());
+                    if (alarms.where((element) => element.isEnabled).isEmpty &&
+                    await service.isRunning()) {
+                    print('preparing to stop');
+                    service.invoke('stopService');
+                    }
+                    }
+                    },
+                    ),
                               ],
                             ),
                             Text(
@@ -568,17 +570,23 @@ class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
   bool _imperial = false;
   double meterRadius = 100; // Initial value for meter radius
   double milesRadius = 0.10;
+  late SharedPreferences prefs;
 
   @override
   void initState() {
-    _loadSelectedUnit();
 
     // _loadRadiusData();
     super.initState();
+
+    initScreen();
+  }
+
+  Future<void> initScreen() async {
+    prefs = await SharedPreferences.getInstance();
+    _loadSelectedUnit();
   }
 
   Future<void> _loadRadiusData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       meterRadius = prefs.getDouble('meterRadius') ?? 0.0;
       milesRadius = prefs.getDouble('milesRadius') ?? 0.0;
@@ -586,7 +594,6 @@ class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
   }
 
   Future<void> _loadSelectedUnit() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
     String? selectedUnit = prefs.getString('selectedUnit');
     double meterdefault = prefs.getDouble('meterRadius') ?? 2000;
     double milesdefault = prefs.getDouble('milesRadius') ?? 1.04;
