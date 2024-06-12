@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitiled/Homescreens/save_alarm_page.dart';
@@ -24,6 +25,15 @@ class _SettingsState extends State<Settings> {
   double radius = 0;
   double meterRadius = 0.1; // Initial value for meter radius
   double milesRadius = 0.1;
+  GoogleMapController? mapController;
+  LocationData? _currentLocation;
+  bool _isCameraMoving = false;
+  Location location = Location();
+  bool _serviceEnabled = false;
+  PermissionStatus _permissionGranted = PermissionStatus.denied;
+  Set<Marker> _markers = {};
+  MapType _currentMapType = MapType.normal;
+
 
   updateradiusvalue(value) {
     setState(() {
@@ -231,7 +241,54 @@ class _SettingsState extends State<Settings> {
     _loadRingtones();
     _loadRadiusData();
     _loadSettings();
+    _checkLocationPermission();
   }
+
+  Future<void> _checkLocationPermission() async {
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        return;
+      }
+    }
+
+    _permissionGranted = await location.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await location.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+
+    _currentLocation = await location.getLocation();
+    _updateMarkerAndCamera();
+  }
+
+  Future<void> _getCurrentLocation() async {
+    _currentLocation = await location.getLocation();
+    _updateMarkerAndCamera();
+    _showBottomSheetWithMap();
+  }
+
+  void _updateMarkerAndCamera() {
+    if (_currentLocation != null) {
+      final position = LatLng(_currentLocation!.latitude!, _currentLocation!.longitude!);
+      mapController?.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: position, zoom: 15)));
+      setState(() {
+        _markers.clear();
+        _markers.add(
+          Marker(
+            markerId: MarkerId('currentLocation'),
+            position: position,
+            infoWindow: InfoWindow(title: 'Current Location'),
+          ),
+        );
+      });
+    }
+  }
+
+
 
   Future<void> _saveSettings(String ringtone) async {
     final prefs = await SharedPreferences.getInstance();
@@ -287,8 +344,49 @@ class _SettingsState extends State<Settings> {
 
   @override
   bool _imperial = false;
+  void _setMapType(MapType mapType) {
+    setState(() {
+      _currentMapType = mapType;
+    });
+  }
 
-
+  void _showBottomSheetWithMap() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          height: 800,
+          child: Stack(
+            children: [
+              GoogleMap(
+                mapType: MapType.normal,
+                myLocationEnabled: true,
+                initialCameraPosition: CameraPosition(
+                  zoom: 15,
+                  target: _currentLocation != null
+                      ? LatLng(_currentLocation!.latitude!, _currentLocation!.longitude!)
+                      : LatLng(0, 0),
+                ),
+                onMapCreated: (GoogleMapController controller) {
+                  controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+                    target: LatLng(_currentLocation!.latitude!, _currentLocation!.longitude!),
+                    zoom: 15,
+                  )));
+                },
+              ),
+             Positioned(
+               top: 16,left: 16,
+               child: IconButton(onPressed: (){
+                 Navigator.of(context).pop();
+               }, icon: Icon(Icons.cancel,size: 36,),
+              ),
+             ),
+            ]
+          ),
+        );
+      },
+    );
+  }
 
 
 
@@ -592,8 +690,14 @@ class _SettingsState extends State<Settings> {
                 'To View a Current Location',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
+              SizedBox(
+                height: height / 75.6,
+              ),
              FilledButton(
-               onPressed: () {  },
+               onPressed: () {
+                 _getCurrentLocation;
+                 _showBottomSheetWithMap();
+               },
                 child: Text("Current Location"),
              ),
               SizedBox(
