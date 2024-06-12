@@ -2340,7 +2340,7 @@ class MyApp extends StatelessWidget {
       home: Splashscreen(),
       routes: {
         // Define your routes (optional)
-        '/home': (context) => MyAlarmsPage(),
+        '/home': (context) =>MyAlarmsPage(),
         '/secondpage': (context) => MyHomePage(),
         '/thirdpage': (context) => Settings(),
         'fouthpage': (context) => About(),

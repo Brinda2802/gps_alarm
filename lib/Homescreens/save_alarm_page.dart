@@ -36,7 +36,6 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
   List<AlarmDetails> alarms = [];
   bool _imperial = false;
   StreamSubscription? bgServiceListener;
-  late SharedPreferences prefs;
 
   double calculateDistance(LatLng point1, LatLng point2) {
     const double earthRadius = 6371000; // meters
@@ -57,26 +56,6 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
 
     return _imperial ? (distance / 1609) : (distance / 1000);
   }
-    @override
-  void initState() {
-    super.initState();
-    initScreen();
-  }
-
-  Future<void> initScreen() async {
-    prefs = await SharedPreferences.getInstance();
-    _loadSelectedUnit();
-    loadData();
-    bgServiceListener =
-        FlutterBackgroundService().on('stopped').listen((event) {
-          if (mounted) {
-            print('mounted');
-          loadData();
-          } else {
-            print('not mounted');
-          }
-        });
-  }
 
   @override
   void dispose() {
@@ -84,7 +63,25 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
     super.dispose();
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _loadSelectedUnit();
+    loadData();
+
+    bgServiceListener =
+        FlutterBackgroundService().on('stopped').listen((event) {
+          if (mounted) {
+            print('mounted');
+            loadData();
+          } else {
+            print('not mounted');
+          }
+        });
+  }
+
   Future<void> _loadSelectedUnit() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     String? selectedUnit = prefs.getString('selectedUnit');
     double meterdefault = prefs.getDouble('meterRadius') ?? 2000;
     double milesdefault = prefs.getDouble('milesRadius') ?? 1.04;
@@ -130,13 +127,9 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
   }
 
   Future<void> loadData() async {
-    print(prefs.getStringList('alarms'));
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.reload();
-    final value = prefs.getStringList('alarms');
-    print("value: $value");
     List<String>? alarmsJson = prefs.getStringList('alarms');
-    print('reloaded:');
-    print(alarmsJson);
     if (alarmsJson != null) {
       setState(() {
         alarms = alarmsJson
@@ -150,15 +143,16 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
       if (storedLatitude != null && storedLongitude != null) {
         currentLocation = LatLng(storedLatitude, storedLongitude);
         print('original location: ($storedLatitude, $storedLongitude)');
+        // Marker? tap = _markers.length > 1 ? _markers.last : null;
       }
     });
   }
 
-
   Future<void> saveData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
 
     List<Map<String, dynamic>> alarmsJson =
-        alarms.map((alarm) => alarm.toJson()).toList();
+    alarms.map((alarm) => alarm.toJson()).toList();
 
     prefs.setStringList(
         'alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
@@ -218,7 +212,7 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
   }
 
   final Uri toLaunch =
-      Uri(scheme: 'https', host: 'www.cylog.org', path: 'headers/');
+  Uri(scheme: 'https', host: 'www.cylog.org', path: 'headers/');
 
   @override
   Widget build(BuildContext context) {
@@ -314,233 +308,237 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
         ),
         body: alarms.isEmpty
             ? Center(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Alarmplayer alarmplayer = Alarmplayer();
+                    alarmplayer.StopAlarm();
+                  },
+                  child: Lottie.asset(
+                    'assets/newlocationalarm.json',
+                    // Your empty list Lottie animation
+                    width: 300, // Adjust as needed
+                    height: 300, // Adjust as needed
+                  ),
+                ),
+                Text("No Alarms",
+                    style: Theme.of(context).textTheme.titleLarge),
+                Text("Create a new alarm",
+                    style: Theme.of(context).textTheme.bodyMedium),
+              ],
+            ),
+          ),
+        )
+            : Padding(
+          padding: EdgeInsets.only(
+              left: width / 45, right: width / 45, bottom: 48),
+          child: ListView.separated(
+            itemCount: alarms.length,
+            separatorBuilder: (context, index) {
+              return SizedBox(
+                height: height / 94.5,
+              );
+            },
+            itemBuilder: (context, index) {
+              return Card.filled(
                 child: Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      GestureDetector(
-                        onTap: () {
-                          Alarmplayer alarmplayer = Alarmplayer();
-                          alarmplayer.StopAlarm();
-                        },
-                        child: Lottie.asset(
-                          'assets/newlocationalarm.json',
-                          // Your empty list Lottie animation
-                          width: 300, // Adjust as needed
-                          height: 300, // Adjust as needed
-                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              "${alarms[index].alarmName}",
+                              style:
+                              Theme.of(context).textTheme.titleMedium,
+                              overflow:
+                              TextOverflow.ellipsis, // Add this line
+                            ),
+                          ),
+                          Switch(
+                            // This bool value toggles the switch.
+                            value: alarms[index].isEnabled,
+                            onChanged: (value) async {
+                              setState(() {
+                                alarms[index].isEnabled = value;
+                              });
+                              await saveData();
+                              final service = FlutterBackgroundService();
+                              if (value) {
+                                if (!(await service.isRunning())) {
+                                  print('starting service from toggle');
+                                  await service.startService();
+                                }
+                              } else {
+                                print('checking for stop');
+                                print(alarms.toString());
+                                if (alarms
+                                    .where((element) =>
+                                element.isEnabled)
+                                    .isEmpty &&
+                                    await service.isRunning()) {
+                                  print('preparing to stop');
+                                  service.invoke('stopService');
+                                }
+                              }
+                            },
+                          ),
+                        ],
                       ),
-                      Text("No Alarms",
-                          style: Theme.of(context).textTheme.titleLarge),
-                      Text("Create a new alarm",
-                          style: Theme.of(context).textTheme.bodyMedium),
+                      Text(
+                        "${alarms[index].notes}",
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.location_on,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .primary,
+                                ),
+                                Text(
+                                  currentLocation != null
+                                      ? (calculateDistance(
+                                      LatLng(
+                                          currentLocation!
+                                              .latitude,
+                                          currentLocation!
+                                              .longitude),
+                                      LatLng(
+                                          alarms[index].lat,
+                                          alarms[index]
+                                              .lng))) // Divide by 1000 to convert meters to kilometers
+                                      .toStringAsFixed(
+                                      1) // Adjust the precision as needed
+                                      : "3 km",
+                                  // Default value if currentLocation is null
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium,
+                                ),
+                                Text(
+                                  _imperial ? "miles" : "Km",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium,
+                                ),
+                              ],
+                            ),
+                          ),
+                          // IconButton(
+                          //    onPressed: () {  final alarmToDelete = alarms[
+                          //    index]; // Store the alarm for later
+                          //
+                          //    // Show confirmation Snackbar
+                          //    ScaffoldMessenger.of(context).showSnackBar(
+                          //      SnackBar(
+                          //        content: Text(
+                          //            'Are you sure you want to delete "${alarmToDelete.alarmName}"?'),
+                          //        action: SnackBarAction(
+                          //          label: 'Delete',
+                          //          onPressed: () {
+                          //            setState(() {
+                          //              alarms.removeAt(index);
+                          //            });
+                          //            saveData();
+                          //          },
+                          //        ),
+                          //      ),
+                          //    );
+                          //    }, icon: Icon(Icons.delete),color: Theme.of(context).colorScheme.error,
+                          //     ),
+                          IconButton(
+                            onPressed: () {
+                              final alarmToDelete = alarms[
+                              index]; // Store the alarm for later
+
+                              // Show confirmation dialog
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text('Delete Alarm'),
+                                    content: Text(
+                                        'Are you sure you want to delete "${alarmToDelete.alarmName}"?'),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context)
+                                              .pop(); // Close the dialog
+                                        },
+                                        child: Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () async {
+                                          setState(() {
+                                            alarms.removeAt(index);
+                                          });
+                                          saveData();
+                                          final service =
+                                          FlutterBackgroundService();
+                                          if (alarms
+                                              .where((element) =>
+                                          element.isEnabled)
+                                              .isEmpty &&
+                                              await service.isRunning()) {
+                                            print('preparing to stop');
+                                            service.invoke('stopService');
+                                          }
+                                          Navigator.of(context)
+                                              .pop(); // Close the dialog
+                                        },
+                                        child: Text('Delete'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                            icon: Icon(Icons.delete),
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+
+                          IconButton(
+                            onPressed: () {
+                              Navigator.of(context)
+                                  .push(MaterialPageRoute(
+                                  builder: (context) => Track(
+                                    alarm: alarms[index],
+                                  )));
+                            },
+                            icon: Icon(Icons.edit),
+                            color:
+                            Theme.of(context).colorScheme.secondary,
+                          ),
+
+                          // Switch(
+                          //   value: alarms[index].isEnabled,
+                          //   onChanged: (value) {
+                          //     setState(() {
+                          //       alarms[index].isEnabled = value;
+                          //       saveData();
+                          //     });
+                          //   },
+                          // ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
-              )
-            : Padding(
-                padding: EdgeInsets.only(
-                    left: width / 45, right: width / 45, bottom: 48),
-                child: ListView.separated(
-                  itemCount: alarms.length,
-                  separatorBuilder: (context, index) {
-                    return SizedBox(
-                      height: height / 94.5,
-                    );
-                  },
-                  itemBuilder: (context, index) {
-                    return Card.filled(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    "${alarms[index].alarmName}",
-                                    style:
-                                        Theme.of(context).textTheme.titleMedium,
-                                    overflow:
-                                        TextOverflow.ellipsis, // Add this line
-                                  ),
-                                ),
-                                   Switch(
-                    value: alarms[index].isEnabled,
-                    onChanged: (value) async {
-                    setState(() {
-                    alarms[index].isEnabled = value;
-                    });
-                    await saveData();
-                    final service = FlutterBackgroundService();
-                    if (value) {
-                    if (!(await service.isRunning())) {
-                    print('starting service from toggle');
-                    await service.startService();
-                    }
-                    } else {
-                    print('checking for stop');
-                    print(alarms.toString());
-                    if (alarms.where((element) => element.isEnabled).isEmpty &&
-                    await service.isRunning()) {
-                    print('preparing to stop');
-                    service.invoke('stopService');
-                    }
-                    }
-                    },
-                    ),
-                              ],
-                            ),
-                            Text(
-                              "${alarms[index].notes}",
-                              style: Theme.of(context).textTheme.bodyLarge,
-                            ),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.location_on,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                      ),
-                                      Text(
-                                        currentLocation != null
-                                            ? (calculateDistance(
-                                                    LatLng(
-                                                        currentLocation!
-                                                            .latitude,
-                                                        currentLocation!
-                                                            .longitude),
-                                                    LatLng(
-                                                        alarms[index].lat,
-                                                        alarms[index]
-                                                            .lng))) // Divide by 1000 to convert meters to kilometers
-                                                .toStringAsFixed(
-                                                    1) // Adjust the precision as needed
-                                            : "3 km",
-                                        // Default value if currentLocation is null
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium,
-                                      ),
-                                      Text(
-                                        _imperial ? "miles" : "Km",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                // IconButton(
-                                //    onPressed: () {  final alarmToDelete = alarms[
-                                //    index]; // Store the alarm for later
-                                //
-                                //    // Show confirmation Snackbar
-                                //    ScaffoldMessenger.of(context).showSnackBar(
-                                //      SnackBar(
-                                //        content: Text(
-                                //            'Are you sure you want to delete "${alarmToDelete.alarmName}"?'),
-                                //        action: SnackBarAction(
-                                //          label: 'Delete',
-                                //          onPressed: () {
-                                //            setState(() {
-                                //              alarms.removeAt(index);
-                                //            });
-                                //            saveData();
-                                //          },
-                                //        ),
-                                //      ),
-                                //    );
-                                //    }, icon: Icon(Icons.delete),color: Theme.of(context).colorScheme.error,
-                                //     ),
-                                IconButton(
-                                  onPressed: () {
-                                    final alarmToDelete = alarms[
-                                        index]; // Store the alarm for later
-
-                                    // Show confirmation dialog
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          title: Text('Delete Alarm'),
-                                          content: Text(
-                                              'Are you sure you want to delete "${alarmToDelete.alarmName}"?'),
-                                          actions: <Widget>[
-                                            TextButton(
-                                              onPressed: () {
-                                                Navigator.of(context)
-                                                    .pop(); // Close the dialog
-                                              },
-                                              child: Text('Cancel'),
-                                            ),
-                                            TextButton(
-                                              onPressed: () async {
-                                                setState(() {
-                                                  alarms.removeAt(index);
-                                                });
-                                                saveData();
-                                                final service =
-                                                    FlutterBackgroundService();
-                                                if (alarms
-                                                        .where((element) =>
-                                                            element.isEnabled)
-                                                        .isEmpty &&
-                                                    await service.isRunning()) {
-                                                  print('preparing to stop');
-                                                  service.invoke('stopService');
-                                                }
-                                                Navigator.of(context)
-                                                    .pop(); // Close the dialog
-                                              },
-                                              child: Text('Delete'),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    );
-                                  },
-                                  icon: Icon(Icons.delete),
-                                  color: Theme.of(context).colorScheme.error,
-                                ),
-
-                                IconButton(
-                                  onPressed: () {
-                                    Navigator.of(context)
-                                        .push(MaterialPageRoute(
-                                            builder: (context) => Track(
-                                                  alarm: alarms[index],
-                                                )));
-                                  },
-                                  icon: Icon(Icons.edit),
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                ),
-
-                                // Switch(
-                                //   value: alarms[index].isEnabled,
-                                //   onChanged: (value) {
-                                //     setState(() {
-                                //       alarms[index].isEnabled = value;
-                                //       saveData();
-                                //     });
-                                //   },
-                                // ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
+              );
+            },
+          ),
+        ),
         floatingActionButton: FloatingActionButton(
           child: Icon(CupertinoIcons.plus),
           onPressed: () {
@@ -570,23 +568,17 @@ class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
   bool _imperial = false;
   double meterRadius = 100; // Initial value for meter radius
   double milesRadius = 0.10;
-  late SharedPreferences prefs;
 
   @override
   void initState() {
+    _loadSelectedUnit();
 
     // _loadRadiusData();
     super.initState();
-
-    initScreen();
-  }
-
-  Future<void> initScreen() async {
-    prefs = await SharedPreferences.getInstance();
-    _loadSelectedUnit();
   }
 
   Future<void> _loadRadiusData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       meterRadius = prefs.getDouble('meterRadius') ?? 0.0;
       milesRadius = prefs.getDouble('milesRadius') ?? 0.0;
@@ -594,6 +586,7 @@ class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
   }
 
   Future<void> _loadSelectedUnit() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     String? selectedUnit = prefs.getString('selectedUnit');
     double meterdefault = prefs.getDouble('meterRadius') ?? 2000;
     double milesdefault = prefs.getDouble('milesRadius') ?? 1.04;
@@ -621,7 +614,7 @@ class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
             Padding(
               padding: EdgeInsets.only(left: width / 2.5714),
               child: Text((_radius / (_imperial ? 1 : 1000))
-                      .toStringAsFixed(_imperial ? 2 : 2) +
+                  .toStringAsFixed(_imperial ? 2 : 2) +
                   ' ${_imperial ? 'miles' : 'Kilometers'}'),
               //Text(_radius.toStringAsFixed(_imperial ? 2:0)+' ${_imperial ? 'miles' : 'meters'}'),
             ),

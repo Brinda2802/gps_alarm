@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitiled/Homescreens/save_alarm_page.dart';
@@ -287,6 +288,10 @@ class _SettingsState extends State<Settings> {
   @override
   bool _imperial = false;
 
+
+
+
+
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
@@ -402,7 +407,6 @@ class _SettingsState extends State<Settings> {
                   );
                 }).toList(),
               ),
-
               Divider(),
               SizedBox(
                 height: height / 37.8,
@@ -411,7 +415,6 @@ class _SettingsState extends State<Settings> {
                 'Options',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
-
               Column(
                 children: [
                   ..._optionMap.keys.map((option) {
@@ -578,6 +581,21 @@ class _SettingsState extends State<Settings> {
                 "The Minimum value must exceed 0.10",
                 style: Theme.of(context).textTheme.bodySmall,
               ),
+              SizedBox(
+                height: height / 75.6,
+              ),
+              Divider(),
+              SizedBox(
+                height: height / 75.6,
+              ),
+              Text(
+                'To View a Current Location',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+             FilledButton(
+               onPressed: () {  },
+                child: Text("Current Location"),
+             ),
               SizedBox(
                 height: height / 75.6,
               ),

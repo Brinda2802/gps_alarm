@@ -949,6 +949,7 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:convert';
@@ -987,6 +988,9 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 class _MyHomePageState extends State<MyHomePage> {
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+  ConnectivityResult _connectionStatus = ConnectivityResult.none;
   double meterRadius = 100; // Initial value for meter radius
   double milesRadius = 0.31;
   Future<void> _loadRadiusData() async {
@@ -1056,6 +1060,7 @@ class _MyHomePageState extends State<MyHomePage> {
     @override
     void initState() {
     super.initState();
+    initConnectivity();
     _requestLocationPermission();
     alramnamecontroller.text="Welcome";
     _loadRadiusData();
@@ -1067,6 +1072,21 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     }
+    @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
+  }
+  Future<void> initConnectivity() async {
+    ConnectivityResult result = await _connectivity.checkConnectivity();
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _connectionStatus = result;
+    });
+  }
     Future<void> loadData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -1484,171 +1504,200 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-      body: Stack(
-        children: [
-          Center(
-            child: AnimatedBuilder(
-              animation: AlwaysStoppedAnimation(0.0),
-              builder: (context, child) {
-                return Transform.rotate(
-                  angle: 3.14 * 2 * 0.5,
-                  // child: Icon(Icons.refresh), // Use any loading icon you prefer
-                );
-              },
-            ),
-           // CircularProgressIndicator(), // Adjust style as needed
-          ),
-          // GoogleMap(
-          //   mapType: MapType.normal,
-          //   myLocationButtonEnabled: false,
-          //   zoomControlsEnabled: false,
-          //   initialCameraPosition: CameraPosition(
-          //     zoom: 15,
-          //     target: _defaultLocation,
-          //   ),
-          //   onMapCreated: (GoogleMapController controller) {
-          //     mapController = controller;
-          //     setState(() {
-          //       _isLoading = false; // Hide loading animation when the map is created
-          //     });
-          //   },
-          //   markers: _markers.toSet(),
-          //   onLongPress: _handleTap,
-          //   onCameraMoveStarted: () {
-          //     setState(() {
-          //       _isCameraMoving = true;
-          //     });
-          //   },
-          //   onCameraIdle: () {
-          //     setState(() {
-          //       _isCameraMoving = false;
-          //     });
-          //   },
-          // ),
-          // if (_isLoading)
-          //   Center(
-          //     child: CircularProgressIndicator(), // Adjust style as needed
-          //   ),
-          // Positioned(
-          //     top: 200,
-          //     left: 70,
-          //     right: 20,
-          //     child: Image.asset("assets/locationmark11.png")),
-          GoogleMap(
-              mapType: MapType.normal,
-              myLocationButtonEnabled: false,
-              zoomControlsEnabled: false,
-              initialCameraPosition: CameraPosition(
-                zoom: 15,
-                target: _defaultLocation,
-              ),
-              onMapCreated: (GoogleMapController controller) {
-                mapController = controller;
-              },
-              markers: _markers.toSet(),
-              onLongPress: _handleTap,
-              onCameraMoveStarted: () {
-                setState(() {
-                  _isCameraMoving = true;
-                });
-              },
-              onCameraIdle: () {
-                setState(() {
-                  _isCameraMoving = false;
-                });
-              },
-            ),
-          if (_isLoading)
+      body:
+      StreamBuilder<ConnectivityResult>(
+        stream: _connectivity.onConnectivityChanged,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          }
+
+          if (!snapshot.hasData) {
+            print("Internet connection");
+            return Center(child: CircularProgressIndicator(
+            )); // Or a custom loading indicator
+          }
+
+          ConnectivityResult? currentStatus = snapshot.data;
+
+          // Display message or disable functionality based on connectivity
+          if (currentStatus == ConnectivityResult.none) {
+            return
+              Center(
+                child: Text('No Internet connection',style: Theme.of(context).textTheme.titleMedium,));
+          } else {
+            print("Internet connection");
+            // Rest of your GPS alarm app functionality that requires internet
+            return
             Stack(
               children: [
-                BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                  child: Container(
-                    color: Colors.black.withOpacity(0.5), // Semi-transparent background
-                  ),
-                ),
                 Center(
-                  child: Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: Colors.white, // Background color of the loader container
-                      borderRadius: BorderRadius.circular(10),
+                  child: AnimatedBuilder(
+                    animation: AlwaysStoppedAnimation(0.0),
+                    builder: (context, child) {
+                      return Transform.rotate(
+                        angle: 3.14 * 2 * 0.5,
+                        // child: Icon(Icons.refresh), // Use any loading icon you prefer
+                      );
+                    },
+                  ),
+                 // CircularProgressIndicator(), // Adjust style as needed
+                ),
+                // GoogleMap(
+                //   mapType: MapType.normal,
+                //   myLocationButtonEnabled: false,
+                //   zoomControlsEnabled: false,
+                //   initialCameraPosition: CameraPosition(
+                //     zoom: 15,
+                //     target: _defaultLocation,
+                //   ),
+                //   onMapCreated: (GoogleMapController controller) {
+                //     mapController = controller;
+                //     setState(() {
+                //       _isLoading = false; // Hide loading animation when the map is created
+                //     });
+                //   },
+                //   markers: _markers.toSet(),
+                //   onLongPress: _handleTap,
+                //   onCameraMoveStarted: () {
+                //     setState(() {
+                //       _isCameraMoving = true;
+                //     });
+                //   },
+                //   onCameraIdle: () {
+                //     setState(() {
+                //       _isCameraMoving = false;
+                //     });
+                //   },
+                // ),
+                // if (_isLoading)
+                //   Center(
+                //     child: CircularProgressIndicator(), // Adjust style as needed
+                //   ),
+                // Positioned(
+                //     top: 200,
+                //     left: 70,
+                //     right: 20,
+                //     child: Image.asset("assets/locationmark11.png")),
+                GoogleMap(
+                    mapType: MapType.normal,
+                    myLocationButtonEnabled: false,
+                    zoomControlsEnabled: false,
+                    initialCameraPosition: CameraPosition(
+                      zoom: 15,
+                      target: _defaultLocation,
                     ),
-                    child: Center(
-                      child: CircularProgressIndicator(), // Adjust style as needed
-                    ),
+                    onMapCreated: (GoogleMapController controller) {
+                      mapController = controller;
+                    },
+                    markers: _markers.toSet(),
+                    onLongPress: _handleTap,
+                    onCameraMoveStarted: () {
+                      setState(() {
+                        _isCameraMoving = true;
+                      });
+                    },
+                    onCameraIdle: () {
+                      setState(() {
+                        _isCameraMoving = false;
+                      });
+                    },
+                  ),
+                if (_isLoading)
+                  Stack(
+                    children: [
+                      BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                        child: Container(
+                          color: Colors.black.withOpacity(0.5), // Semi-transparent background
+                        ),
+                      ),
+                      Center(
+                        child: Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: Colors.white, // Background color of the loader container
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Center(
+                            child: CircularProgressIndicator(), // Adjust style as needed
+                          ),
+                        ),
+                      ),
+            ],
+                  ),
+                Visibility(
+                  visible: _isLoading,
+                  child: Center(
+                    child: CircularProgressIndicator(), // Adjust style as needed
                   ),
                 ),
-      ],
-            ),
-          Visibility(
-            visible: _isLoading,
-            child: Center(
-              child: CircularProgressIndicator(), // Adjust style as needed
-            ),
-          ),
-          Positioned(
-            top: 50,
-            left: 70,
-            right: 20,
-            child: placesAutoCompleteTextField(),
-          ),
-          Padding(
-            padding:  EdgeInsets.only(top: height/7.56,left:width/3.6),
-            child: Container(
-              height:height/ 25.2,
-              width:width/ 1.8,
-              decoration: BoxDecoration(
-                color: Colors.white70,
-                border: Border.all(
-                  color: Colors.black,
+                Positioned(
+                  top: 50,
+                  left: 70,
+                  right: 20,
+                  child: placesAutoCompleteTextField(),
                 ),
-                borderRadius: BorderRadius.circular(10),
-              ), child: Center(child: Text("or long press on the map",style: Theme.of(context).textTheme.titleMedium,)),),
-          ),
-          Positioned(
-            right: 24,bottom: 120,
-            // padding:  EdgeInsets.only(top:height/1.68,left: 280),
-            child:IconButton.filledTonal(
+                Padding(
+                  padding:  EdgeInsets.only(top: height/7.56,left:width/3.6),
+                  child: Container(
+                    height:height/ 25.2,
+                    width:width/ 1.8,
+                    decoration: BoxDecoration(
+                      color: Colors.white70,
+                      border: Border.all(
+                        color: Colors.black,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ), child: Center(child: Text("or long press on the map",style: Theme.of(context).textTheme.titleMedium,)),),
+                ),
+                Positioned(
+                  right: 24,bottom: 120,
+                  // padding:  EdgeInsets.only(top:height/1.68,left: 280),
+                  child:IconButton.filledTonal(
 
-              onPressed: _goToCurrentLocation,
-              icon: Icon(Icons.my_location),
-              // child: Icon(Icons.my_location),
-            ),
-          ),
-          Positioned(
-            bottom: 72,right: 24,
-            // padding: const EdgeInsets.only(left: 280.0,top: 500),
-            child: IconButton.filledTonal(
-              onPressed: () {
-                mapController?.animateCamera(
-                  CameraUpdate.zoomIn(),
-                );
-              },
-              icon: Icon(Icons.add),
-            ),
-          ),
-          Positioned(
-            bottom: 24,right: 24,
+                    onPressed: _goToCurrentLocation,
+                    icon: Icon(Icons.my_location),
+                    // child: Icon(Icons.my_location),
+                  ),
+                ),
+                Positioned(
+                  bottom: 72,right: 24,
+                  // padding: const EdgeInsets.only(left: 280.0,top: 500),
+                  child: IconButton.filledTonal(
+                    onPressed: () {
+                      mapController?.animateCamera(
+                        CameraUpdate.zoomIn(),
+                      );
+                    },
+                    icon: Icon(Icons.add),
+                  ),
+                ),
+                Positioned(
+                  bottom: 24,right: 24,
 
-            // padding: const EdgeInsets.only(left: 280.0,top: 600),
-            child: IconButton.filledTonal(
-              onPressed: () {
-                mapController?.animateCamera(
-                  CameraUpdate.zoomOut(),
-                );
-              },
-              icon: Icon(Icons.remove),
-            ),
-          ),
-          Positioned(
-              top: 50,left: 15,
-              child: IconButton(
-                onPressed: () {
-                  _scaffoldKey.currentState?.openDrawer(); }, icon: Icon(Icons.menu),)),
-        ],
+                  // padding: const EdgeInsets.only(left: 280.0,top: 600),
+                  child: IconButton.filledTonal(
+                    onPressed: () {
+                      mapController?.animateCamera(
+                        CameraUpdate.zoomOut(),
+                      );
+                    },
+                    icon: Icon(Icons.remove),
+                  ),
+                ),
+                Positioned(
+                    top: 50,left: 15,
+                    child: IconButton(
+                      onPressed: () {
+                        _scaffoldKey.currentState?.openDrawer(); }, icon: Icon(Icons.menu),)),
+              ],
+            );
+          }
+        },
       ),
+
     );
   }
   void _showCustomBottomSheet(BuildContext context)async {
@@ -1973,6 +2022,15 @@ class _MyHomePageState extends State<MyHomePage> {
     alarms.map((alarm) => alarm.toJson()).toList();
     await prefs.setStringList(
         'alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
+    //
+    // // Convert each AlarmDetails object to a JSON string
+    // List<String> alarmsJson = alarms.map((alarm) => jsonEncode(alarm.toJson())).toList();
+    //
+    // // Save the list of JSON strings to SharedPreferences
+    // await prefs.setStringList('alarms', alarmsJson);
+    //
+    // print('Alarms saved successfully: $alarmsJson');
 
     loadData();
     final service = FlutterBackgroundService();
