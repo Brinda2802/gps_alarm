@@ -70,10 +70,22 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
     loadData();
 
     bgServiceListener =
-        FlutterBackgroundService().on('stopped').listen((event) {
+        FlutterBackgroundService().on('alarmPlayed').listen((event) {
+          print('played');
+          print(event);
           if (mounted) {
-            print('mounted');
-            loadData();
+            var newAlarms = alarms.map((AlarmDetails alarm) {
+              if(alarm.id == event?["alarmId"]) {
+                alarm.isEnabled = false;
+              }
+              return alarm;
+            }).toList();
+            setState(() {
+              alarms.clear();
+              alarms.addAll(newAlarms);
+              saveData();
+            });
+            print(alarms);
           } else {
             print('not mounted');
           }
@@ -126,9 +138,32 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
     });
   }
 
+  // Future<void> loadData() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   await prefs.reload();
+  //   List<String>? alarmsJson = prefs.getStringList('alarms');
+  //   if (alarmsJson != null) {
+  //     setState(() {
+  //       alarms = alarmsJson
+  //           .map((json) => AlarmDetails.fromJson(jsonDecode(json)))
+  //           .toList();
+  //     });
+  //   }
+  //   double? storedLatitude = prefs.getDouble('current_latitude');
+  //   double? storedLongitude = prefs.getDouble('current_longitude');
+  //   setState(() {
+  //     if (storedLatitude != null && storedLongitude != null) {
+  //       currentLocation = LatLng(storedLatitude, storedLongitude);
+  //       print('original location: ($storedLatitude, $storedLongitude)');
+  //       // Marker? tap = _markers.length > 1 ? _markers.last : null;
+  //     }
+  //   });
+  // }
+
   Future<void> loadData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.reload();
+
     List<String>? alarmsJson = prefs.getStringList('alarms');
     if (alarmsJson != null) {
       setState(() {
@@ -136,14 +171,19 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
             .map((json) => AlarmDetails.fromJson(jsonDecode(json)))
             .toList();
       });
+      print('Alarms loaded: ${alarms.length}');
+    } else {
+      print('No alarms found');
     }
+
     double? storedLatitude = prefs.getDouble('current_latitude');
     double? storedLongitude = prefs.getDouble('current_longitude');
     setState(() {
       if (storedLatitude != null && storedLongitude != null) {
         currentLocation = LatLng(storedLatitude, storedLongitude);
-        print('original location: ($storedLatitude, $storedLongitude)');
-        // Marker? tap = _markers.length > 1 ? _markers.last : null;
+        print('Original location: ($storedLatitude, $storedLongitude)');
+      } else {
+        print('No location found');
       }
     });
   }

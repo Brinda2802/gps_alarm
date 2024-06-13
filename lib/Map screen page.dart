@@ -1057,6 +1057,7 @@ class _MyHomePageState extends State<MyHomePage> {
     13.067439, 80.237617); // Default location
     TextEditingController searchController = TextEditingController();
     List<AlarmDetails> alarms = [];
+    MapType _currentMapType = MapType.normal;
     @override
     void initState() {
     super.initState();
@@ -1241,6 +1242,13 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     });
     log("location 2");
+  }
+  void _toggleMapType() {
+    setState(() {
+      _currentMapType = (_currentMapType == MapType.normal)
+          ? MapType.satellite
+          : MapType.normal;
+    });
   }
     Future<void> _moveToLocation(String locationName) async {
     List<geocoding.Location> locations = await geocoding.locationFromAddress(
@@ -1580,7 +1588,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 //     right: 20,
                 //     child: Image.asset("assets/locationmark11.png")),
                 GoogleMap(
-                    mapType: MapType.normal,
+                  mapType: _currentMapType,
                     myLocationButtonEnabled: false,
                     zoomControlsEnabled: false,
                     initialCameraPosition: CameraPosition(
@@ -1692,6 +1700,14 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: IconButton(
                       onPressed: () {
                         _scaffoldKey.currentState?.openDrawer(); }, icon: Icon(Icons.menu),)),
+          Positioned(
+            right: 24,bottom: 170,
+          child:  IconButton.filledTonal(
+          onPressed: _toggleMapType,
+          icon:  Icon(Icons.map),
+
+          ),
+          ),
               ],
             );
           }
@@ -2017,11 +2033,29 @@ class _MyHomePageState extends State<MyHomePage> {
       alarms.add(newAlarm);
     });
 
+
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<Map<String, dynamic>> alarmsJson =
-    alarms.map((alarm) => alarm.toJson()).toList();
-    await prefs.setStringList(
-        'alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
+    List<String> alarmsJson = alarms.map((alarm) => jsonEncode(alarm.toJson())).toList();
+    await prefs.setStringList('alarms', alarmsJson);
+    print("alarms: $alarmsJson");
+
+
+
+
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
+    // List<Map<String, dynamic>> alarmsJson =
+    // alarms.map((alarm) => alarm.toJson()).toList();
+    // await prefs.setStringList(
+    //     'alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
+
+
+
+
+
+
+
+
     // SharedPreferences prefs = await SharedPreferences.getInstance();
     //
     // // Convert each AlarmDetails object to a JSON string
@@ -2055,9 +2089,7 @@ class _MyHomePageState extends State<MyHomePage> {
       child: GooglePlaceAutoCompleteTextField(
         textEditingController: controller,
         googleAPIKey: "AIzaSyA3byIibe-X741Bw5rfEzOHZEKuWdHvCbw",
-        // boxDecoration: BoxDecoration(
-        //   borderRadius: BorderRadius.circular(double.infinity),
-        // ),
+
         boxDecoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(30.0), // Adjust the radius as needed

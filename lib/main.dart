@@ -1967,7 +1967,7 @@ void onDidReceiveNotificationResponse(NotificationResponse notificationResponse)
 
     // Extract notificationId from the payload
     final notificationId2 = int.tryParse(payload.split('notificationId2:').last);
-    if (notificationId2 ! == null) {
+    if (notificationId2 != null) {
       Alarmplayer alarmplayer = Alarmplayer();
       await alarmplayer.StopAlarm();
       Vibration.cancel();
@@ -2179,6 +2179,7 @@ Future<void> _startLocationUpdates(ServiceInstance service) async {
 
 
           }
+          service.invoke('alarmPlayed', {"alarmId": alarm.id});
           _positionStreamSubscription?.cancel();
           print('preparing to stop service');
           break; // Exit loop after triggering the first alarm
