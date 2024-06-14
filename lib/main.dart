@@ -1782,6 +1782,7 @@ const notificationId2 = 999;
 const String channelId = 'your_channel_id';
 const String channelName = 'Your Channel Name';
 late AudioHandler _audioHandler;
+Timer? vibrationTimer;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -1992,7 +1993,12 @@ Future<bool> containsOption(String option) async {
   print("selectedoptions:$selectedOptions");
   return selectedOptions.contains(option);
 }
-
+void stopVibrationLoop() {
+  if (vibrationTimer != null) {
+    vibrationTimer!.cancel();
+    vibrationTimer = null;
+  }
+}
 Future<void> playAlarm() async {
   // Get saved ringtone preference
   final prefs = await SharedPreferences.getInstance();
@@ -2008,7 +2014,7 @@ Future<void> playAlarm() async {
     await alarmplayer.Alarm(
       url: ringtonePath,
       volume: 1.0, // Adjust volume as needed
-      looping: false,
+      looping: true,
       // Set looping behavior (optional)
     );
     print("Alarm started playing!");
@@ -2018,6 +2024,17 @@ Future<void> playAlarm() async {
     // Optional: Clean up resources (consider if needed)
     // await alarmplayer.stop(); // Stop the alarm if necessary
   }
+}
+void startVibrationLoop() {
+  stopVibrationLoop(); // Stop any existing timer before starting a new one
+  vibrationTimer = Timer.periodic(Duration(milliseconds: 11000), (Timer timer) {
+    Vibration.vibrate(
+      pattern: [500, 1000, 500, 2000, 500, 3000, 500, 500],
+      intensities: [
+        0, 128, 0, 255, 0, 64, 0, 255, 0, 255, 0, 255, 0, 255
+      ],
+    );
+  });
 }
 
 @pragma('vm:entry-point')
@@ -2176,6 +2193,8 @@ Future<void> _startLocationUpdates(ServiceInstance service) async {
                 255
               ],
             );
+            startVibrationLoop();
+
 
 
           }
