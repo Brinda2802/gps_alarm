@@ -1958,12 +1958,12 @@ void onDidReceiveNotificationResponse(NotificationResponse notificationResponse)
   if (!_shouldHandleNotifications) {
     return; // Don't process the notification response
   }
-
   final String? payload = notificationResponse.payload;
   if (payload != null) {
     Alarmplayer alarmplayer = Alarmplayer();
    await alarmplayer.StopAlarm();
    Vibration.cancel();
+    stopVibrationLoop() ;
     debugPrint('notification payload: $payload');
 
     // Extract notificationId from the payload
@@ -1972,6 +1972,7 @@ void onDidReceiveNotificationResponse(NotificationResponse notificationResponse)
       Alarmplayer alarmplayer = Alarmplayer();
       await alarmplayer.StopAlarm();
       Vibration.cancel();
+       stopVibrationLoop() ;
       debugPrint('notification payload: $payload');
       debugPrint('Invalid notificationId');
       return;
@@ -1984,6 +1985,31 @@ void onDidReceiveNotificationResponse(NotificationResponse notificationResponse)
       alarmplayer.StopAlarm();
       dismissNotification(notificationId);
     }
+  }
+}
+void startVibrationLoop() async {
+  if (await containsOption('vibrate')) {
+    const pattern = [500, 1000, 500, 2000, 500, 3000, 500, 500];
+    const intensities = [0, 128, 0, 255, 0, 64, 0, 255, 0, 255, 0, 255, 0, 255];
+
+    // Calculate the total duration of the vibration pattern
+    final totalDuration = pattern.reduce((a, b) => a + b);
+
+    // Function to start vibration
+    void vibrate() {
+      Vibration.vibrate(
+        pattern: pattern,
+        intensities: intensities,
+      );
+    }
+
+    // Initial vibration
+    vibrate();
+
+    // Start a periodic timer to loop the vibration pattern
+    Timer.periodic(Duration(milliseconds: totalDuration), (timer) {
+      vibrate();
+    });
   }
 }
 
@@ -2024,17 +2050,6 @@ Future<void> playAlarm() async {
     // Optional: Clean up resources (consider if needed)
     // await alarmplayer.stop(); // Stop the alarm if necessary
   }
-}
-void startVibrationLoop() {
-  stopVibrationLoop(); // Stop any existing timer before starting a new one
-  vibrationTimer = Timer.periodic(Duration(milliseconds: 11000), (Timer timer) {
-    Vibration.vibrate(
-      pattern: [500, 1000, 500, 2000, 500, 3000, 500, 500],
-      intensities: [
-        0, 128, 0, 255, 0, 64, 0, 255, 0, 255, 0, 255, 0, 255
-      ],
-    );
-  });
 }
 
 @pragma('vm:entry-point')
@@ -2174,25 +2189,26 @@ Future<void> _startLocationUpdates(ServiceInstance service) async {
           }
 
           if (await containsOption('vibrate')) {
-            Vibration.vibrate(
-              pattern: [500, 1000, 500, 2000, 500, 3000, 500, 500],
-              intensities: [
-                0,
-                128,
-                0,
-                255,
-                0,
-                64,
-                0,
-                255,
-                0,
-                255,
-                0,
-                255,
-                0,
-                255
-              ],
-            );
+            // Vibration.vibrate(
+            //   pattern: [500, 1000, 500, 2000, 500, 3000, 500, 500],
+            //   intensities: [
+            //     0,
+            //     128,
+            //     0,
+            //     255,
+            //     0,
+            //     64,
+            //     0,
+            //     255,
+            //     0,
+            //     255,
+            //     0,
+            //     255,
+            //     0,
+            //     255
+            //   ],
+            // );
+            // startVibrationLoop();
             startVibrationLoop();
 
 
