@@ -6,6 +6,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:untitiled/Map%20screen%20page.dart';
 import 'package:uuid/uuid.dart';
@@ -25,6 +26,7 @@ import 'Homescreens/settings.dart';
 import 'Track.dart';
 import 'Track.dart';
 import 'about page.dart';
+import 'adhelper.dart';
 import 'main.dart';
 
 int id = 0;
@@ -48,6 +50,8 @@ class _TrackState extends State<Track> {
   final GlobalKey repaintBoundaryKey = GlobalKey();
   Image? capturedImage;
   double radius=0;
+  BannerAd? _bannerAd;
+  bool _isLoaded = false;
   updateradiusvalue(value){
     print("updatevalue:"+value.toString());
     setState(() {
@@ -90,10 +94,12 @@ class _TrackState extends State<Track> {
   Set<Circle> _circles={};
   LatLng? _current; // Current location
   // Target location
-
+  InterstitialAd? _interstitialAd;
   @override
   void initState() {
     super.initState();
+    _loadBannerAd();
+    _loadInterstitialAd();
     _requestLocationPermission();
     _isAndroidPermissionGranted();
     _requestPermissions();
@@ -107,6 +113,24 @@ class _TrackState extends State<Track> {
 
 
     // Initialize the notification plugin
+  }
+  void _loadBannerAd() {
+    BannerAd(
+      adUnitId: AdHelper.bannerAdUnitId, // Use test ad unit ID for testing: 'ca-app-pub-3940256099942544/6300978111'
+      request: AdRequest(),
+      size: AdSize.banner,
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _bannerAd = ad as BannerAd;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          print('Failed to load a banner ad: ${err.message}');
+          ad.dispose();
+        },
+      ),
+    ).load();
   }
   double degreesToRadians(double degrees) {
     return degrees * math.pi / 180;
@@ -149,7 +173,28 @@ class _TrackState extends State<Track> {
   //   // Convert meters to kilometers and return the result
   //   return distanceInMeters / 1000;
   // }
+  void _loadInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: AdHelper.interstitialAdUnitId,
+      request: AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (ad) {
+          ad.fullScreenContentCallback = FullScreenContentCallback(
+            onAdDismissedFullScreenContent: (ad) {
+              MyHomePage();
+            },
+          );
 
+          setState(() {
+            _interstitialAd = ad;
+          });
+        },
+        onAdFailedToLoad: (err) {
+          print('Failed to load an interstitial ad: ${err.message}');
+        },
+      ),
+    );
+  }
   void checkAlarm() {
     // Check if current location is within any alarm radius
     if (currentLocation != null) {
@@ -691,7 +736,8 @@ class _TrackState extends State<Track> {
                                       "Location changed successfully."),
                                   actions: <Widget>[
                                     TextButton(
-                                      onPressed: () {
+                                      onPressed: () async {
+                                        await _interstitialAd?.show();
                                         Navigator.of(context).pop();
                                         Navigator.of(context).pushReplacement(
                                           MaterialPageRoute(
@@ -1185,6 +1231,22 @@ class _TrackState extends State<Track> {
               top: 50,left: 15,
               child: IconButton(
                 onPressed: () { Navigator.of(context).pop();}, icon: Icon(Icons.arrow_back),)),
+          _bannerAd != null ?
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              width: _bannerAd!.size.width.toDouble(),
+              height: _bannerAd!.size.height.toDouble(),
+              child: AdWidget(ad: _bannerAd!),
+            ),
+          ) :
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              height: 50,
+              color: Colors.transparent,
+            ),
+          )
         ],
       ),
     );

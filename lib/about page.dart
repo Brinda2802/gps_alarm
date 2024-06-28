@@ -192,22 +192,7 @@ class _AboutState extends State<About> {
                 textAlign: TextAlign.left,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
-              GestureDetector(
-                  onTap: () {
-                    // Print a message indicating that the audio is being played
-                    print("Playing audio");
-                    print("the song will be playing");
-                  },
-                  child: Icon(
-                    CupertinoIcons.play_arrow_solid,
-                    size: 30,
-                  )),
-              GestureDetector(
-                  onTap: () {},
-                  child: Icon(
-                    CupertinoIcons.stop,
-                    size: 30,
-                  ))
+
             ],
           ),
         ),

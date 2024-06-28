@@ -55,7 +55,7 @@ class _SettingsState extends State<Settings> {
     'Vibrate': 'vibrate',
     'Alarms in Silent Mode': 'alarms in silent mode'
   };
-  Set<String> _selectedOptions = Set<String>();
+  Set<String> _selectedOptions = {};
 
   DropdownButton<String> _buildRingtoneDropdown() {
     return DropdownButton<String>(
@@ -64,9 +64,9 @@ class _SettingsState extends State<Settings> {
       isExpanded: true,
       items: ringtones
           .map((ringtone) => DropdownMenuItem<String>(
-                value: ringtone,
-                child: Text(ringtone.split('/').last),
-              ))
+        value: ringtone,
+        child: Text(ringtone.split('/').last),
+      ))
           .toList(),
       onChanged: (String? value) async {
         if (value != null) {
@@ -94,6 +94,7 @@ class _SettingsState extends State<Settings> {
 
   String kSharedPrefOption = 'selected_option';
 
+
   Future<void> _loadRadiusData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -109,13 +110,15 @@ class _SettingsState extends State<Settings> {
     });
   }
 
+
+
   Future<void> _loadRingtones() async {
     try {
       if (listFileExists) {
         // Check if list.txt exists (optional)
         ringtones = await rootBundle.loadString('assets/list.txt').then(
               (data) => data.split(','),
-            );
+        );
       } else {
         // Handle the case where list.txt is missing (optional)
         // You could list filenames directly or provide a default message
@@ -157,8 +160,8 @@ class _SettingsState extends State<Settings> {
       case 0:
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => MyAlarmsPage()),
-          (Route<dynamic> route) =>
-              false, // This condition will remove all routes
+              (Route<dynamic> route) =>
+          false, // This condition will remove all routes
         );
         // Navigator.of(context).pushReplacement(
         //     MaterialPageRoute(builder: (context) => MyAlarmsPage()));
@@ -234,9 +237,10 @@ class _SettingsState extends State<Settings> {
   String selectedRingtoneKey = 'selectedRingtone';
   String isSwitchedKey = 'isSwitched';
 
-  // Function to store switch value
+  // Function to store switch valueo
   void initState() {
     super.initState();
+   // _selectedOptions.add(_optionMap['Alarms']!);
     _loadSelectedUnit();
     _loadRingtones();
     _loadRadiusData();
@@ -287,16 +291,12 @@ class _SettingsState extends State<Settings> {
       });
     }
   }
-
-
-
   Future<void> _saveSettings(String ringtone) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('selectedRingtone', ringtone);
     await prefs.setStringList('selectedOptions', _selectedOptions.toList());
     print(_selectedOptions);
   }
-
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -312,6 +312,7 @@ class _SettingsState extends State<Settings> {
     setState(() {
       _selectedUnit = newValue;
     });
+
   }
 
   Future _loadSelectedUnit() async {
@@ -334,7 +335,7 @@ class _SettingsState extends State<Settings> {
   }
   int screenIndex = 2;
   final Uri toLaunch =
-      Uri(scheme: 'https', host: 'www.cylog.org', path: 'headers/');
+  Uri(scheme: 'https', host: 'www.cylog.org', path: 'headers/');
 
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -357,31 +358,31 @@ class _SettingsState extends State<Settings> {
         return Container(
           height: 800,
           child: Stack(
-            children: [
-              GoogleMap(
-                mapType: MapType.normal,
-                myLocationEnabled: true,
-                initialCameraPosition: CameraPosition(
-                  zoom: 15,
-                  target: _currentLocation != null
-                      ? LatLng(_currentLocation!.latitude!, _currentLocation!.longitude!)
-                      : LatLng(0, 0),
-                ),
-                onMapCreated: (GoogleMapController controller) {
-                  controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-                    target: LatLng(_currentLocation!.latitude!, _currentLocation!.longitude!),
+              children: [
+                GoogleMap(
+                  mapType: MapType.normal,
+                  myLocationEnabled: true,
+                  initialCameraPosition: CameraPosition(
                     zoom: 15,
-                  )));
-                },
-              ),
-             Positioned(
-               top: 16,left: 16,
-               child: IconButton(onPressed: (){
-                 Navigator.of(context).pop();
-               }, icon: Icon(Icons.cancel,size: 36,),
-              ),
-             ),
-            ]
+                    target: _currentLocation != null
+                        ? LatLng(_currentLocation!.latitude!, _currentLocation!.longitude!)
+                        : LatLng(0, 0),
+                  ),
+                  onMapCreated: (GoogleMapController controller) {
+                    controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+                      target: LatLng(_currentLocation!.latitude!, _currentLocation!.longitude!),
+                      zoom: 15,
+                    )));
+                  },
+                ),
+                Positioned(
+                  top: 16,left: 16,
+                  child: IconButton(onPressed: (){
+                    Navigator.of(context).pop();
+                  }, icon: Icon(Icons.cancel,size: 36,),
+                  ),
+                ),
+              ]
           ),
         );
       },
@@ -520,7 +521,7 @@ class _SettingsState extends State<Settings> {
                       // Show "Alarms in Silent Mode" only if "Alarms" is selected
                       return Visibility(
                         visible:
-                            _selectedOptions.contains(_optionMap['Alarms']),
+                        _selectedOptions.contains(_optionMap['Alarms']),
                         child: CheckboxListTile(
                           title: Text(option),
                           value: _selectedOptions.contains(_optionMap[option]),
@@ -693,13 +694,13 @@ class _SettingsState extends State<Settings> {
               SizedBox(
                 height: height / 75.6,
               ),
-             FilledButton(
-               onPressed: () {
-                 _getCurrentLocation;
-                 _showBottomSheetWithMap();
-               },
+              FilledButton(
+                onPressed: () {
+                  _getCurrentLocation;
+                  _showBottomSheetWithMap();
+                },
                 child: Text("Current Location"),
-             ),
+              ),
               SizedBox(
                 height: height / 75.6,
               ),

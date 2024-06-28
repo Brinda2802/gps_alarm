@@ -951,6 +951,8 @@ import 'dart:ui';
 
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:convert';
 import 'dart:developer';
@@ -973,6 +975,9 @@ import 'package:uuid/uuid.dart';
 import 'Apiutils.dart';
 import 'Homescreens/save_alarm_page.dart';
 import 'about page.dart';
+import 'adhelper.dart';
+import 'main.dart';
+// import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 
 
@@ -988,11 +993,20 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 class _MyHomePageState extends State<MyHomePage> {
+  // BannerAd? _bannerAd;
   final Connectivity _connectivity = Connectivity();
   late StreamSubscription<ConnectivityResult> _connectivitySubscription;
   ConnectivityResult _connectionStatus = ConnectivityResult.none;
   double meterRadius = 100; // Initial value for meter radius
   double milesRadius = 0.31;
+  var latlong;
+  double radius=0;
+  BannerAd? _bannerAd;
+  bool _isLoaded = false;
+  Future<InitializationStatus> _initGoogleMobileAds() {
+    // TODO: Initialize Google Mobile Ads SDK
+    return MobileAds.instance.initialize();
+  }
   Future<void> _loadRadiusData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     double meterdefault = prefs.getDouble('meterRadius') ?? 2000;
@@ -1003,8 +1017,7 @@ class _MyHomePageState extends State<MyHomePage> {
       radius = (prefs.getString('selectedUnit') == 'Imperial system (mi/ft)') ? milesdefault : meterdefault;
     });
   }
-  var latlong;
-  double radius=0;
+
   // Future<void> _goToCurrentLocation() async {
   //     if (currentLocation == null) {
   //
@@ -1036,8 +1049,18 @@ class _MyHomePageState extends State<MyHomePage> {
     // Rest of your code...
   }
 
-
-
+  // Future<void> _requestPermissions() async {
+  //   Map<Permission, PermissionStatus> statuses = await [
+  //     Permission.camera,
+  //     Permission.location,
+  //   ].request();
+  //   // Handle permission statuses
+  //   if (statuses[Permission.camera]?.isGranted && statuses[Permission.location]?.isGranted) {
+  //     // Permissions are granted
+  //   } else {
+  //     // Permissions are denied
+  //   }
+  // }
   updateradiusvalue(value){
     print("updatevalue:"+value.toString());
     setState(() {
@@ -1063,6 +1086,9 @@ class _MyHomePageState extends State<MyHomePage> {
     @override
     void initState() {
     super.initState();
+    //_requestPermissions();
+    _loadBannerAd();
+    _initGoogleMobileAds();
     initConnectivity();
     _requestLocationPermission();
     alramnamecontroller.text="Welcome";
@@ -1079,6 +1105,24 @@ class _MyHomePageState extends State<MyHomePage> {
   void dispose() {
     _connectivitySubscription.cancel();
     super.dispose();
+  }
+  void _loadBannerAd() {
+    BannerAd(
+      adUnitId: AdHelper.bannerAdUnitId, // Use test ad unit ID for testing: 'ca-app-pub-3940256099942544/6300978111'
+      request: AdRequest(),
+      size: AdSize.banner,
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _bannerAd = ad as BannerAd;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          print('Failed to load a banner ad: ${err.message}');
+          ad.dispose();
+        },
+      ),
+    ).load();
   }
   Future<void> initConnectivity() async {
     ConnectivityResult result = await _connectivity.checkConnectivity();
@@ -1244,6 +1288,30 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     });
     log("location 2");
+  }
+
+  Future<void> checkLocation() async {
+    // Location location = Location();
+    // bool? serviceEnabled;
+    // PermissionStatus? permissionGranted;
+    // serviceEnabled = await location.serviceEnabled();
+    // if (!serviceEnabled) {
+    //   serviceEnabled = await location.requestService();
+    // }
+    // permissionGranted = await location.hasPermission();
+    // if (permissionGranted == PermissionStatus.denied) {
+    //   permissionGranted = await location.requestPermission();
+    // }
+
+    location.Location ls = new location.Location();
+    if (await Permission.notification.request().isGranted &&
+        await Permission.location.request().isGranted &&
+        await ls.serviceEnabled()) {
+      await initializeService();
+      print('Permissions are granted');
+    }else{
+      print('Permissions are not granted');
+    }
   }
   void _toggleMapType() {
     setState(() {
@@ -1663,7 +1731,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ), child: Center(child: Text("or long press on the map",style: Theme.of(context).textTheme.titleMedium,)),),
                 ),
                 Positioned(
-                  right: 24,bottom: 120,
+                  right: 24,bottom: 162,
                   // padding:  EdgeInsets.only(top:height/1.68,left: 280),
                   child:IconButton.filledTonal(
 
@@ -1673,7 +1741,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
                 Positioned(
-                  bottom: 72,right: 24,
+                  bottom: 112,right: 24,
                   // padding: const EdgeInsets.only(left: 280.0,top: 500),
                   child: IconButton.filledTonal(
                     onPressed: () {
@@ -1685,7 +1753,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
                 Positioned(
-                  bottom: 24,right: 24,
+                  bottom: 62,right: 24,
 
                   // padding: const EdgeInsets.only(left: 280.0,top: 600),
                   child: IconButton.filledTonal(
@@ -1703,19 +1771,49 @@ class _MyHomePageState extends State<MyHomePage> {
                       onPressed: () {
                         _scaffoldKey.currentState?.openDrawer(); }, icon: Icon(Icons.menu),)),
           Positioned(
-            right: 24,bottom: 170,
+            right: 24,bottom: 212,
           child:  IconButton.filledTonal(
           onPressed: _toggleMapType,
           icon:  Icon(Icons.map),
 
           ),
           ),
+                 Stack(
+                   children: [
+                     _bannerAd != null ?
+                     Align(
+                       alignment: Alignment.bottomCenter,
+                       child: Container(
+                         width: _bannerAd!.size.width.toDouble(),
+                         height: _bannerAd!.size.height.toDouble(),
+                         child: AdWidget(ad: _bannerAd!),
+                       ),
+                     ) :
+                     Align(
+                       alignment: Alignment.bottomCenter,
+                       child: Container(
+                         height: 50,
+                         color: Colors.transparent,
+                       ),
+                     )
+                   ],
+                 )
               ],
             );
           }
         },
       ),
 
+      // bottomNavigationBar: _bannerAd != null
+      //     ? Align(
+      //   alignment: Alignment.bottomCenter,
+      //   child: Container(
+      //     width: _bannerAd!.size.width.toDouble(),
+      //     height: _bannerAd!.size.height.toDouble(),
+      //     child: AdWidget(ad: _bannerAd!),
+      //   ),
+      // )
+      //     : Text('Loading ad...'),
     );
   }
   void _showCustomBottomSheet(BuildContext context)async {
