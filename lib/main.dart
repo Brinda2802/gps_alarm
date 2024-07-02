@@ -4199,7 +4199,7 @@ import 'package:flutter/foundation.dart';
 import 'package:vibration/vibration.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-const notificationChannelId = 'my_foreground';
+const notificationChannelId = '';
 const notificationId = 888;
 const notificationId2 = 999;
 const String channelId = 'your_channel_id';
@@ -4299,10 +4299,18 @@ Future<void> main() async {
 
 Future<void> initializeService() async {
   final service = FlutterBackgroundService();
-
-  /// OPTIONAL, using custom notification channel id
+  // AndroidNotificationChannel channel = AndroidNotificationChannel(
+  //   Uuid().v4(), // id
+  //   "MY FOREGROUND SERVICE", // title
+  //   description:
+  //   'Reached destination radius', // description
+  //   importance: Importance.high, // importance must be at low or higher level
+  // );
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
   FlutterLocalNotificationsPlugin();
+
+  /// OPTIONAL, using custom notification channel id
+
 
   if (Platform.isAndroid) {
     await flutterLocalNotificationsPlugin.initialize(
@@ -4313,15 +4321,18 @@ Future<void> initializeService() async {
   }
 
   await service.configure(
+
     androidConfiguration: AndroidConfiguration(
       // this will be executed when app is in foreground or background in separated isolate
       onStart: onStart,
       initialNotificationTitle: 'Running in Background',
       initialNotificationContent: 'This is required to trigger alarm',
+
       // auto start service
-      autoStart: false,
+      autoStart:false,
       isForegroundMode: true,
     ),
+
     iosConfiguration: IosConfiguration(
       // auto start service
       autoStart: false,
@@ -4389,37 +4400,35 @@ bool _shouldHandleNotifications = true;
 dismissNotification(int? notificationId2) async {
   await flutterLocalNotificationsPlugin.cancel(notificationId2!);
 }
-Future<String> extractActionTypeFromPayload(String? payload) async {
-  String? actionType;
-
-  if (payload != null) {
-    if (payload.contains('dismiss')) {
-      Alarmplayer alarmplayer = Alarmplayer();
-      alarmplayer.StopAlarm();
-      Vibration.cancel;
-      actionType = 'dismiss';
-      print("dismiss1");
-    } else {
-
-    }
-  }
-
-  if (actionType == null) {
-    _shouldHandleNotifications = false;
-    Alarmplayer alarmplayer = Alarmplayer();
-    await alarmplayer.StopAlarm();
-    stopVibrationLoop();
-    print("dismiss2");
-    print("cancel notification");
-    return 'unknown';
-    // Return a default value
-  }
-  return payload!.contains('dismiss') ? 'dismiss' : 'other';
-}
+// Future<String> extractActionTypeFromPayload(String? payload) async {
+//   String? actionType;
+//
+//   if (payload != null) {
+//     if (payload.contains('dismiss')) {
+//       Alarmplayer alarmplayer = Alarmplayer();
+//       alarmplayer.StopAlarm();
+//       Vibration.cancel;
+//       actionType = 'dismiss';
+//       print("dismiss1");
+//     } else {
+//
+//     }
+//   }
+//
+//   if (actionType == null) {
+//     _shouldHandleNotifications = false;
+//     Alarmplayer alarmplayer = Alarmplayer();
+//     await alarmplayer.StopAlarm();
+//     stopVibrationLoop();
+//     print("dismiss2");
+//     print("cancel notification");
+//     return 'unknown';
+//     // Return a default value
+//   }
+//   return payload!.contains('dismiss') ? 'dismiss' : 'other';
+// }
 void onDidReceiveNotificationResponse(NotificationResponse notificationResponse) async {
-  if (!_shouldHandleNotifications) {
-    return; // Don't process the notification response
-  }
+
   final String? payload = notificationResponse.payload;
   if (payload != null) {
     Alarmplayer alarmplayer = Alarmplayer();
@@ -4427,9 +4436,10 @@ void onDidReceiveNotificationResponse(NotificationResponse notificationResponse)
     Vibration.cancel();
     stopVibrationLoop() ;
     debugPrint('notification payload: $payload');
+    debugPrint('valid notification');
 
     // Extract notificationId from the payload
-    final notificationId2 = int.tryParse(payload.split('notificationId2:').last);
+    final notificationId2 = int.tryParse(payload.split('notificationId2:999').last);
     if (notificationId2 != null) {
       Alarmplayer alarmplayer = Alarmplayer();
       await alarmplayer.StopAlarm();
@@ -4440,14 +4450,14 @@ void onDidReceiveNotificationResponse(NotificationResponse notificationResponse)
       return;
     }
 // Extract action type (if needed)
-    final actionType = extractActionTypeFromPayload(payload);
-
-    if (actionType == 'dismiss') {
-      Alarmplayer alarmplayer = Alarmplayer();
-      alarmplayer.StopAlarm();
-      stopVibrationLoop();
-      dismissNotification(notificationId);
-    }
+//     final actionType = extractActionTypeFromPayload(payload);
+//
+//     if (actionType == 'dismiss') {
+//       Alarmplayer alarmplayer = Alarmplayer();
+//       alarmplayer.StopAlarm();
+//       stopVibrationLoop();
+//       dismissNotification(notificationId);
+//     }
   }
 }
 void startVibrationLoop() async {
@@ -4478,7 +4488,8 @@ void startVibrationLoop() async {
 
 Future<bool> containsOption(String option) async {
   final prefs = await SharedPreferences.getInstance();
-  final selectedOptions = prefs.getStringList('selectedOptions') ?? [];
+  final selectedOptions =
+      prefs.getStringList('selectedOptions') ?? <String>['alarms'];
   print("selectedoptions:$selectedOptions");
   return selectedOptions.contains(option);
 }
@@ -4527,6 +4538,7 @@ Future<void> onStart(ServiceInstance service) async {
     onDidReceiveBackgroundNotificationResponse:
     onDidReceiveNotificationResponse,
   );
+
   await _startLocationUpdates(service);
   // List<AlarmDetails> alarms = [];
   // SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -4616,6 +4628,9 @@ Future<void> _startLocationUpdates(ServiceInstance service) async {
             'Reached destination radius',
             NotificationDetails(
               android: AndroidNotificationDetails(
+                //progress: alarmplayer.StopAlarm(),
+                fullScreenIntent: true,
+                color: Colors.pinkAccent,
                 Uuid().v4(),
                 'MY FOREGROUND SERVICE',
                 icon: 'ic_bg_service_small',
@@ -4628,11 +4643,13 @@ Future<void> _startLocationUpdates(ServiceInstance service) async {
                 enableVibration: false,
                 additionalFlags: Int32List.fromList(<int>[4]),
                 ticker: 'ticker',
+                ongoing: true,
                 actions: [
                   // Dismiss action
                   AndroidNotificationAction(
                     Uuid().v4(),
                     'dismiss',
+
                   ),
                 ],
                 styleInformation: DefaultStyleInformation(true, true),

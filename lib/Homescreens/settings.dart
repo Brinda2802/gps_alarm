@@ -301,7 +301,7 @@ class _SettingsState extends State<Settings> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       final selectedOptions =
-          prefs.getStringList('selectedOptions') ?? <String>[];
+          prefs.getStringList('selectedOptions') ?? <String>['alarms']; // Default to 'alarms' if no saved settings
       _selectedOptions = selectedOptions.toSet();
     });
   }
