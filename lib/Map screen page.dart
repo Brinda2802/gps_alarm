@@ -945,7 +945,6 @@
 //   }
 // }
 
-
 import 'dart:async';
 import 'dart:ui';
 
@@ -977,36 +976,36 @@ import 'Homescreens/save_alarm_page.dart';
 import 'about page.dart';
 import 'adhelper.dart';
 import 'main.dart';
-// import 'package:google_mobile_ads/google_mobile_ads.dart';
-
 
 
 class MyHomePage extends StatefulWidget {
-
-
-
   final String? title;
 
-  const MyHomePage({super.key,  this.title, });
+  const MyHomePage({
+    super.key,
+    this.title,
+  });
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
+
 class _MyHomePageState extends State<MyHomePage> {
-  // BannerAd? _bannerAd;
+
   final Connectivity _connectivity = Connectivity();
   late StreamSubscription<ConnectivityResult> _connectivitySubscription;
-  ConnectivityResult _connectionStatus = ConnectivityResult.none;
   double meterRadius = 100; // Initial value for meter radius
   double milesRadius = 0.31;
   var latlong;
-  double radius=0;
+  double radius = 0;
   BannerAd? _bannerAd;
   bool _isLoaded = false;
+
   Future<InitializationStatus> _initGoogleMobileAds() {
     // TODO: Initialize Google Mobile Ads SDK
     return MobileAds.instance.initialize();
   }
+
   Future<void> _loadRadiusData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     double meterdefault = prefs.getDouble('meterRadius') ?? 2000;
@@ -1014,27 +1013,13 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       meterRadius = prefs.getDouble('meterRadius') ?? 0.0;
       milesRadius = prefs.getDouble('milesRadius') ?? 0.0;
-      radius = (prefs.getString('selectedUnit') == 'Imperial system (mi/ft)') ? milesdefault : meterdefault;
+      radius = (prefs.getString('selectedUnit') == 'Imperial system (mi/ft)')
+          ? milesdefault
+          : meterdefault;
     });
   }
 
-  // Future<void> _goToCurrentLocation() async {
-  //     if (currentLocation == null) {
-  //
-  //       await _requestLocationPermission();
-  //
-  //       return; // Wait for location to be updated
-  //     }
-  //
-  //     if (mapController != null) {
-  //       await mapController!.animateCamera(
-  //   CameraUpdate.newLatLngZoom(
-  //   LatLng(currentLocation!.latitude!, currentLocation!.longitude!),
-  //   15.0, // Adjust zoom level as needed
-  //   ),
-  //   );
-  //   }
-  //   }
+
   Future<void> _goToCurrentLocation() async {
     if (currentLocation == null) {
       setState(() {
@@ -1049,66 +1034,55 @@ class _MyHomePageState extends State<MyHomePage> {
     // Rest of your code...
   }
 
-  // Future<void> _requestPermissions() async {
-  //   Map<Permission, PermissionStatus> statuses = await [
-  //     Permission.camera,
-  //     Permission.location,
-  //   ].request();
-  //   // Handle permission statuses
-  //   if (statuses[Permission.camera]?.isGranted && statuses[Permission.location]?.isGranted) {
-  //     // Permissions are granted
-  //   } else {
-  //     // Permissions are denied
-  //   }
-  // }
-  updateradiusvalue(value){
-    print("updatevalue:"+value.toString());
+
+  updateradiusvalue(value) {
+    print("updatevalue:" + value.toString());
     setState(() {
-    radius=value;
-    print("updatevalue:"+value.toString());
+      radius = value;
+      print("updatevalue:" + value.toString());
     });
-    }
-    bool _hasCallSupport = false;
-    Future<void>? _launched;
-    String _phone = '';
-    final Uri toLaunch =
-    Uri(scheme: 'https', host: 'www.cylog.org', path: 'headers/');
-    TextEditingController controller = TextEditingController();
-    GoogleMapController? mapController;
-    location.LocationData? currentLocation;
-    location.Location _locationService = location.Location();
-    bool _isCameraMoving = false;
-    final LatLng _defaultLocation = const LatLng(
-    13.067439, 80.237617); // Default location
-    TextEditingController searchController = TextEditingController();
-    List<AlarmDetails> alarms = [];
-    MapType _currentMapType = MapType.normal;
-    @override
-    void initState() {
+  }
+
+  final Uri toLaunch =
+      Uri(scheme: 'https', host: 'www.cylog.org', path: 'headers/');
+  TextEditingController controller = TextEditingController();
+  GoogleMapController? mapController;
+  location.LocationData? currentLocation;
+  location.Location _locationService = location.Location();
+  bool _isCameraMoving = false;
+  final LatLng _defaultLocation =
+      const LatLng(13.067439, 80.237617); // Default location
+  TextEditingController searchController = TextEditingController();
+  List<AlarmDetails> alarms = [];
+  MapType _currentMapType = MapType.normal;
+
+  @override
+  void initState() {
     super.initState();
-    //_requestPermissions();
     _loadBannerAd();
     _initGoogleMobileAds();
     initConnectivity();
     _requestLocationPermission();
-    alramnamecontroller.text="Welcome";
+    alramnamecontroller.text = "Welcome";
     _loadRadiusData();
     loadData();
     Timer(Duration(seconds: 160), () {
-    setState(() {
-    _isLoading = false;
+      setState(() {
+        _isLoading = false;
+      });
     });
-    });
+  }
 
-    }
-    @override
+  @override
   void dispose() {
     _connectivitySubscription.cancel();
     super.dispose();
   }
+
   void _loadBannerAd() {
     BannerAd(
-      adUnitId: AdHelper.bannerAdUnitId, // Use test ad unit ID for testing: 'ca-app-pub-3940256099942544/6300978111'
+      adUnitId: AdHelper.bannerAdUnitId,
+      // Use test ad unit ID for testing: 'ca-app-pub-3940256099942544/6300978111'
       request: AdRequest(),
       size: AdSize.banner,
       listener: BannerAdListener(
@@ -1124,6 +1098,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     ).load();
   }
+
   Future<void> initConnectivity() async {
     ConnectivityResult result = await _connectivity.checkConnectivity();
     if (!mounted) {
@@ -1131,89 +1106,93 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     setState(() {
-      _connectionStatus = result;
     });
   }
-    Future<void> loadData() async {
+
+  Future<void> loadData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     List<String>? alarmsJson = prefs.getStringList('alarms');
 
     if (alarmsJson != null) {
-    alarms = alarmsJson.map((json) => AlarmDetails.fromJson(jsonDecode(json))).toList();
+      alarms = alarmsJson
+          .map((json) => AlarmDetails.fromJson(jsonDecode(json)))
+          .toList();
     } else {
-    alarms = [];
+      alarms = [];
     }
 
     setState(() {});
-    }
-    final _formKey = GlobalKey<FormState>();
-    // Future<void> _requestLocationPermission() async {
-    // bool serviceEnabled = await _locationService.serviceEnabled();
-    // if (!serviceEnabled) {
-    // serviceEnabled = await _locationService.requestService();
-    // if (!serviceEnabled) {
-    // return;
-    // }
-    // }
-    //
-    // location.PermissionStatus permissionStatus = await _locationService
-    //     .hasPermission();
-    // if (permissionStatus == location.PermissionStatus.denied) {
-    // permissionStatus = await _locationService.requestPermission();
-    // if (permissionStatus != location.PermissionStatus.granted) {
-    // return;
-    // }
-    // }
-    //
-    //
-    // log("location 1");
-    // _locationService.onLocationChanged.listen((
-    // location.LocationData newLocation) async {
-    // log("location changed");
-    // if (_isCameraMoving) return;
-    // SharedPreferences prefs = await SharedPreferences.getInstance();
-    // if(mounted) {
-    // setState(() {
-    // if (newLocation.latitude != null && newLocation.longitude != null) {
-    // _current = LatLng(newLocation.latitude!, newLocation.longitude!);
-    // }
-    // currentLocation = newLocation;
-    //
-    // prefs.setDouble('current_latitude', newLocation.latitude!);
-    // prefs.setDouble('current_longitude', newLocation.longitude!);
-    //
-    // // Example usage: retrieve the stored location later
-    // double? storedLatitude = prefs.getDouble('current_latitude');
-    // double? storedLongitude = prefs.getDouble('current_longitude');
-    // if (storedLatitude != null && storedLongitude != null) {
-    // print('Stored location: ($storedLatitude, $storedLongitude)');
-    // Marker? tap = _markers.length > 1 ? _markers.last : null;
-    //
-    // _markers.clear();
-    // _markers.add(Marker(
-    // markerId: MarkerId("_currentLocation"),
-    // icon: BitmapDescriptor.defaultMarker,
-    // position: currentLocation != null
-    // ? LatLng(
-    // currentLocation!.latitude!, currentLocation!.longitude!)
-    //     : _defaultLocation,
-    // ));
-    // if (tap != null) {
-    // _markers.add(tap);
-    // }
-    // }
-    // });
-    // }
-    //
-    // if (mapController != null && _markers.length<2) {
-    // mapController!.animateCamera(CameraUpdate.newLatLng(
-    // LatLng(newLocation.latitude!, newLocation.longitude!),
-    // ));
-    // }
-    // });
-    // log("location 2");
-    // }
+  }
+
+  final _formKey = GlobalKey<FormState>();
+
+  // Future<void> _requestLocationPermission() async {
+  // bool serviceEnabled = await _locationService.serviceEnabled();
+  // if (!serviceEnabled) {
+  // serviceEnabled = await _locationService.requestService();
+  // if (!serviceEnabled) {
+  // return;
+  // }
+  // }
+  //
+  // location.PermissionStatus permissionStatus = await _locationService
+  //     .hasPermission();
+  // if (permissionStatus == location.PermissionStatus.denied) {
+  // permissionStatus = await _locationService.requestPermission();
+  // if (permissionStatus != location.PermissionStatus.granted) {
+  // return;
+  // }
+  // }
+  //
+  //
+  // log("location 1");
+  // _locationService.onLocationChanged.listen((
+  // location.LocationData newLocation) async {
+  // log("location changed");
+  // if (_isCameraMoving) return;
+  // SharedPreferences prefs = await SharedPreferences.getInstance();
+  // if(mounted) {
+  // setState(() {
+  // if (newLocation.latitude != null && newLocation.longitude != null) {
+  // _current = LatLng(newLocation.latitude!, newLocation.longitude!);
+  // }
+  // currentLocation = newLocation;
+  //
+  // prefs.setDouble('current_latitude', newLocation.latitude!);
+  // prefs.setDouble('current_longitude', newLocation.longitude!);
+  //
+  // // Example usage: retrieve the stored location later
+  // double? storedLatitude = prefs.getDouble('current_latitude');
+  // double? storedLongitude = prefs.getDouble('current_longitude');
+  // if (storedLatitude != null && storedLongitude != null) {
+  // print('Stored location: ($storedLatitude, $storedLongitude)');
+  // Marker? tap = _markers.length > 1 ? _markers.last : null;
+  //
+  // _markers.clear();
+  // _markers.add(Marker(
+  // markerId: MarkerId("_currentLocation"),
+  // icon: BitmapDescriptor.defaultMarker,
+  // position: currentLocation != null
+  // ? LatLng(
+  // currentLocation!.latitude!, currentLocation!.longitude!)
+  //     : _defaultLocation,
+  // ));
+  // if (tap != null) {
+  // _markers.add(tap);
+  // }
+  // }
+  // });
+  // }
+  //
+  // if (mapController != null && _markers.length<2) {
+  // mapController!.animateCamera(CameraUpdate.newLatLng(
+  // LatLng(newLocation.latitude!, newLocation.longitude!),
+  // ));
+  // }
+  // });
+  // log("location 2");
+  // }
   Future<void> _requestLocationPermission() async {
     bool serviceEnabled = await _locationService.serviceEnabled();
     if (!serviceEnabled) {
@@ -1223,13 +1202,14 @@ class _MyHomePageState extends State<MyHomePage> {
             // dart
             // Copy code
             {
-            _isLoading = false; // Hide loading animation
-            });
+          _isLoading = false; // Hide loading animation
+        });
         return;
       }
     }
 
-    location.PermissionStatus permissionStatus = await _locationService.hasPermission();
+    location.PermissionStatus permissionStatus =
+        await _locationService.hasPermission();
     if (permissionStatus == location.PermissionStatus.denied) {
       permissionStatus = await _locationService.requestPermission();
       if (permissionStatus != location.PermissionStatus.granted) {
@@ -1241,7 +1221,8 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     log("location 1");
-    _locationService.onLocationChanged.listen((location.LocationData newLocation) async {
+    _locationService.onLocationChanged
+        .listen((location.LocationData newLocation) async {
       log("location changed");
       if (_isCameraMoving) return;
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -1268,7 +1249,7 @@ class _MyHomePageState extends State<MyHomePage> {
               icon: BitmapDescriptor.defaultMarker,
               position: currentLocation != null
                   ? LatLng(
-                  currentLocation!.latitude!, currentLocation!.longitude!)
+                      currentLocation!.latitude!, currentLocation!.longitude!)
                   : _defaultLocation,
             ));
             if (tap != null) {
@@ -1309,10 +1290,11 @@ class _MyHomePageState extends State<MyHomePage> {
         await ls.serviceEnabled()) {
       await initializeService();
       print('Permissions are granted');
-    }else{
+    } else {
       print('Permissions are not granted');
     }
   }
+
   void _toggleMapType() {
     setState(() {
       _currentMapType = (_currentMapType == MapType.normal)
@@ -1320,220 +1302,225 @@ class _MyHomePageState extends State<MyHomePage> {
           : MapType.normal;
     });
   }
-    Future<void> _moveToLocation(String locationName) async {
-    List<geocoding.Location> locations = await geocoding.locationFromAddress(
-    locationName);
-    if (locations.isNotEmpty) {
-    LatLng destination = LatLng(
-    locations[0].latitude!, locations[0].longitude!);
 
-    if (mapController != null) {
-    mapController!.animateCamera(CameraUpdate.newLatLng(destination));
+  Future<void> _moveToLocation(String locationName) async {
+    List<geocoding.Location> locations =
+        await geocoding.locationFromAddress(locationName);
+    if (locations.isNotEmpty) {
+      LatLng destination =
+          LatLng(locations[0].latitude!, locations[0].longitude!);
+
+      if (mapController != null) {
+        mapController!.animateCamera(CameraUpdate.newLatLng(destination));
+      }
     }
-    }
-    }
-    Set<Marker> _markers= {
-    };
-    LatLng? _current = const LatLng(
-    13.067439, 80.237617);
-    LatLng? _target = null;
-    bool _handletap = false;
-    bool _isAlarmNameValid = false;
-    bool _isLoading = true;
-    TextEditingController notescontroller = TextEditingController();
-    // Initialize the TextEditingController with the default value
-    TextEditingController alramnamecontroller = TextEditingController(text: "Welcome");
-    Future<void> _launchInBrowser(Uri url) async {
+  }
+
+  Set<Marker> _markers = {};
+  LatLng? _current = const LatLng(13.067439, 80.237617);
+  LatLng? _target = null;
+  bool _handletap = false;
+  bool _isAlarmNameValid = false;
+  bool _isLoading = true;
+  TextEditingController notescontroller = TextEditingController();
+
+  // Initialize the TextEditingController with the default value
+  TextEditingController alramnamecontroller =
+      TextEditingController(text: "Welcome");
+
+  Future<void> _launchInBrowser(Uri url) async {
     if (!await launchUrl(
-    url,
-    mode: LaunchMode.externalApplication,
+      url,
+      mode: LaunchMode.externalApplication,
     )) {
-    throw Exception('Could not launch $url');
+      throw Exception('Could not launch $url');
     }
-    }
-    String _appBarTitle = '';
-    final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-    int screenIndex=1;
-    // void handleScreenChanged(int index) {
-    //   switch (index) {
-    //     case 0: // Alarm List
-    //       Navigator.of(context).push(
-    //           MaterialPageRoute(builder: (context) => MyAlarmsPage()));
-    //       break;
-    //     case 1: // Alarm List
-    //       Navigator.of(context).push(
-    //           MaterialPageRoute(builder: (context) => MyHomePage()));
-    //       break;
-    //     case 2:
-    //       Navigator.of(context).push(
-    //           MaterialPageRoute(builder: (context) => Settings()));
-    //       break;
-    //     case 3:
-    //       final RenderBox box = context.findRenderObject() as RenderBox;
-    //       Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
-    //       Share.share(
-    //         'Check out my awesome app! Download it from the app store:',
-    //         subject: 'Share this amazing app!',
-    //         sharePositionOrigin: dummyRect,
-    //       );
-    //       break;
-    //     case 4:
-    //       _launchInBrowser(toLaunch);
-    //       break;
-    //     case 5:
-    //       Navigator.of(context).push(
-    //           MaterialPageRoute(builder: (context) => About()));
-    //       break;
-    //   }
-    // }
-    // void handleScreenChanged(int index) {
-    //   switch (index) {
-    //     case 0:
-    //       Navigator.of (context).pop();// Alarm List
-    //       Navigator.of(context).pushReplacement(
-    //           MaterialPageRoute(builder: (context) => MyAlarmsPage()));
-    //       break;
-    //     case 1:
-    //       Navigator.of (context).pop();// Alarm List
-    //       Navigator.of(context).push(
-    //           MaterialPageRoute(builder: (context) => MyHomePage()));
-    //       break;
-    //     case 2:
-    //       Navigator.of (context).pop();
-    //       Navigator.of(context).push(
-    //           MaterialPageRoute(builder: (context) => Settings()));
-    //       break;
-    //     case 3:
-    //       Navigator.of (context).pop();
-    //       final RenderBox box = context.findRenderObject() as RenderBox;
-    //       Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
-    //       Share.share(
-    //         'Check out my awesome app! Download it from the app store:',
-    //         subject: 'Share this amazing app!',
-    //         sharePositionOrigin: dummyRect,
-    //       );
-    //       break;
-    //     case 4:
-    //       Navigator.of (context).pop();
-    //       _launchInBrowser(toLaunch);
-    //       break;
-    //     case 5:
-    //       Navigator.of (context).pop();
-    //       Navigator.of(context).push(
-    //           MaterialPageRoute(builder: (context) => About()));
-    //       break;
-    //   }
-    // }
-    // void handleScreenChanged(int index) {
-    //   switch (index) {
-    //     case 0:
-    //       Navigator.of(context).pop();
-    //       // No pop needed for screen1 as it's likely the first screen
-    //      Navigator.of(context).push(
-    //        MaterialPageRoute(builder: (context)=>My)
-    //      )// Navigate to screen1
-    //       break;
-    //     case 1:
-    //       Navigator.of(context).pop();
-    //       // No pop needed for screen2 as it's likely the first screen
-    //      // Navigator.pushNamed(context, '/secondpage');
-    //        Navigator.popUntil(context, ModalRoute.withName('/secondpage'));
-    //       // Navigate to screen2
-    //       break;
-    //     case 2:
-    //       Navigator.of(context).pop();
-    //       // Navigator.pushNamed(context, '/thirdpage');
-    //       Navigator.popUntil(context, ModalRoute.withName('/thirdpage'));// Navigate to screen3
-    //       break;
-    //     case 3:
-    //       Navigator.of(context).pop();
-    //       // Share functionality, no navigation
-    //       final RenderBox box = context.findRenderObject() as RenderBox;
-    //       Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
-    //       Share.share(
-    //         'Check out my awesome app! Download it from the app store:',
-    //         subject: 'Share this amazing app!',
-    //         sharePositionOrigin: dummyRect,
-    //       );
-    //
-    //       break;
-    //     case 4:
-    //       Navigator.of(context).pop();
-    //       // Launch URL, no navigation
-    //       _launchInBrowser(toLaunch);
-    //       break;
-    //     case 5:
-    //       Navigator.of(context).pop();
-    //      // Navigator.pushNamed(context, '/fouthpage');
-    //       Navigator.popUntil(context, ModalRoute.withName('/fouthpage'));// Navigate to screen4
-    //       break;
-    //   }
-    // }
-    void handleScreenChanged(int index) {
+  }
+
+  String _appBarTitle = '';
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  int screenIndex = 1;
+
+  // void handleScreenChanged(int index) {
+  //   switch (index) {
+  //     case 0: // Alarm List
+  //       Navigator.of(context).push(
+  //           MaterialPageRoute(builder: (context) => MyAlarmsPage()));
+  //       break;
+  //     case 1: // Alarm List
+  //       Navigator.of(context).push(
+  //           MaterialPageRoute(builder: (context) => MyHomePage()));
+  //       break;
+  //     case 2:
+  //       Navigator.of(context).push(
+  //           MaterialPageRoute(builder: (context) => Settings()));
+  //       break;
+  //     case 3:
+  //       final RenderBox box = context.findRenderObject() as RenderBox;
+  //       Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
+  //       Share.share(
+  //         'Check out my awesome app! Download it from the app store:',
+  //         subject: 'Share this amazing app!',
+  //         sharePositionOrigin: dummyRect,
+  //       );
+  //       break;
+  //     case 4:
+  //       _launchInBrowser(toLaunch);
+  //       break;
+  //     case 5:
+  //       Navigator.of(context).push(
+  //           MaterialPageRoute(builder: (context) => About()));
+  //       break;
+  //   }
+  // }
+  // void handleScreenChanged(int index) {
+  //   switch (index) {
+  //     case 0:
+  //       Navigator.of (context).pop();// Alarm List
+  //       Navigator.of(context).pushReplacement(
+  //           MaterialPageRoute(builder: (context) => MyAlarmsPage()));
+  //       break;
+  //     case 1:
+  //       Navigator.of (context).pop();// Alarm List
+  //       Navigator.of(context).push(
+  //           MaterialPageRoute(builder: (context) => MyHomePage()));
+  //       break;
+  //     case 2:
+  //       Navigator.of (context).pop();
+  //       Navigator.of(context).push(
+  //           MaterialPageRoute(builder: (context) => Settings()));
+  //       break;
+  //     case 3:
+  //       Navigator.of (context).pop();
+  //       final RenderBox box = context.findRenderObject() as RenderBox;
+  //       Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
+  //       Share.share(
+  //         'Check out my awesome app! Download it from the app store:',
+  //         subject: 'Share this amazing app!',
+  //         sharePositionOrigin: dummyRect,
+  //       );
+  //       break;
+  //     case 4:
+  //       Navigator.of (context).pop();
+  //       _launchInBrowser(toLaunch);
+  //       break;
+  //     case 5:
+  //       Navigator.of (context).pop();
+  //       Navigator.of(context).push(
+  //           MaterialPageRoute(builder: (context) => About()));
+  //       break;
+  //   }
+  // }
+  // void handleScreenChanged(int index) {
+  //   switch (index) {
+  //     case 0:
+  //       Navigator.of(context).pop();
+  //       // No pop needed for screen1 as it's likely the first screen
+  //      Navigator.of(context).push(
+  //        MaterialPageRoute(builder: (context)=>My)
+  //      )// Navigate to screen1
+  //       break;
+  //     case 1:
+  //       Navigator.of(context).pop();
+  //       // No pop needed for screen2 as it's likely the first screen
+  //      // Navigator.pushNamed(context, '/secondpage');
+  //        Navigator.popUntil(context, ModalRoute.withName('/secondpage'));
+  //       // Navigate to screen2
+  //       break;
+  //     case 2:
+  //       Navigator.of(context).pop();
+  //       // Navigator.pushNamed(context, '/thirdpage');
+  //       Navigator.popUntil(context, ModalRoute.withName('/thirdpage'));// Navigate to screen3
+  //       break;
+  //     case 3:
+  //       Navigator.of(context).pop();
+  //       // Share functionality, no navigation
+  //       final RenderBox box = context.findRenderObject() as RenderBox;
+  //       Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
+  //       Share.share(
+  //         'Check out my awesome app! Download it from the app store:',
+  //         subject: 'Share this amazing app!',
+  //         sharePositionOrigin: dummyRect,
+  //       );
+  //
+  //       break;
+  //     case 4:
+  //       Navigator.of(context).pop();
+  //       // Launch URL, no navigation
+  //       _launchInBrowser(toLaunch);
+  //       break;
+  //     case 5:
+  //       Navigator.of(context).pop();
+  //      // Navigator.pushNamed(context, '/fouthpage');
+  //       Navigator.popUntil(context, ModalRoute.withName('/fouthpage'));// Navigate to screen4
+  //       break;
+  //   }
+  // }
+  void handleScreenChanged(int index) {
     Navigator.of(context).pop();
     switch (index) {
-    case 0:
-    // No pop needed for screen1 as it's likely the first screen
-    //   Navigator.pushNamed(context, '/home'); // Navigate to screen1
-    //   Navigator.of(context).pushReplacement(
-    //       MaterialPageRoute(builder: (context)=>MyAlarmsPage()));
-    //   Navigator.of(context).popUntil((route) => route.isFirst);
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => MyAlarmsPage()),
-            (Route<dynamic> route) => false, // This condition will remove all routes
-      );
-    break;
-    case 1:
-    Navigator.of(context).pop();
-    //Navigate to screen3
-    break;
-    case 2:
-    // Navigator.pushNamed(context, '/thirdpage');
-    Navigator.of(context).pushReplacement(
-    MaterialPageRoute(builder: (context)=>Settings())
-    ); //Navigate to screen3
-    break;
-    case 3:
-    // Share functionality, no navigation
-    final RenderBox box = context.findRenderObject() as RenderBox;
-    Rect dummyRect = Rect.fromCenter(center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
-    Share.share(
-    'Check out my awesome app! Download it from the app store:',
-    subject: 'Share this amazing app!',
-    sharePositionOrigin: dummyRect,
-    );
-    break;
-    case 4:
-    // Launch URL, no navigation
-    _launchInBrowser(toLaunch);
-    break;
-    case 5:
-    // Navigator.pushNamed(context, '/fouthpage'); // Navigate to screen4
-    Navigator.of(context).pushReplacement(
-    MaterialPageRoute(builder: (context)=>About())
-    );
-    break;
+      case 0:
+        // No pop needed for screen1 as it's likely the first screen
+        //   Navigator.pushNamed(context, '/home'); // Navigate to screen1
+        //   Navigator.of(context).pushReplacement(
+        //       MaterialPageRoute(builder: (context)=>MyAlarmsPage()));
+        //   Navigator.of(context).popUntil((route) => route.isFirst);
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => MyAlarmsPage()),
+          (Route<dynamic> route) =>
+              false, // This condition will remove all routes
+        );
+        break;
+      case 1:
+        Navigator.of(context).pop();
+        //Navigate to screen3
+        break;
+      case 2:
+        // Navigator.pushNamed(context, '/thirdpage');
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (context) => Settings())); //Navigate to screen3
+        break;
+      case 3:
+        // Share functionality, no navigation
+        final RenderBox box = context.findRenderObject() as RenderBox;
+        Rect dummyRect = Rect.fromCenter(
+            center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
+        Share.share(
+          'Check out my awesome app! Download it from the app store:',
+          subject: 'Share this amazing app!',
+          sharePositionOrigin: dummyRect,
+        );
+        break;
+      case 4:
+        // Launch URL, no navigation
+        _launchInBrowser(toLaunch);
+        break;
+      case 5:
+        // Navigator.pushNamed(context, '/fouthpage'); // Navigate to screen4
+        Navigator.of(context)
+            .pushReplacement(MaterialPageRoute(builder: (context) => About()));
+        break;
     }
-    }
-    @override
-    Widget build(BuildContext context) {
-    double height=MediaQuery.of(context).size.height;
-    double width=MediaQuery.of(context).size.width;
-    final Uri toLaunch =
-    Uri(scheme: 'https', host: 'www.google.com');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
+    final Uri toLaunch = Uri(scheme: 'https', host: 'www.google.com');
     return Scaffold(
       key: _scaffoldKey,
       drawer: NavigationDrawer(
         onDestinationSelected: (int index) {
-          handleScreenChanged(index); // Assuming you have a handleScreenChanged function
+          handleScreenChanged(
+              index); // Assuming you have a handleScreenChanged function
         },
         selectedIndex: screenIndex,
         children: <Widget>[
           SizedBox(
-            height: height/23.625,
+            height: height / 23.625,
           ),
           NavigationDrawerDestination(
-
             icon: Icon(Icons.alarm_on_outlined), // Adjust size as needed
             label: Text('Saved Alarms'),
             // Set selected based on screenIndex
@@ -1582,8 +1569,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-      body:
-      StreamBuilder<ConnectivityResult>(
+      body: StreamBuilder<ConnectivityResult>(
         stream: _connectivity.onConnectivityChanged,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
@@ -1592,22 +1578,24 @@ class _MyHomePageState extends State<MyHomePage> {
 
           if (!snapshot.hasData) {
             print("Internet connection");
-            return Center(child: CircularProgressIndicator(
-            )); // Or a custom loading indicator
+            return Center(
+                child:
+                    CircularProgressIndicator()); // Or a custom loading indicator
           }
 
           ConnectivityResult? currentStatus = snapshot.data;
 
           // Display message or disable functionality based on connectivity
           if (currentStatus == ConnectivityResult.none) {
-            return
-              Center(
-                child: Text('No Internet connection',style: Theme.of(context).textTheme.titleMedium,));
+            return Center(
+                child: Text(
+              'No Internet connection',
+              style: Theme.of(context).textTheme.titleMedium,
+            ));
           } else {
             print("Internet connection");
             // Rest of your GPS alarm app functionality that requires internet
-            return
-            Stack(
+            return Stack(
               children: [
                 Center(
                   child: AnimatedBuilder(
@@ -1619,7 +1607,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       );
                     },
                   ),
-                 // CircularProgressIndicator(), // Adjust style as needed
+                  // CircularProgressIndicator(), // Adjust style as needed
                 ),
                 // GoogleMap(
                 //   mapType: MapType.normal,
@@ -1659,35 +1647,36 @@ class _MyHomePageState extends State<MyHomePage> {
                 //     child: Image.asset("assets/locationmark11.png")),
                 GoogleMap(
                   mapType: _currentMapType,
-                    myLocationButtonEnabled: false,
-                    zoomControlsEnabled: false,
-                    initialCameraPosition: CameraPosition(
-                      zoom: 15,
-                      target: _defaultLocation,
-                    ),
-                    onMapCreated: (GoogleMapController controller) {
-                      mapController = controller;
-                    },
-                    markers: _markers.toSet(),
-                    onLongPress: _handleTap,
-                    onCameraMoveStarted: () {
-                      setState(() {
-                        _isCameraMoving = true;
-                      });
-                    },
-                    onCameraIdle: () {
-                      setState(() {
-                        _isCameraMoving = false;
-                      });
-                    },
+                  myLocationButtonEnabled: false,
+                  zoomControlsEnabled: false,
+                  initialCameraPosition: CameraPosition(
+                    zoom: 15,
+                    target: _defaultLocation,
                   ),
+                  onMapCreated: (GoogleMapController controller) {
+                    mapController = controller;
+                  },
+                  markers: _markers.toSet(),
+                  onLongPress: _handleTap,
+                  onCameraMoveStarted: () {
+                    setState(() {
+                      _isCameraMoving = true;
+                    });
+                  },
+                  onCameraIdle: () {
+                    setState(() {
+                      _isCameraMoving = false;
+                    });
+                  },
+                ),
                 if (_isLoading)
                   Stack(
                     children: [
                       BackdropFilter(
                         filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
                         child: Container(
-                          color: Colors.black.withOpacity(0.5), // Semi-transparent background
+                          color: Colors.black
+                              .withOpacity(0.5), // Semi-transparent background
                         ),
                       ),
                       Center(
@@ -1695,20 +1684,23 @@ class _MyHomePageState extends State<MyHomePage> {
                           width: 100,
                           height: 100,
                           decoration: BoxDecoration(
-                            color: Colors.white, // Background color of the loader container
+                            color: Colors.white,
+                            // Background color of the loader container
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Center(
-                            child: CircularProgressIndicator(), // Adjust style as needed
+                            child:
+                                CircularProgressIndicator(), // Adjust style as needed
                           ),
                         ),
                       ),
-            ],
+                    ],
                   ),
                 Visibility(
                   visible: _isLoading,
                   child: Center(
-                    child: CircularProgressIndicator(), // Adjust style as needed
+                    child:
+                        CircularProgressIndicator(), // Adjust style as needed
                   ),
                 ),
                 Positioned(
@@ -1718,30 +1710,36 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: placesAutoCompleteTextField(),
                 ),
                 Padding(
-                  padding:  EdgeInsets.only(top: height/7.56,left:width/3.6),
+                  padding:
+                      EdgeInsets.only(top: height / 7.56, left: width / 3.6),
                   child: Container(
-                    height:height/ 25.2,
-                    width:width/ 1.8,
+                    height: height / 25.2,
+                    width: width / 1.8,
                     decoration: BoxDecoration(
                       color: Colors.white70,
                       border: Border.all(
                         color: Colors.black,
                       ),
                       borderRadius: BorderRadius.circular(10),
-                    ), child: Center(child: Text("or long press on the map",style: Theme.of(context).textTheme.titleMedium,)),),
+                    ),
+                    child: Center(
+                        child: Text(
+                      "or long press on the map",
+                      style: Theme.of(context).textTheme.titleMedium,
+                    )),
+                  ),
                 ),
                 Positioned(
-                  right: 24,bottom: 162,
+                  right: 24, bottom: 162,
                   // padding:  EdgeInsets.only(top:height/1.68,left: 280),
-                  child:IconButton.filledTonal(
-
+                  child: IconButton.filledTonal(
                     onPressed: _goToCurrentLocation,
                     icon: Icon(Icons.my_location),
                     // child: Icon(Icons.my_location),
                   ),
                 ),
                 Positioned(
-                  bottom: 112,right: 24,
+                  bottom: 112, right: 24,
                   // padding: const EdgeInsets.only(left: 280.0,top: 500),
                   child: IconButton.filledTonal(
                     onPressed: () {
@@ -1753,7 +1751,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
                 Positioned(
-                  bottom: 62,right: 24,
+                  bottom: 62, right: 24,
 
                   // padding: const EdgeInsets.only(left: 280.0,top: 600),
                   child: IconButton.filledTonal(
@@ -1766,38 +1764,42 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
                 Positioned(
-                    top: 50,left: 15,
+                    top: 50,
+                    left: 15,
                     child: IconButton(
                       onPressed: () {
-                        _scaffoldKey.currentState?.openDrawer(); }, icon: Icon(Icons.menu),)),
-          Positioned(
-            right: 24,bottom: 212,
-          child:  IconButton.filledTonal(
-          onPressed: _toggleMapType,
-          icon:  Icon(Icons.map),
-
-          ),
-          ),
-                 Stack(
-                   children: [
-                     _bannerAd != null ?
-                     Align(
-                       alignment: Alignment.bottomCenter,
-                       child: Container(
-                         width: _bannerAd!.size.width.toDouble(),
-                         height: _bannerAd!.size.height.toDouble(),
-                         child: AdWidget(ad: _bannerAd!),
-                       ),
-                     ) :
-                     Align(
-                       alignment: Alignment.bottomCenter,
-                       child: Container(
-                         height: 50,
-                         color: Colors.transparent,
-                       ),
-                     )
-                   ],
-                 )
+                        _scaffoldKey.currentState?.openDrawer();
+                      },
+                      icon: Icon(Icons.menu),
+                    )),
+                Positioned(
+                  right: 24,
+                  bottom: 212,
+                  child: IconButton.filledTonal(
+                    onPressed: _toggleMapType,
+                    icon: Icon(Icons.map),
+                  ),
+                ),
+                Stack(
+                  children: [
+                    _bannerAd != null
+                        ? Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Container(
+                              width: _bannerAd!.size.width.toDouble(),
+                              height: _bannerAd!.size.height.toDouble(),
+                              child: AdWidget(ad: _bannerAd!),
+                            ),
+                          )
+                        : Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Container(
+                              height: 50,
+                              color: Colors.transparent,
+                            ),
+                          )
+                  ],
+                )
               ],
             );
           }
@@ -1816,9 +1818,10 @@ class _MyHomePageState extends State<MyHomePage> {
       //     : Text('Loading ad...'),
     );
   }
-  void _showCustomBottomSheet(BuildContext context)async {
-    double height=MediaQuery.of(context).size.height;
-    double width=MediaQuery.of(context).size.width;
+
+  void _showCustomBottomSheet(BuildContext context) async {
+    double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
     int characterCount = 0;
     if (!_handletap) {
       // Show a snackbar if a destination is not selected
@@ -1830,7 +1833,7 @@ class _MyHomePageState extends State<MyHomePage> {
       return;
     }
     loadData();
-    alramnamecontroller.text=_appBarTitle;
+    alramnamecontroller.text = _appBarTitle;
     notescontroller.clear();
     List<AlarmDetails> alarms = [];
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -1838,7 +1841,9 @@ class _MyHomePageState extends State<MyHomePage> {
     List<String>? alarmsJson = prefs.getStringList('alarms');
 
     if (alarmsJson != null) {
-      alarms = alarmsJson.map((json) => AlarmDetails.fromJson(jsonDecode(json))).toList();
+      alarms = alarmsJson
+          .map((json) => AlarmDetails.fromJson(jsonDecode(json)))
+          .toList();
     } else {
       alarms = [];
     }
@@ -1852,309 +1857,311 @@ class _MyHomePageState extends State<MyHomePage> {
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
           child: Container(
-            height:height/ 1.9384615384615,
+            height: height / 1.9384615384615,
             width: double.infinity,
-
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-
-                    FilledButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(); // Call the saveAlarm function
-                      },
-                      child: Text("Cancel"),
-                    ),
-                    Padding(
-                      padding:  EdgeInsets.only(left:width/3),
-                      child: FilledButton(
-                        onPressed: (){
-                          saveAlarm(context);
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      FilledButton(
+                        onPressed: () {
+                          Navigator.of(context)
+                              .pop(); // Call the saveAlarm function
                         },
+                        child: Text("Cancel"),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: width / 3),
+                        child: FilledButton(
+                          onPressed: () {
+                            saveAlarm(context);
+                          },
                           // Call the saveAlarm function
 
-                        child: Text("Set"),
-                     ),
-                    ),
-                  ],
-                ),
-
-                // Integrate the MeterCalculatorWidget
-                MeterCalculatorWidget(
-                  callback: updateradiusvalue,
-                ),
-                // Column(
-                //   crossAxisAlignment: CrossAxisAlignment.start,
-                //   children: [
-                //     Text("Alarm Name:", style: Theme.of(context).textTheme.titleMedium,),
-                //
-                //     // Container(
-                //     //   height:height/ 15.12,
-                //     //   width: width/1.2,
-                //     //   decoration: BoxDecoration(
-                //     //     color: Colors.white,
-                //     //     borderRadius: BorderRadius.circular(10),
-                //     //     border: Border.all(color: Colors.black12),
-                //     //
-                //     //   ),child: Padding(
-                //     //   padding:  EdgeInsets.only(left: width/36),
-                //     //   child: TextField(
-                //     //     controller: alramnamecontroller,
-                //     //
-                //     //     style: Theme.of(context).textTheme.bodyMedium,
-                //     //     decoration: InputDecoration(
-                //     //       hintText: "Alarm name",
-                //     //       border: InputBorder.none,
-                //     //       enabledBorder: InputBorder.none,
-                //     //     ),
-                //     //   ),
-                //     // ),
-                //     // ),
-                //     // Container(
-                //     //   height: height / 15.12,
-                //     //   width: width / 1.2,
-                //     //   decoration: BoxDecoration(
-                //     //     color: Colors.white,
-                //     //     borderRadius: BorderRadius.circular(10),
-                //     //     border: Border.all(color: Colors.black12),
-                //     //   ),
-                //     //   child: Padding(
-                //     //     padding: EdgeInsets.only(left: width / 36),
-                //     //     child: TextFormField( // Use TextFormField instead of TextField
-                //     //       controller: alramnamecontroller,
-                //     //       style: Theme.of(context).textTheme.bodyMedium,
-                //     //       decoration: InputDecoration(
-                //     //         hintText: "Alarm name",
-                //     //         border: InputBorder.none,
-                //     //         enabledBorder: InputBorder.none,
-                //     //         counterText: '', // Hide default character counter
-                //     //       ),
-                //     //       maxLength: 100, // Set character limit
-                //     //       validator: (value) {
-                //     //         if (value == null || value.isEmpty) {
-                //     //           return 'Alarm name is required.';
-                //     //         }
-                //     //         if (value.length > 100) {
-                //     //           return 'Alarm name cannot exceed 100 characters.';
-                //     //         }
-                //     //         return null; // Valid input
-                //     //       },
-                //     //       onChanged: (value) {
-                //     //         // Optional: Update counter text manually (if desired)
-                //     //         // setState(() {
-                //     //          // counterText = value.length.toString();
-                //     //         // });
-                //     //       },
-                //     //     ),
-                //     //   ),
-                //     // ),
-                //     Container(
-                //       height: height / 15.12,
-                //       width: width / 1.2,
-                //       decoration: BoxDecoration(
-                //         color: Colors.white,
-                //         borderRadius: BorderRadius.circular(10),
-                //         border: Border.all(color: Colors.black12),
-                //       ),
-                //       child: Row(
-                //         children: [
-                //           Expanded(
-                //             child: Padding(
-                //               padding: EdgeInsets.only(left: width / 36),
-                //               child: TextFormField(
-                //                 controller: alramnamecontroller,
-                //                 style: Theme.of(context).textTheme.bodyMedium,
-                //                 decoration: InputDecoration(
-                //                   hintText: "Alarm name",
-                //                   border: InputBorder.none,
-                //                   enabledBorder: InputBorder.none,
-                //                   counterText: '', // Hide default character counter
-                //                 ),
-                //                 maxLength: 100, // Set character limit
-                //                 validator: (value) {
-                //                   // Check if the input is only whitespace characters or empty
-                //                   if (value!.trim().isEmpty) {
-                //                     return 'Alarm name is required.';
-                //                   }
-                //                   if (value.split(' ').length > 50) {
-                //                     return 'Alarm name cannot exceed 50 words.';
-                //                   }
-                //                   if (RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
-                //                     return 'Alarm name cannot contain special characters.';
-                //                   }
-                //                   return null; // Valid input
-                //                 },
-                //                 onChanged: (value) {
-                //                   // Optional: Update counter text manually (if desired)
-                //                   // setState(() {
-                //                   //   counterText = value.length.toString();
-                //                   // });
-                //                 },
-                //               ),
-                //             ),
-                //           ),
-                //
-                //         ],
-                //       ),
-                //     ),
-                //
-                //     Text("Notes:",style: Theme.of(context).textTheme.titleMedium,),
-                //     Container(
-                //       height: height/10.8,
-                //       width:width/1.2,
-                //       decoration: BoxDecoration(
-                //         color: Colors.white,
-                //         borderRadius: BorderRadius.circular(10),
-                //         border: Border.all(color: Colors.black12),
-                //       ),child: Padding(
-                //       padding:  EdgeInsets.only(left: width/36),
-                //       child: TextField(
-                //         controller: notescontroller,
-                //         style: Theme.of(context).textTheme.bodyMedium,
-                //         decoration: InputDecoration(
-                //           hintText: "Notes",
-                //           border: InputBorder.none,
-                //           enabledBorder: InputBorder.none,
-                //         ),
-                //       ),
-                //     ),
-                //     ),
-                //   ],
-                // ),
-                Padding(
-                  padding:  EdgeInsets.only(left:width/ 15),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start, // Align text to the start horizontally
-                    children: [
-                      Text(
-                        "Alarm Name:",
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      Container(
-                        //height: 70,
-                        width: width/1.1612903225806,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.black12),
-                        ),
-                        child: Padding(
-                          padding:  EdgeInsets.only(left: width/22.5,right: width/22.5),
-                          child: TextField(
-                            textAlign: TextAlign.start,
-                            // keyboardType: TextInputType.multiline,
-                            maxLines: 2,
-                            controller: alramnamecontroller,
-                            // Set the desired number of lines for multi-line input
-                            style: Theme.of(context).textTheme.bodyMedium,
-                            decoration: InputDecoration(
-                              hintText: "Alarmname",
-                              border: InputBorder.none, // Remove borders if desired (optional)
-                              enabledBorder: InputBorder.none, // Remove borders if desired (optional)
-                              // Show current character count and limit
-                            ),
-                            maxLength: 50,
-                            onChanged: (value) => counterText= '${alramnamecontroller.text.length}/50',// Set the maximum allowed characters
-                          ),
+                          child: Text("Set"),
                         ),
                       ),
-                      //Text("Alarmname cannot exceed 50 words",style: Theme.of(context).textTheme.bodySmall,),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text("Notes:",style: Theme.of(context).textTheme.titleMedium,),
-                      Container(
-                        //height: 70,
-                        width: width/1.1612903225806,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.black12),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.only(left: width/22.5,right: width/22.5),
-                          child: TextField(
-                            textAlign: TextAlign.start,
-                            // keyboardType: TextInputType.multiline,
-                            maxLines: 2,
-                            controller: notescontroller,
-                            // Set the desired number of lines for multi-line input
-                            style: Theme.of(context).textTheme.bodyMedium,
-                            decoration: InputDecoration(
-                              hintText: "Notes",
-                              border: InputBorder.none, // Remove borders if desired (optional)
-                              enabledBorder: InputBorder.none, // Remove borders if desired (optional)
-                              // Show current character count and limit
-                            ),
-                            maxLength: 150,
-                            onChanged: (value) => counterText= '${notescontroller.text.length}/150',// Set the maximum allowed characters
-                          ),
-                        ),
-                      ),
-                      //Text("Notes cannot exceed 150 words",style: Theme.of(context).textTheme.bodySmall,),
                     ],
                   ),
-                ),
-              ]
-            ),
+
+                  // Integrate the MeterCalculatorWidget
+                  MeterCalculatorWidget(
+                    callback: updateradiusvalue,
+                  ),
+                  // Column(
+                  //   crossAxisAlignment: CrossAxisAlignment.start,
+                  //   children: [
+                  //     Text("Alarm Name:", style: Theme.of(context).textTheme.titleMedium,),
+                  //
+                  //     // Container(
+                  //     //   height:height/ 15.12,
+                  //     //   width: width/1.2,
+                  //     //   decoration: BoxDecoration(
+                  //     //     color: Colors.white,
+                  //     //     borderRadius: BorderRadius.circular(10),
+                  //     //     border: Border.all(color: Colors.black12),
+                  //     //
+                  //     //   ),child: Padding(
+                  //     //   padding:  EdgeInsets.only(left: width/36),
+                  //     //   child: TextField(
+                  //     //     controller: alramnamecontroller,
+                  //     //
+                  //     //     style: Theme.of(context).textTheme.bodyMedium,
+                  //     //     decoration: InputDecoration(
+                  //     //       hintText: "Alarm name",
+                  //     //       border: InputBorder.none,
+                  //     //       enabledBorder: InputBorder.none,
+                  //     //     ),
+                  //     //   ),
+                  //     // ),
+                  //     // ),
+                  //     // Container(
+                  //     //   height: height / 15.12,
+                  //     //   width: width / 1.2,
+                  //     //   decoration: BoxDecoration(
+                  //     //     color: Colors.white,
+                  //     //     borderRadius: BorderRadius.circular(10),
+                  //     //     border: Border.all(color: Colors.black12),
+                  //     //   ),
+                  //     //   child: Padding(
+                  //     //     padding: EdgeInsets.only(left: width / 36),
+                  //     //     child: TextFormField( // Use TextFormField instead of TextField
+                  //     //       controller: alramnamecontroller,
+                  //     //       style: Theme.of(context).textTheme.bodyMedium,
+                  //     //       decoration: InputDecoration(
+                  //     //         hintText: "Alarm name",
+                  //     //         border: InputBorder.none,
+                  //     //         enabledBorder: InputBorder.none,
+                  //     //         counterText: '', // Hide default character counter
+                  //     //       ),
+                  //     //       maxLength: 100, // Set character limit
+                  //     //       validator: (value) {
+                  //     //         if (value == null || value.isEmpty) {
+                  //     //           return 'Alarm name is required.';
+                  //     //         }
+                  //     //         if (value.length > 100) {
+                  //     //           return 'Alarm name cannot exceed 100 characters.';
+                  //     //         }
+                  //     //         return null; // Valid input
+                  //     //       },
+                  //     //       onChanged: (value) {
+                  //     //         // Optional: Update counter text manually (if desired)
+                  //     //         // setState(() {
+                  //     //          // counterText = value.length.toString();
+                  //     //         // });
+                  //     //       },
+                  //     //     ),
+                  //     //   ),
+                  //     // ),
+                  //     Container(
+                  //       height: height / 15.12,
+                  //       width: width / 1.2,
+                  //       decoration: BoxDecoration(
+                  //         color: Colors.white,
+                  //         borderRadius: BorderRadius.circular(10),
+                  //         border: Border.all(color: Colors.black12),
+                  //       ),
+                  //       child: Row(
+                  //         children: [
+                  //           Expanded(
+                  //             child: Padding(
+                  //               padding: EdgeInsets.only(left: width / 36),
+                  //               child: TextFormField(
+                  //                 controller: alramnamecontroller,
+                  //                 style: Theme.of(context).textTheme.bodyMedium,
+                  //                 decoration: InputDecoration(
+                  //                   hintText: "Alarm name",
+                  //                   border: InputBorder.none,
+                  //                   enabledBorder: InputBorder.none,
+                  //                   counterText: '', // Hide default character counter
+                  //                 ),
+                  //                 maxLength: 100, // Set character limit
+                  //                 validator: (value) {
+                  //                   // Check if the input is only whitespace characters or empty
+                  //                   if (value!.trim().isEmpty) {
+                  //                     return 'Alarm name is required.';
+                  //                   }
+                  //                   if (value.split(' ').length > 50) {
+                  //                     return 'Alarm name cannot exceed 50 words.';
+                  //                   }
+                  //                   if (RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
+                  //                     return 'Alarm name cannot contain special characters.';
+                  //                   }
+                  //                   return null; // Valid input
+                  //                 },
+                  //                 onChanged: (value) {
+                  //                   // Optional: Update counter text manually (if desired)
+                  //                   // setState(() {
+                  //                   //   counterText = value.length.toString();
+                  //                   // });
+                  //                 },
+                  //               ),
+                  //             ),
+                  //           ),
+                  //
+                  //         ],
+                  //       ),
+                  //     ),
+                  //
+                  //     Text("Notes:",style: Theme.of(context).textTheme.titleMedium,),
+                  //     Container(
+                  //       height: height/10.8,
+                  //       width:width/1.2,
+                  //       decoration: BoxDecoration(
+                  //         color: Colors.white,
+                  //         borderRadius: BorderRadius.circular(10),
+                  //         border: Border.all(color: Colors.black12),
+                  //       ),child: Padding(
+                  //       padding:  EdgeInsets.only(left: width/36),
+                  //       child: TextField(
+                  //         controller: notescontroller,
+                  //         style: Theme.of(context).textTheme.bodyMedium,
+                  //         decoration: InputDecoration(
+                  //           hintText: "Notes",
+                  //           border: InputBorder.none,
+                  //           enabledBorder: InputBorder.none,
+                  //         ),
+                  //       ),
+                  //     ),
+                  //     ),
+                  //   ],
+                  // ),
+                  Padding(
+                    padding: EdgeInsets.only(left: width / 15),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      // Align text to the start horizontally
+                      children: [
+                        Text(
+                          "Alarm Name:",
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        Container(
+                          //height: 70,
+                          width: width / 1.1612903225806,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.black12),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                                left: width / 22.5, right: width / 22.5),
+                            child: TextField(
+                              textAlign: TextAlign.start,
+                              // keyboardType: TextInputType.multiline,
+                              maxLines: 2,
+                              controller: alramnamecontroller,
+                              // Set the desired number of lines for multi-line input
+                              style: Theme.of(context).textTheme.bodyMedium,
+                              decoration: InputDecoration(
+                                hintText: "Alarmname",
+                                border: InputBorder.none,
+                                // Remove borders if desired (optional)
+                                enabledBorder: InputBorder
+                                    .none, // Remove borders if desired (optional)
+                                // Show current character count and limit
+                              ),
+                              maxLength: 50,
+                              onChanged: (value) => counterText =
+                                  '${alramnamecontroller.text.length}/50', // Set the maximum allowed characters
+                            ),
+                          ),
+                        ),
+                        //Text("Alarmname cannot exceed 50 words",style: Theme.of(context).textTheme.bodySmall,),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          "Notes:",
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        Container(
+                          //height: 70,
+                          width: width / 1.1612903225806,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.black12),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                                left: width / 22.5, right: width / 22.5),
+                            child: TextField(
+                              textAlign: TextAlign.start,
+                              // keyboardType: TextInputType.multiline,
+                              maxLines: 2,
+                              controller: notescontroller,
+                              // Set the desired number of lines for multi-line input
+                              style: Theme.of(context).textTheme.bodyMedium,
+                              decoration: InputDecoration(
+                                hintText: "Notes",
+                                border: InputBorder.none,
+                                // Remove borders if desired (optional)
+                                enabledBorder: InputBorder
+                                    .none, // Remove borders if desired (optional)
+                                // Show current character count and limit
+                              ),
+                              maxLength: 150,
+                              onChanged: (value) => counterText =
+                                  '${notescontroller.text.length}/150', // Set the maximum allowed characters
+                            ),
+                          ),
+                        ),
+                        //Text("Notes cannot exceed 150 words",style: Theme.of(context).textTheme.bodySmall,),
+                      ],
+                    ),
+                  ),
+                ]),
           ),
         );
       },
     );
   }
-  void saveAlarm(BuildContext context) async {
 
-    if (alramnamecontroller.text.isEmpty ||
-        radius == null) {
+  void saveAlarm(BuildContext context) async {
+    if (alramnamecontroller.text.isEmpty || radius == null) {
       Navigator.of(context).pop();
       // Show a Snackbar prompting the user to fill in the required fields
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Please fill in all the required fields.'),
-
         ),
       );
       return; // Exit the function without saving the data
     }
-    print("locationradius:" +radius.toString(),);
+    print(
+      "locationradius:" + radius.toString(),
+    );
     setState(() {
-
       AlarmDetails newAlarm = AlarmDetails(
         alarmName: alramnamecontroller.text,
         notes: notescontroller.text,
-        locationRadius:  radius,
-        isAlarmOn: true, isFavourite: false, lat: _target!.latitude, lng: _target!.longitude, id:Uuid().v4(), isEnabled: true,
+        locationRadius: radius,
+        isAlarmOn: true,
+        isFavourite: false,
+        lat: _target!.latitude,
+        lng: _target!.longitude,
+        id: Uuid().v4(),
+        isEnabled: true,
       );
       alarms.add(newAlarm);
     });
 
-
-
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> alarmsJson = alarms.map((alarm) => jsonEncode(alarm.toJson())).toList();
+    List<String> alarmsJson =
+        alarms.map((alarm) => jsonEncode(alarm.toJson())).toList();
     await prefs.setStringList('alarms', alarmsJson);
     print("alarms: $alarmsJson");
-
-
-
 
     // SharedPreferences prefs = await SharedPreferences.getInstance();
     // List<Map<String, dynamic>> alarmsJson =
     // alarms.map((alarm) => alarm.toJson()).toList();
     // await prefs.setStringList(
     //     'alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
-
-
-
-
-
-
-
 
     // SharedPreferences prefs = await SharedPreferences.getInstance();
     //
@@ -2168,7 +2175,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     loadData();
     final service = FlutterBackgroundService();
-    if(! (await service.isRunning())) {
+    if (!(await service.isRunning())) {
       await service.startService();
     }
     Navigator.of(context).pop();
@@ -2176,14 +2183,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => MyAlarmsPage(
-        ),
+        builder: (context) => MyAlarmsPage(),
       ),
     );
   }
-  placesAutoCompleteTextField(){
-    double height=MediaQuery.of(context).size.height;
-    double width=MediaQuery.of(context).size.width;
+
+  placesAutoCompleteTextField() {
+    double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
     return Material(
       borderRadius: BorderRadius.circular(30.0),
       child: GooglePlaceAutoCompleteTextField(
@@ -2192,27 +2199,35 @@ class _MyHomePageState extends State<MyHomePage> {
 
         boxDecoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(30.0), // Adjust the radius as needed
+          borderRadius:
+              BorderRadius.circular(30.0), // Adjust the radius as needed
           // border: Border.all(color: Colors.black26), // Add border color
         ),
         inputDecoration: InputDecoration(
           hintText: "Alarm location",
           border: InputBorder.none,
-          suffixIcon: Icon(Icons.search,size: 25,color: Colors.black,),
+          suffixIcon: Icon(
+            Icons.search,
+            size: 25,
+            color: Colors.black,
+          ),
           enabledBorder: InputBorder.none,
-          contentPadding: EdgeInsets.only(top: 12.0, left: 15.0), // Adjust the padding to move the hint text
+          contentPadding: EdgeInsets.only(
+              top: 12.0,
+              left: 15.0), // Adjust the padding to move the hint text
         ),
         debounceTime: 400,
         countries: ["in", "fr"],
         isLatLngRequired: true,
         getPlaceDetailWithLatLng: (Prediction prediction) async {
           print("placeDetails" + prediction.lat.toString());
-          print("placeDetails - Lat: ${prediction.lat}, Lng: ${prediction.lng}");
+          print(
+              "placeDetails - Lat: ${prediction.lat}, Lng: ${prediction.lng}");
           double lat = double.parse(prediction.lat!);
           double lng = double.parse(prediction.lng!);
           //
           // // Call _handleTap to add a marker at the selected location
-          await _handleTap(LatLng(lat,lng ));
+          await _handleTap(LatLng(lat, lng));
           if (mapController != null) {
             mapController!.animateCamera(CameraUpdate.newLatLng(
               LatLng(lat, lng),
@@ -2240,8 +2255,6 @@ class _MyHomePageState extends State<MyHomePage> {
               TextPosition(offset: prediction.description?.length ?? 0));
         },
 
-
-
         seperatedBuilder: Divider(),
         containerHorizontalPadding: 10,
 
@@ -2253,7 +2266,7 @@ class _MyHomePageState extends State<MyHomePage> {
               children: [
                 Icon(Icons.location_on),
                 SizedBox(
-                  width: width/51.428,
+                  width: width / 51.428,
                 ),
                 Expanded(child: Text("${prediction.description ?? ""}"))
               ],
@@ -2267,18 +2280,19 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+
   _handleTap(LatLng point) async {
-    _handletap=true;
+    _handletap = true;
     ByteData byteData = await rootBundle.load('assets/locationmark10.png');
     Uint8List imageData = byteData.buffer.asUint8List();
     // Create a BitmapDescriptor from the image data
     BitmapDescriptor customIcon = BitmapDescriptor.fromBytes(imageData);
     setState(() {
-      _target=point;
+      _target = point;
       Marker? tap = _markers.isNotEmpty ? _markers.first : null;
 
       _markers.clear();
-      if(tap != null) {
+      if (tap != null) {
         _markers.add(tap);
       }
       // Convert the set to a list
@@ -2299,16 +2313,20 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     // Perform reverse geocoding to get the address from coordinates
-    List<Placemark> placemarks = await placemarkFromCoordinates(point.latitude, point.longitude);
+    List<Placemark> placemarks =
+        await placemarkFromCoordinates(point.latitude, point.longitude);
 
     // Extract the location name from the placemark
-    String name = placemarks.isEmpty ? 'Default' : [
-      placemarks[0].name,
-      placemarks[0].subLocality,
-      placemarks[0].locality,
-    ].toList()
-        .where((element) => element != null && element != '')
-        .join(', ');
+    String name = placemarks.isEmpty
+        ? 'Default'
+        : [
+            placemarks[0].name,
+            placemarks[0].subLocality,
+            placemarks[0].locality,
+          ]
+            .toList()
+            .where((element) => element != null && element != '')
+            .join(', ');
     String locationName = name;
 
     // Update the app bar title with the location name
@@ -2331,17 +2349,20 @@ class MeterCalculatorWidget extends StatefulWidget {
   @override
   _MeterCalculatorWidgetState createState() => _MeterCalculatorWidgetState();
 }
+
 class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
   double _radius = 200;
   bool _imperial = false;
   double meterRadius = 100; // Initial value for meter radius
   double milesRadius = 0.10;
+
   @override
   void initState() {
     _loadSelectedUnit();
     // _loadRadiusData();
     super.initState();
   }
+
   Future<void> _loadRadiusData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -2349,6 +2370,7 @@ class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
       milesRadius = prefs.getDouble('milesRadius') ?? 0.0;
     });
   }
+
   Future<void> _loadSelectedUnit() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? selectedUnit = prefs.getString('selectedUnit');
@@ -2361,10 +2383,11 @@ class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
       _radius = _imperial ? milesdefault : meterdefault;
     });
   }
+
   @override
   Widget build(BuildContext context) {
-    double height=MediaQuery.of(context).size.height;
-    double width=MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
     return Column(
       children: [
         Row(
@@ -2375,67 +2398,39 @@ class _MeterCalculatorWidgetState extends State<MeterCalculatorWidget> {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             Padding(
-              padding:  EdgeInsets.only(left:width/2.5714),
-              child:
-              Text(
-                  (_radius / (_imperial ? 1 : 1000)).toStringAsFixed(_imperial ? 2: 2) +
-                      ' ${_imperial ? 'miles' : 'Kilometers'}'
-              ),
+              padding: EdgeInsets.only(left: width / 2.5714),
+              child: Text((_radius / (_imperial ? 1 : 1000))
+                      .toStringAsFixed(_imperial ? 2 : 2) +
+                  ' ${_imperial ? 'miles' : 'Kilometers'}'),
               //Text(_radius.toStringAsFixed(_imperial ? 2:0)+' ${_imperial ? 'miles' : 'meters'}'),
             ),
           ],
         ),
         Container(
-          width:width/1.16129,
-          child: Slider (
+          width: width / 1.16129,
+          child: Slider(
             // Adjust max value according to your requirement
             value: _radius,
             divisions: 100,
-            min: _imperial ? milesRadius: meterRadius,
+            min: _imperial ? milesRadius : meterRadius,
             max: _imperial ? 2.00 : 3000,
             onChanged: (value) {
-                widget.callback(_imperial? (value * 1609.34):value);
-                print("kmvalue:"+value.toString());
-              print("metercalculatedvalue:"+value.toString());
+              widget.callback(_imperial ? (value * 1609.34) : value);
+              print("kmvalue:" + value.toString());
+              print("metercalculatedvalue:" + value.toString());
               setState(() {
                 _radius = double.parse(value.toStringAsFixed(2));
-                print("Radius:"+_radius.toString());
+                print("Radius:" + _radius.toString());
               });
               // widget.callback(_imperial ? (value * 1609.34):value);
-                //  print("callback:"+widget.callback.toString());
+              //  print("callback:"+widget.callback.toString());
             },
           ),
         ),
       ],
     );
   }
- }
+}
 
 //0.05
 //5.05
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

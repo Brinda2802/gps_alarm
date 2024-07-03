@@ -2418,8 +2418,6 @@
 //   }
 // }
 
-
-
 // // import 'dart:async';
 // // import 'dart:convert';
 // // import 'dart:io';
@@ -4169,7 +4167,6 @@ import 'dart:io';
 import 'dart:ui';
 import 'dart:math' as math;
 import 'package:audio_service/audio_service.dart';
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -4180,22 +4177,14 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as location;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sound_mode/utils/constants.dart';
-import 'package:untitiled/main.dart';
-import 'package:untitiled/settingsexample.dart';
 import 'package:uuid/uuid.dart';
 import 'Apiutils.dart';
-import 'Homescreens/homescreen.dart';
 import 'package:geolocator/geolocator.dart';
 import 'Homescreens/save_alarm_page.dart';
 import 'Homescreens/settings.dart';
 import 'Map screen page.dart';
-import 'Track.dart';
 import 'about page.dart';
 import 'package:alarmplayer/alarmplayer.dart';
-import 'package:audioplayers/audioplayers.dart' as ap;
-import 'main.dart';
-import 'package:flutter/foundation.dart';
 import 'package:vibration/vibration.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
@@ -4204,113 +4193,24 @@ const notificationId = 888;
 const notificationId2 = 999;
 const String channelId = 'your_channel_id';
 const String channelName = 'Your Channel Name';
-late AudioHandler _audioHandler;
 Timer? vibrationTimer;
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   MobileAds.instance.initialize();
-  // await JustAudioBackground.init(
-  //   androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
-  //   androidNotificationChannelName: 'Audio playback',
-  //   androidNotificationOngoing: true,
-  // );
-
-  // const AndroidInitializationSettings initializationSettingsAndroid =
-  // AndroidInitializationSettings('ic_notification');
-  // const InitializationSettings initializationSettings = InitializationSettings(
-  //   android: initializationSettingsAndroid,
-  // );
-  //
-  // await flutterLocalNotificationsPlugin.initialize(
-  //   initializationSettings,
-  //   onDidReceiveNotificationResponse:
-  //       (NotificationResponse notificationResponse) async {
-  //     switch (notificationResponse.notificationResponseType) {
-  //       case NotificationResponseType.selectedNotificationAction:
-  //         if (notificationResponse.actionId == "dismiss") {
-  //           await flutterLocalNotificationsPlugin.cancelAll();
-  //         }
-  //         break;
-  //       default:
-  //     }
-  //   },
-  // );
-  // BackgroundLocation.setAndroidNotification(
-  //   title: "GPS Alarm",
-  //   message: "Reached your place",
-  //   icon: "@mipmap/ic_launcher",
-  // );
-  // BackgroundLocation.setAndroidConfiguration(1000);
-  // BackgroundLocation.stopLocationService(); //To ensure that previously started services have been stopped, if desired
-  // BackgroundLocation.startLocationService(distanceFilter : 10,forceAndroidLocationManager: true);
-  // BackgroundLocation.getLocationUpdates((location) async {
-  //   List<AlarmDetails> alarms = [];
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   List<String>? alarmsJson = prefs.getStringList('alarms');
-  //   if (alarmsJson != null) {
-  //     alarms.addAll(
-  //         alarmsJson.map((json) => AlarmDetails.fromJson(jsonDecode(json)))
-  //             .toList());
-  //     for (var alarm in alarms) {
-  //       if (!alarm.isEnabled) {
-  //         continue;
-  //       }
-  //       double distance = calculateDistance(
-  //         LatLng(location.latitude!, location.longitude!),
-  //         LatLng(alarm.lat, alarm.lng),
-  //       );
-  //
-  //       if (distance <= alarm.locationRadius) {
-  //         var index=alarms.indexOf(alarm);
-  //         alarms[index].isEnabled=false;
-  //         SharedPreferences prefs = await SharedPreferences.getInstance();
-  //
-  //         List<Map<String, dynamic>> alarmsJson =
-  //         alarms.map((alarm) => alarm.toJson()).toList();
-  //
-  //         await prefs.setStringList(
-  //             'alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
-  //         // Trigger notification (potentially using a separate channel)
-  //         _showNotification(alarm);
-  //         break; // Exit loop after triggering the first alarm
-  //       }
-  //       print("distance:"+distance.toString());
-  //       print("location radius:"+alarm.locationRadius.toString());
-  //       print("location:"+location.toString());
-  //     }
-  //   }
-  // });
-  //await initializeService();
-  // location.Location ls = new location.Location();
-  // if (await Permission.notification.request().isGranted &&
-  //     await Permission.location.request().isGranted &&
-  //     await ls.serviceEnabled()) {
-  //   await initializeService();
-  //   print('Permissions are granted');
-  // }else{
-  //   print('Permissions are not granted');
-  // }checkLocation()
-
   checkLocation();
-
   runApp(const MyApp());
 }
 
 Future<void> initializeService() async {
   final service = FlutterBackgroundService();
-  // AndroidNotificationChannel channel = AndroidNotificationChannel(
-  //   Uuid().v4(), // id
-  //   "MY FOREGROUND SERVICE", // title
-  //   description:
-  //   'Reached destination radius', // description
-  //   importance: Importance.high, // importance must be at low or higher level
-  // );
+
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-  FlutterLocalNotificationsPlugin();
+      FlutterLocalNotificationsPlugin();
 
   /// OPTIONAL, using custom notification channel id
-
 
   if (Platform.isAndroid) {
     await flutterLocalNotificationsPlugin.initialize(
@@ -4321,7 +4221,6 @@ Future<void> initializeService() async {
   }
 
   await service.configure(
-
     androidConfiguration: AndroidConfiguration(
       // this will be executed when app is in foreground or background in separated isolate
       onStart: onStart,
@@ -4329,10 +4228,9 @@ Future<void> initializeService() async {
       initialNotificationContent: 'This is required to trigger alarm',
 
       // auto start service
-      autoStart:false,
+      autoStart: false,
       isForegroundMode: true,
     ),
-
     iosConfiguration: IosConfiguration(
       // auto start service
       autoStart: false,
@@ -4349,7 +4247,7 @@ class MyStream {
   Stream<int> get stream => _controller.stream;
 
   void start() {
-    // Start emitting values
+
     for (int i = 0; i < 10; i++) {
       _controller.add(i);
       Future.delayed(Duration(milliseconds: 500), () => _controller.add(i));
@@ -4362,17 +4260,7 @@ class MyStream {
 }
 
 Future<void> checkLocation() async {
-  // Location location = Location();
-  // bool? serviceEnabled;
-  // PermissionStatus? permissionGranted;
-  // serviceEnabled = await location.serviceEnabled();
-  // if (!serviceEnabled) {
-  //   serviceEnabled = await location.requestService();
-  // }
-  // permissionGranted = await location.hasPermission();
-  // if (permissionGranted == PermissionStatus.denied) {
-  //   permissionGranted = await location.requestPermission();
-  // }
+
 
   location.Location ls = new location.Location();
   if (await Permission.notification.request().isGranted &&
@@ -4380,71 +4268,47 @@ Future<void> checkLocation() async {
       await ls.serviceEnabled()) {
     await initializeService();
     print('Permissions are granted');
-   print(Permission.notification.request());
+    print(Permission.notification.request());
     print(Permission.location.request());
     PermissionStatus status = await Permission.location.status;
     PermissionStatus requeststatus = await Permission.location.request();
     print("location status: $status");
     print("location status: $requeststatus");
     PermissionStatus notificationstatus = await Permission.notification.status;
-    PermissionStatus requestnotification = await Permission.notification.request();
+    PermissionStatus requestnotification =
+        await Permission.notification.request();
     print("notification status: $notificationstatus");
     print("notificationrequest status: $requestnotification");
-  }else{
+  } else {
     print('Permissions are not granted');
   }
 }
 
-bool _shouldHandleNotifications = true;
 
 dismissNotification(int? notificationId2) async {
   await flutterLocalNotificationsPlugin.cancel(notificationId2!);
 }
-// Future<String> extractActionTypeFromPayload(String? payload) async {
-//   String? actionType;
-//
-//   if (payload != null) {
-//     if (payload.contains('dismiss')) {
-//       Alarmplayer alarmplayer = Alarmplayer();
-//       alarmplayer.StopAlarm();
-//       Vibration.cancel;
-//       actionType = 'dismiss';
-//       print("dismiss1");
-//     } else {
-//
-//     }
-//   }
-//
-//   if (actionType == null) {
-//     _shouldHandleNotifications = false;
-//     Alarmplayer alarmplayer = Alarmplayer();
-//     await alarmplayer.StopAlarm();
-//     stopVibrationLoop();
-//     print("dismiss2");
-//     print("cancel notification");
-//     return 'unknown';
-//     // Return a default value
-//   }
-//   return payload!.contains('dismiss') ? 'dismiss' : 'other';
-// }
-void onDidReceiveNotificationResponse(NotificationResponse notificationResponse) async {
 
+
+void onDidReceiveNotificationResponse(
+    NotificationResponse notificationResponse) async {
   final String? payload = notificationResponse.payload;
   if (payload != null) {
     Alarmplayer alarmplayer = Alarmplayer();
     await alarmplayer.StopAlarm();
     Vibration.cancel();
-    stopVibrationLoop() ;
+    stopVibrationLoop();
     debugPrint('notification payload: $payload');
     debugPrint('valid notification');
 
     // Extract notificationId from the payload
-    final notificationId2 = int.tryParse(payload.split('notificationId2:999').last);
+    final notificationId2 =
+        int.tryParse(payload.split('notificationId2:999').last);
     if (notificationId2 != null) {
       Alarmplayer alarmplayer = Alarmplayer();
       await alarmplayer.StopAlarm();
       Vibration.cancel();
-      stopVibrationLoop() ;
+      stopVibrationLoop();
       debugPrint('notification payload: $payload');
       debugPrint('Invalid notificationId');
       return;
@@ -4460,6 +4324,7 @@ void onDidReceiveNotificationResponse(NotificationResponse notificationResponse)
 //     }
   }
 }
+
 void startVibrationLoop() async {
   if (await containsOption('vibrate')) {
     const pattern = [500, 1000, 500, 2000, 500, 3000, 500, 500];
@@ -4493,12 +4358,14 @@ Future<bool> containsOption(String option) async {
   print("selectedoptions:$selectedOptions");
   return selectedOptions.contains(option);
 }
+
 void stopVibrationLoop() {
   if (vibrationTimer != null) {
     vibrationTimer!.cancel();
     vibrationTimer = null;
   }
 }
+
 Future<void> playAlarm() async {
   // Get saved ringtone preference
   final prefs = await SharedPreferences.getInstance();
@@ -4536,35 +4403,15 @@ Future<void> onStart(ServiceInstance service) async {
       android: AndroidInitializationSettings('ic_bg_service_small'),
     ),
     onDidReceiveBackgroundNotificationResponse:
-    onDidReceiveNotificationResponse,
+        onDidReceiveNotificationResponse,
   );
 
   await _startLocationUpdates(service);
-  // List<AlarmDetails> alarms = [];
-  // SharedPreferences prefs = await SharedPreferences.getInstance();
-  // prefs.reload();
-  // List<String>? alarmsJson = prefs.getStringList('alarms');
-  // if (alarmsJson != null) {
-  //   alarms.addAll(alarmsJson
-  //       .map((json) => AlarmDetails.fromJson(jsonDecode(json)))
-  //       .where((element) => element.isEnabled)
-  //       .toList());
-  // }
-  //
-  // if (alarms.isEmpty) {
-  //   subscription.cancel();
-  //   service.invoke('stopped');
-  //   service.stopSelf();
-  // }
-  // service.on('stopService').listen((event) {
-  //   print('stopping service');
-  //   service.invoke('stopped');
-  //   service.stopSelf();
-  //   subscription.cancel();
-  // }
-  // );
+
 }
+
 late StreamSubscription<Position?> subscription;
+
 Future<void> _startLocationUpdates(ServiceInstance service) async {
   Position? _lastPosition;
   Position? initialPosition;
@@ -4579,7 +4426,8 @@ Future<void> _startLocationUpdates(ServiceInstance service) async {
         .where((element) => element.isEnabled)
         .toList());
   }
-  double _distanceFilter = await calculateMinDistance(initialPosition, alarms) ; // Initial distance filter in meters
+  double _distanceFilter = await calculateMinDistance(
+      initialPosition, alarms); // Initial distance filter in meters
   print("distancefilter:$_distanceFilter");
 
   var locationOptions = LocationSettings(
@@ -4614,7 +4462,7 @@ Future<void> _startLocationUpdates(ServiceInstance service) async {
           var index = alarms.indexOf(alarm);
           alarms[index].isEnabled = false;
           List<Map<String, dynamic>> alarmsJson =
-          alarms.map((alarm) => alarm.toJson()).toList();
+              alarms.map((alarm) => alarm.toJson()).toList();
           await prefs.setStringList(
               'alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
           print(prefs.getStringList('alarms'));
@@ -4649,7 +4497,6 @@ Future<void> _startLocationUpdates(ServiceInstance service) async {
                   AndroidNotificationAction(
                     Uuid().v4(),
                     'dismiss',
-
                   ),
                 ],
                 styleInformation: DefaultStyleInformation(true, true),
@@ -4690,17 +4537,15 @@ Future<void> _startLocationUpdates(ServiceInstance service) async {
             );
             // startVibrationLoop();
             // startVibrationLoop();
-
           }
           service.invoke('alarmPlayed', {"alarmId": alarm.id});
           _positionStreamSubscription?.cancel();
           print('preparing to stop service');
           break; // Exit loop after triggering the first alarm
         }
-
       }
       alarms = alarms.where((element) => element.isEnabled).toList();
-      if(alarms.isEmpty ) {
+      if (alarms.isEmpty) {
         _positionStreamSubscription?.cancel();
         service.invoke('stopped');
         print('stopped service');
@@ -4717,45 +4562,14 @@ Future<void> _startLocationUpdates(ServiceInstance service) async {
     service.invoke('stopped');
     service.stopSelf();
     subscription.cancel();
-  }
-  );
+  });
 }
-// Future<double> calculateMinDistance(Position position, List<AlarmDetails> alarms) async {
-//
-//   double minDistance = double.infinity;
-//     AlarmDetails? nearestAlarm;
-//
-//     for (var alarm in alarms) {
-//       if (!alarm.isEnabled) continue;
-//
-//       double alarmDistance = Geolocator.distanceBetween(
-//         position.latitude,
-//         position.longitude,
-//         alarm.lat,
-//         alarm.lng,
-//       );
-//       List<AlarmDetails> alarms = [];
-//       SharedPreferences prefs = await SharedPreferences.getInstance();
-//       prefs.reload();
-//       List<String>? alarmsJson = prefs.getStringList('alarms');
-//       if (alarmsJson != null) {
-//         alarms.addAll(alarmsJson
-//             .map((json) => AlarmDetails.fromJson(jsonDecode(json)))
-//             .where((element) => element.isEnabled)
-//             .toList());
-//       }
-//
-//       if (alarmDistance < minDistance) {
-//         minDistance = alarmDistance;
-//         nearestAlarm = alarm;
-//       }
-//
-//     }
-//
-//   return minDistance;
-// }
+
+
 StreamSubscription<Position>? _positionStreamSubscription;
-Future<double> calculateMinDistance(Position position, List<AlarmDetails> alarms) async {
+
+Future<double> calculateMinDistance(
+    Position position, List<AlarmDetails> alarms) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.reload();
   List<String>? alarmsJson = prefs.getStringList('alarms');
@@ -4776,7 +4590,8 @@ Future<double> calculateMinDistance(Position position, List<AlarmDetails> alarms
       alarm.lng,
     );
 
-    print('Distance to alarm at (${alarm.lat}, ${alarm.lng}): $alarmDistance meters');
+    print(
+        'Distance to alarm at (${alarm.lat}, ${alarm.lng}): $alarmDistance meters');
 
     if (alarmDistance < minDistance) {
       minDistance = alarmDistance;
@@ -4785,7 +4600,8 @@ Future<double> calculateMinDistance(Position position, List<AlarmDetails> alarms
   }
 
   if (nearestAlarm != null) {
-    print('Nearest alarm is at (${nearestAlarm.lat}, ${nearestAlarm.lng}) with a distance of $minDistance meters');
+    print(
+        'Nearest alarm is at (${nearestAlarm.lat}, ${nearestAlarm.lng}) with a distance of $minDistance meters');
   } else {
     print('No enabled alarms found.');
   }
@@ -4795,6 +4611,7 @@ Future<double> calculateMinDistance(Position position, List<AlarmDetails> alarms
 
   return halfMinDistance;
 }
+
 Future<void> stopService() async {
   // 1. Cancel location updates:// Cancels the location stream
 
@@ -4812,8 +4629,6 @@ Future<void> stopService() async {
   // 3. (Optional) Clear notifications:
   final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   await flutterLocalNotificationsPlugin.cancelAll();
-
-
 
   print('Service stopped.');
 }
@@ -4854,7 +4669,7 @@ class MyApp extends StatelessWidget {
       home: Splashscreen(),
       routes: {
         // Define your routes (optional)
-        '/home': (context) =>MyAlarmsPage(),
+        '/home': (context) => MyAlarmsPage(),
         '/secondpage': (context) => MyHomePage(),
         '/thirdpage': (context) => Settings(),
         'fouthpage': (context) => About(),
@@ -4869,7 +4684,7 @@ class Splashscreen extends StatefulWidget {
 }
 
 class _SplashscreenState extends State<Splashscreen> {
-  // Simulate some initialization process (replace it with your actual initialization logic)
+
   @override
   void initState() {
     super.initState();
@@ -4887,7 +4702,7 @@ class _SplashscreenState extends State<Splashscreen> {
         MaterialPageRoute(builder: (context) => MyAlarmsPage()),
       );
     } else {
-      // User is setting settings for the first time, navigate to Settings page
+
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => Settings()),
       );
