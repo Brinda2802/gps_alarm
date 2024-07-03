@@ -386,11 +386,6 @@ class _TrackState extends State<Track> {
 
   Future<void> _isAndroidPermissionGranted() async {
     if (Platform.isAndroid) {
-      final bool granted = await flutterLocalNotificationsPlugin
-              .resolvePlatformSpecificImplementation<
-                  AndroidFlutterLocalNotificationsPlugin>()
-              ?.areNotificationsEnabled() ??
-          false;
 
       setState(() {});
     }
@@ -398,12 +393,9 @@ class _TrackState extends State<Track> {
 
   Future<void> _requestPermissions() async {
     if (Platform.isAndroid) {
-      final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
-          flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+      flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin>();
 
-      final bool? grantedNotificationPermission =
-          await androidImplementation?.requestNotificationsPermission();
       setState(() {});
     }
   }
@@ -771,7 +763,6 @@ class _TrackState extends State<Track> {
   }
 
   int screenIndex = 0;
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {

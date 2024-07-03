@@ -1125,74 +1125,6 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {});
   }
 
-  final _formKey = GlobalKey<FormState>();
-
-  // Future<void> _requestLocationPermission() async {
-  // bool serviceEnabled = await _locationService.serviceEnabled();
-  // if (!serviceEnabled) {
-  // serviceEnabled = await _locationService.requestService();
-  // if (!serviceEnabled) {
-  // return;
-  // }
-  // }
-  //
-  // location.PermissionStatus permissionStatus = await _locationService
-  //     .hasPermission();
-  // if (permissionStatus == location.PermissionStatus.denied) {
-  // permissionStatus = await _locationService.requestPermission();
-  // if (permissionStatus != location.PermissionStatus.granted) {
-  // return;
-  // }
-  // }
-  //
-  //
-  // log("location 1");
-  // _locationService.onLocationChanged.listen((
-  // location.LocationData newLocation) async {
-  // log("location changed");
-  // if (_isCameraMoving) return;
-  // SharedPreferences prefs = await SharedPreferences.getInstance();
-  // if(mounted) {
-  // setState(() {
-  // if (newLocation.latitude != null && newLocation.longitude != null) {
-  // _current = LatLng(newLocation.latitude!, newLocation.longitude!);
-  // }
-  // currentLocation = newLocation;
-  //
-  // prefs.setDouble('current_latitude', newLocation.latitude!);
-  // prefs.setDouble('current_longitude', newLocation.longitude!);
-  //
-  // // Example usage: retrieve the stored location later
-  // double? storedLatitude = prefs.getDouble('current_latitude');
-  // double? storedLongitude = prefs.getDouble('current_longitude');
-  // if (storedLatitude != null && storedLongitude != null) {
-  // print('Stored location: ($storedLatitude, $storedLongitude)');
-  // Marker? tap = _markers.length > 1 ? _markers.last : null;
-  //
-  // _markers.clear();
-  // _markers.add(Marker(
-  // markerId: MarkerId("_currentLocation"),
-  // icon: BitmapDescriptor.defaultMarker,
-  // position: currentLocation != null
-  // ? LatLng(
-  // currentLocation!.latitude!, currentLocation!.longitude!)
-  //     : _defaultLocation,
-  // ));
-  // if (tap != null) {
-  // _markers.add(tap);
-  // }
-  // }
-  // });
-  // }
-  //
-  // if (mapController != null && _markers.length<2) {
-  // mapController!.animateCamera(CameraUpdate.newLatLng(
-  // LatLng(newLocation.latitude!, newLocation.longitude!),
-  // ));
-  // }
-  // });
-  // log("location 2");
-  // }
   Future<void> _requestLocationPermission() async {
     bool serviceEnabled = await _locationService.serviceEnabled();
     if (!serviceEnabled) {
@@ -1272,17 +1204,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> checkLocation() async {
-    // Location location = Location();
-    // bool? serviceEnabled;
-    // PermissionStatus? permissionGranted;
-    // serviceEnabled = await location.serviceEnabled();
-    // if (!serviceEnabled) {
-    //   serviceEnabled = await location.requestService();
-    // }
-    // permissionGranted = await location.hasPermission();
-    // if (permissionGranted == PermissionStatus.denied) {
-    //   permissionGranted = await location.requestPermission();
-    // }
+
 
     location.Location ls = new location.Location();
     if (await Permission.notification.request().isGranted &&
@@ -1303,18 +1225,6 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  Future<void> _moveToLocation(String locationName) async {
-    List<geocoding.Location> locations =
-        await geocoding.locationFromAddress(locationName);
-    if (locations.isNotEmpty) {
-      LatLng destination =
-          LatLng(locations[0].latitude!, locations[0].longitude!);
-
-      if (mapController != null) {
-        mapController!.animateCamera(CameraUpdate.newLatLng(destination));
-      }
-    }
-  }
 
   Set<Marker> _markers = {};
   LatLng? _current = const LatLng(13.067439, 80.237617);

@@ -33,6 +33,36 @@ class _SettingsState extends State<Settings> {
   PermissionStatus _permissionGranted = PermissionStatus.denied;
   Set<Marker> _markers = {};
   MapType _currentMapType = MapType.normal;
+  bool _atleastOneoptionsSelected(){
+    return _selectedOptions.isNotEmpty;
+
+  }
+  void _navigateToAlarmspage() {
+    if (_atleastOneoptionsSelected()) {
+      Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => MyAlarmsPage())
+      );
+    } else {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Error'),
+              content: Text('Please select at least one option.'),
+              actions: <Widget>[
+                TextButton(
+                  child: Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          }
+      );
+    }
+  }
+
 
 
   updateradiusvalue(value) {
@@ -222,9 +252,7 @@ class _SettingsState extends State<Settings> {
   void _handleSettingsSet() async {
     _audioPlayer.stop();
     await _saveAllSettings();
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => MyAlarmsPage()),
-    );
+    _navigateToAlarmspage();
   }
 
   @override
