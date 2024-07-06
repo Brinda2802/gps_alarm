@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +7,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:vibration/vibration.dart';
 
 class About extends StatefulWidget {
   const About({super.key});
@@ -88,6 +91,29 @@ class _AboutState extends State<About> {
   }
 
   int screenIndex = 5;
+  Timer? _timer;
+  bool _shouldVibrate = true;
+
+  Future<void> startVibration() async {
+    if (_timer == null || !_timer!.isActive) {
+      _timer = Timer.periodic(Duration(milliseconds: 500), (Timer timer) {
+        Vibration.vibrate(duration: 500);
+      });
+    }
+    // while (_shouldVibrate) {
+    //     print("vibration is ringing");// Loop with stopping condition
+    //     Vibration.vibrate(pattern: [500, 1000]); // Adjust pattern as needed
+    //     await Future.delayed(Duration(milliseconds: 100)); // Adjust delay as needed
+    //   }
+  }
+
+  Future<void> stopVibration() async {
+    if (_timer != null) {
+      _timer!.cancel();
+    }
+    // _shouldVibrate = false;
+    // await Vibration.cancel();
+  }
 
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
@@ -192,7 +218,6 @@ class _AboutState extends State<About> {
                 textAlign: TextAlign.left,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
-
             ],
           ),
         ),

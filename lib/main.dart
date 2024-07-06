@@ -2418,8 +2418,6 @@
 //   }
 // }
 
-
-
 // // import 'dart:async';
 // // import 'dart:convert';
 // // import 'dart:io';
@@ -4205,7 +4203,8 @@ const notificationId2 = 999;
 const String channelId = 'your_channel_id';
 const String channelName = 'Your Channel Name';
 late AudioHandler _audioHandler;
-Timer? vibrationTimer;
+
+Timer? _timer;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -4307,10 +4306,9 @@ Future<void> initializeService() async {
   //   importance: Importance.high, // importance must be at low or higher level
   // );
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-  FlutterLocalNotificationsPlugin();
+      FlutterLocalNotificationsPlugin();
 
   /// OPTIONAL, using custom notification channel id
-
 
   if (Platform.isAndroid) {
     await flutterLocalNotificationsPlugin.initialize(
@@ -4321,7 +4319,6 @@ Future<void> initializeService() async {
   }
 
   await service.configure(
-
     androidConfiguration: AndroidConfiguration(
       // this will be executed when app is in foreground or background in separated isolate
       onStart: onStart,
@@ -4329,10 +4326,9 @@ Future<void> initializeService() async {
       initialNotificationContent: 'This is required to trigger alarm',
 
       // auto start service
-      autoStart:false,
+      autoStart: false,
       isForegroundMode: true,
     ),
-
     iosConfiguration: IosConfiguration(
       // auto start service
       autoStart: false,
@@ -4387,10 +4383,11 @@ Future<void> checkLocation() async {
     print("location status: $status");
     print("location status: $requeststatus");
     PermissionStatus notificationstatus = await Permission.notification.status;
-    PermissionStatus requestnotification = await Permission.notification.request();
+    PermissionStatus requestnotification =
+        await Permission.notification.request();
     print("notification status: $notificationstatus");
     print("notificationrequest status: $requestnotification");
-  }else{
+  } else {
     print('Permissions are not granted');
   }
 }
@@ -4400,6 +4397,7 @@ bool _shouldHandleNotifications = true;
 dismissNotification(int? notificationId2) async {
   await flutterLocalNotificationsPlugin.cancel(notificationId2!);
 }
+
 // Future<String> extractActionTypeFromPayload(String? payload) async {
 //   String? actionType;
 //
@@ -4427,28 +4425,17 @@ dismissNotification(int? notificationId2) async {
 //   }
 //   return payload!.contains('dismiss') ? 'dismiss' : 'other';
 // }
-void onDidReceiveNotificationResponse(NotificationResponse notificationResponse) async {
-
+void onDidReceiveNotificationResponse(
+    NotificationResponse notificationResponse) async {
   final String? payload = notificationResponse.payload;
-  if (payload != null) {
+  if (notificationResponse.id == notificationId) {
+    await Vibration.cancel();
     Alarmplayer alarmplayer = Alarmplayer();
     await alarmplayer.StopAlarm();
-    Vibration.cancel();
-    stopVibrationLoop() ;
+    // stopVibration();
     debugPrint('notification payload: $payload');
     debugPrint('valid notification');
 
-    // Extract notificationId from the payload
-    final notificationId2 = int.tryParse(payload.split('notificationId2:999').last);
-    if (notificationId2 != null) {
-      Alarmplayer alarmplayer = Alarmplayer();
-      await alarmplayer.StopAlarm();
-      Vibration.cancel();
-      stopVibrationLoop() ;
-      debugPrint('notification payload: $payload');
-      debugPrint('Invalid notificationId');
-      return;
-    }
 // Extract action type (if needed)
 //     final actionType = extractActionTypeFromPayload(payload);
 //
@@ -4460,31 +4447,6 @@ void onDidReceiveNotificationResponse(NotificationResponse notificationResponse)
 //     }
   }
 }
-void startVibrationLoop() async {
-  if (await containsOption('vibrate')) {
-    const pattern = [500, 1000, 500, 2000, 500, 3000, 500, 500];
-    const intensities = [0, 128, 0, 255, 0, 64, 0, 255, 0, 255, 0, 255, 0, 255];
-
-    // Calculate the total duration of the vibration pattern
-    final totalDuration = pattern.reduce((a, b) => a + b);
-
-    // Function to start vibration
-    void vibrate() {
-      Vibration.vibrate(
-        pattern: pattern,
-        intensities: intensities,
-      );
-    }
-
-    // Initial vibration
-    vibrate();
-
-    // Start a periodic timer to loop the vibration pattern
-    Timer.periodic(Duration(milliseconds: totalDuration), (timer) {
-      vibrate();
-    });
-  }
-}
 
 Future<bool> containsOption(String option) async {
   final prefs = await SharedPreferences.getInstance();
@@ -4493,12 +4455,7 @@ Future<bool> containsOption(String option) async {
   print("selectedoptions:$selectedOptions");
   return selectedOptions.contains(option);
 }
-void stopVibrationLoop() {
-  if (vibrationTimer != null) {
-    vibrationTimer!.cancel();
-    vibrationTimer = null;
-  }
-}
+
 Future<void> playAlarm() async {
   // Get saved ringtone preference
   final prefs = await SharedPreferences.getInstance();
@@ -4526,20 +4483,41 @@ Future<void> playAlarm() async {
   }
 }
 
+Future<void> startVibration() async {
+  if (_timer == null || !_timer!.isActive) {
+    _timer = Timer.periodic(Duration(milliseconds: 500), (Timer timer) {
+      Vibration.vibrate(duration: 500);
+    });
+  }
+  // while (_shouldVibrate) {
+  //     print("vibration is ringing");// Loop with stopping condition
+  //     Vibration.vibrate(pattern: [500, 1000]); // Adjust pattern as needed
+  //     await Future.delayed(Duration(milliseconds: 100)); // Adjust delay as needed
+  //   }
+}
+
+Future<void> stopVibration() async {
+  if (_timer != null) {
+    _timer!.cancel();
+  }
+  // _shouldVibrate = false;
+  // await Vibration.cancel();
+}
+
 @pragma('vm:entry-point')
 Future<void> onStart(ServiceInstance service) async {
   const InitializationSettings initializationSettings = InitializationSettings(
     android: AndroidInitializationSettings('ic_bg_service_small'),
   );
   await flutterLocalNotificationsPlugin.initialize(
-    InitializationSettings(
-      android: AndroidInitializationSettings('ic_bg_service_small'),
-    ),
-    onDidReceiveBackgroundNotificationResponse:
-    onDidReceiveNotificationResponse,
-  );
-
+      InitializationSettings(
+        android: AndroidInitializationSettings('ic_bg_service_small'),
+      ),
+      onDidReceiveBackgroundNotificationResponse:
+          onDidReceiveNotificationResponse,
+      onDidReceiveNotificationResponse: onDidReceiveNotificationResponse);
   await _startLocationUpdates(service);
+
   // List<AlarmDetails> alarms = [];
   // SharedPreferences prefs = await SharedPreferences.getInstance();
   // prefs.reload();
@@ -4564,7 +4542,9 @@ Future<void> onStart(ServiceInstance service) async {
   // }
   // );
 }
+
 late StreamSubscription<Position?> subscription;
+
 Future<void> _startLocationUpdates(ServiceInstance service) async {
   Position? _lastPosition;
   Position? initialPosition;
@@ -4579,7 +4559,8 @@ Future<void> _startLocationUpdates(ServiceInstance service) async {
         .where((element) => element.isEnabled)
         .toList());
   }
-  double _distanceFilter = await calculateMinDistance(initialPosition, alarms) ; // Initial distance filter in meters
+  double _distanceFilter = await calculateMinDistance(
+      initialPosition, alarms); // Initial distance filter in meters
   print("distancefilter:$_distanceFilter");
 
   var locationOptions = LocationSettings(
@@ -4614,7 +4595,7 @@ Future<void> _startLocationUpdates(ServiceInstance service) async {
           var index = alarms.indexOf(alarm);
           alarms[index].isEnabled = false;
           List<Map<String, dynamic>> alarmsJson =
-          alarms.map((alarm) => alarm.toJson()).toList();
+              alarms.map((alarm) => alarm.toJson()).toList();
           await prefs.setStringList(
               'alarms', alarmsJson.map((json) => jsonEncode(json)).toList());
           print(prefs.getStringList('alarms'));
@@ -4623,12 +4604,10 @@ Future<void> _startLocationUpdates(ServiceInstance service) async {
           final savedRingtone =
               prefs.getString('selectedRingtone') ?? "alarm6.mp3";
           flutterLocalNotificationsPlugin.show(
-
             notificationId,
             alarm.alarmName,
             'Reached destination radius',
             NotificationDetails(
-
               android: AndroidNotificationDetails(
                 Uuid().v4(),
                 'MY FOREGROUND SERVICE',
@@ -4636,7 +4615,6 @@ Future<void> _startLocationUpdates(ServiceInstance service) async {
                 priority: Priority.high,
                 importance: Importance.max,
                 playSound: false,
-
                 // sound: RawResourceAndroidNotificationSound(
                 //     savedRingtone.replaceAll(".mp3", "")),
                 // playSound: await containsOption('alarms') &&
@@ -4645,12 +4623,12 @@ Future<void> _startLocationUpdates(ServiceInstance service) async {
                 additionalFlags: Int32List.fromList(<int>[4]),
                 ticker: 'ticker',
                 ongoing: true,
+                autoCancel: false,
                 actions: [
                   // Dismiss action
                   AndroidNotificationAction(
                     Uuid().v4(),
                     'dismiss',
-
                   ),
                 ],
                 styleInformation: DefaultStyleInformation(true, true),
@@ -4668,49 +4646,40 @@ Future<void> _startLocationUpdates(ServiceInstance service) async {
             print(savedRingtone);
           }
 
-          if (await containsOption('alarms in silent mode')) {
-            final prefs = await SharedPreferences.getInstance();
-            final savedRingtone =
-                prefs.getString('selectedRingtone') ?? "alarm6.mp3";
-            // final isVibrateEnabled = prefs.getBool(kSharedPrefVibrate!) ?? false;
-            // Trigger notification with sound regardless of service state
-            await playAlarm();
-            print(savedRingtone);
-          }
+          // if (await containsOption('alarms in silent mode')) {
+          //   final prefs = await SharedPreferences.getInstance();
+          //   final savedRingtone =
+          //       prefs.getString('selectedRingtone') ?? "alarm6.mp3";
+          //   // final isVibrateEnabled = prefs.getBool(kSharedPrefVibrate!) ?? false;
+          //   // Trigger notification with sound regardless of service state
+          //   await playAlarm();
+          //   print(savedRingtone);
+          // }
 
           if (await containsOption('vibrate')) {
-            Vibration.vibrate(
-              pattern: [500, 1000, 500, 2000, 500, 3000, 500, 500],
-              intensities: [
-                0,
-                128,
-                0,
-                255,
-                0,
-                64,
-                0,
-                255,
-                0,
-                255,
-                0,
-                255,
-                0,
-                255
-              ],
-            );
-            // startVibrationLoop();
-            // startVibrationLoop();
-
+            // startVibration();
+            // while (true) {
+            //   print("vibration is ringing");// Replace with user-defined stopping condition
+            //   Vibration.vibrate(pattern: [500, 1000]); // Adjust pattern as needed
+            //   await Future.delayed(Duration(milliseconds: 100)); // Adjust delay as needed
+            // }
+            // while (_shouldVibrate) {
+            //   print("vibration is ringing");// Loop with stopping condition
+            //   Vibration.vibrate(pattern: [500, 1000]); // Adjust pattern as needed
+            //   await Future.delayed(Duration(milliseconds: 1500)); // Adjust delay as needed
+            // }
+            // Vibration.vibrate(pattern: [500, 1000, 500, 2000]);
+            // startVibration();
+            Vibration.vibrate(pattern: [500, 1000], repeat: 0);
           }
           service.invoke('alarmPlayed', {"alarmId": alarm.id});
           _positionStreamSubscription?.cancel();
           print('preparing to stop service');
           break; // Exit loop after triggering the first alarm
         }
-
       }
       alarms = alarms.where((element) => element.isEnabled).toList();
-      if(alarms.isEmpty ) {
+      if (alarms.isEmpty) {
         _positionStreamSubscription?.cancel();
         service.invoke('stopped');
         print('stopped service');
@@ -4727,45 +4696,11 @@ Future<void> _startLocationUpdates(ServiceInstance service) async {
     service.invoke('stopped');
     service.stopSelf();
     subscription.cancel();
-  }
-  );
+  });
 }
-Future<void> showOngoingNotification(
-    int notificationId,
-    String title,
-    String message,
-    ) async {
-  final androidNotificationDetails = AndroidNotificationDetails(
 
-    Uuid().v4(),
-    'MY FOREGROUND SERVICE',
-    icon: 'ic_bg_service_small',
-    priority: Priority.high,
-    importance: Importance.max,
-    playSound: false,
-    enableVibration: false,
-    additionalFlags: Int32List.fromList(<int>[4]),
-    ticker: 'ticker',
-    ongoing: true,
-    actions: [
-      AndroidNotificationAction(
-        Uuid().v4(),
-        'dismiss',
-
-      ),
-    ],
-    styleInformation: DefaultStyleInformation(true, true),
-  );
-
-  final notificationDetails = NotificationDetails(android: androidNotificationDetails);
-
-  await flutterLocalNotificationsPlugin.show(
-    notificationId,
-    title,
-    message,
-    notificationDetails,
-    payload: 'notificationId:$notificationId',
-  );
+Future<void> dispose() async {
+  await Vibration.cancel();
 }
 
 // Future<double> calculateMinDistance(Position position, List<AlarmDetails> alarms) async {
@@ -4803,7 +4738,9 @@ Future<void> showOngoingNotification(
 //   return minDistance;
 // }
 StreamSubscription<Position>? _positionStreamSubscription;
-Future<double> calculateMinDistance(Position position, List<AlarmDetails> alarms) async {
+
+Future<double> calculateMinDistance(
+    Position position, List<AlarmDetails> alarms) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.reload();
   List<String>? alarmsJson = prefs.getStringList('alarms');
@@ -4824,7 +4761,8 @@ Future<double> calculateMinDistance(Position position, List<AlarmDetails> alarms
       alarm.lng,
     );
 
-    print('Distance to alarm at (${alarm.lat}, ${alarm.lng}): $alarmDistance meters');
+    print(
+        'Distance to alarm at (${alarm.lat}, ${alarm.lng}): $alarmDistance meters');
 
     if (alarmDistance < minDistance) {
       minDistance = alarmDistance;
@@ -4833,7 +4771,8 @@ Future<double> calculateMinDistance(Position position, List<AlarmDetails> alarms
   }
 
   if (nearestAlarm != null) {
-    print('Nearest alarm is at (${nearestAlarm.lat}, ${nearestAlarm.lng}) with a distance of $minDistance meters');
+    print(
+        'Nearest alarm is at (${nearestAlarm.lat}, ${nearestAlarm.lng}) with a distance of $minDistance meters');
   } else {
     print('No enabled alarms found.');
   }
@@ -4843,6 +4782,7 @@ Future<double> calculateMinDistance(Position position, List<AlarmDetails> alarms
 
   return halfMinDistance;
 }
+
 Future<void> stopService() async {
   // 1. Cancel location updates:// Cancels the location stream
 
@@ -4860,8 +4800,6 @@ Future<void> stopService() async {
   // 3. (Optional) Clear notifications:
   final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   await flutterLocalNotificationsPlugin.cancelAll();
-
-
 
   print('Service stopped.');
 }
@@ -4902,7 +4840,7 @@ class MyApp extends StatelessWidget {
       home: Splashscreen(),
       routes: {
         // Define your routes (optional)
-        '/home': (context) =>MyAlarmsPage(),
+        '/home': (context) => MyAlarmsPage(),
         '/secondpage': (context) => MyHomePage(),
         '/thirdpage': (context) => Settings(),
         'fouthpage': (context) => About(),

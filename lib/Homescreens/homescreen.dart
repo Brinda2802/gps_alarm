@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../Map screen page.dart';
 
-
 class Homescreen extends StatefulWidget {
   const Homescreen({super.key});
 
@@ -15,12 +14,13 @@ class _HomescreenState extends State<Homescreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child: ElevatedButton(onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (context)=>MyHomePage()),
-          );
-        }, child:Text("Swipe to continue"),
-
+        child: ElevatedButton(
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => MyHomePage()),
+            );
+          },
+          child: Text("Swipe to continue"),
         ),
       ),
     );

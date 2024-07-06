@@ -71,7 +71,7 @@ class _TrackState extends State<Track> {
     setState(() {
       selectedRingtone = savedRingtone;
     });
-    }
+  }
 
   bool _isLoading = true;
   bool isAnimated = false;
@@ -386,7 +386,6 @@ class _TrackState extends State<Track> {
 
   Future<void> _isAndroidPermissionGranted() async {
     if (Platform.isAndroid) {
-
       setState(() {});
     }
   }
@@ -394,7 +393,7 @@ class _TrackState extends State<Track> {
   Future<void> _requestPermissions() async {
     if (Platform.isAndroid) {
       flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>();
+          AndroidFlutterLocalNotificationsPlugin>();
 
       setState(() {});
     }

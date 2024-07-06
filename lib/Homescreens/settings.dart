@@ -33,22 +33,22 @@ class _SettingsState extends State<Settings> {
   PermissionStatus _permissionGranted = PermissionStatus.denied;
   Set<Marker> _markers = {};
   MapType _currentMapType = MapType.normal;
-  bool _atleastOneoptionsSelected(){
-    return _selectedOptions.isNotEmpty;
 
+  bool _atleastOneoptionsSelected() {
+    return _selectedOptions.isNotEmpty;
   }
-  void _navigateToAlarmspage() {
+
+  _navigateToAlarmspage() {
     if (_atleastOneoptionsSelected()) {
-      Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => MyAlarmsPage())
-      );
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => MyAlarmsPage()));
     } else {
       showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text('Error'),
-              content: Text('Please select at least one option.'),
+              title: Text("Attention"),
+              content: Text('Please select at least one option to proceed.'),
               actions: <Widget>[
                 TextButton(
                   child: Text('OK'),
@@ -58,12 +58,9 @@ class _SettingsState extends State<Settings> {
                 ),
               ],
             );
-          }
-      );
+          });
     }
   }
-
-
 
   updateradiusvalue(value) {
     setState(() {
@@ -94,9 +91,9 @@ class _SettingsState extends State<Settings> {
       isExpanded: true,
       items: ringtones
           .map((ringtone) => DropdownMenuItem<String>(
-        value: ringtone,
-        child: Text(ringtone.split('/').last),
-      ))
+                value: ringtone,
+                child: Text(ringtone.split('/').last),
+              ))
           .toList(),
       onChanged: (String? value) async {
         if (value != null) {
@@ -124,7 +121,6 @@ class _SettingsState extends State<Settings> {
 
   String kSharedPrefOption = 'selected_option';
 
-
   Future<void> _loadRadiusData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -140,15 +136,13 @@ class _SettingsState extends State<Settings> {
     });
   }
 
-
-
   Future<void> _loadRingtones() async {
     try {
       if (listFileExists) {
         // Check if list.txt exists (optional)
         ringtones = await rootBundle.loadString('assets/list.txt').then(
               (data) => data.split(','),
-        );
+            );
       } else {
         // Handle the case where list.txt is missing (optional)
         // You could list filenames directly or provide a default message
@@ -185,30 +179,35 @@ class _SettingsState extends State<Settings> {
     }
   }
 
-  void handleScreenChanged(int index) {
+  Future<void> handleScreenChanged(int index) async {
     switch (index) {
       case 0:
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => MyAlarmsPage()),
-              (Route<dynamic> route) =>
-          false, // This condition will remove all routes
-        );
-        // Navigator.of(context).pushReplacement(
-        //     MaterialPageRoute(builder: (context) => MyAlarmsPage()));
-        // Navigator.of(context).popUntil((route) => route.isFirst);
+        if (_navigateToAlarmspage()) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => MyAlarmsPage()),
+            (Route<dynamic> route) => false,
+          );
+        }
+
         break;
       case 1:
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => MyHomePage()));
+        if (_navigateToAlarmspage()) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => MyHomePage()),
+          );
+        }
+
         break;
       case 2:
         Navigator.of(context).pop();
-        // MaterialPageRoute(builder: (context) => Settings()));
         break;
       case 3:
         final RenderBox box = context.findRenderObject() as RenderBox;
         Rect dummyRect = Rect.fromCenter(
-            center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
+          center: box.localToGlobal(Offset.zero),
+          width: 1.0,
+          height: 1.0,
+        );
         Share.share(
           'Check out my awesome app! Download it from the app store:',
           subject: 'Share this amazing app!',
@@ -219,8 +218,11 @@ class _SettingsState extends State<Settings> {
         _launchInBrowser(toLaunch);
         break;
       case 5:
-        Navigator.of(context)
-            .pushReplacement(MaterialPageRoute(builder: (context) => About()));
+        if (_navigateToAlarmspage()) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => About()),
+          );
+        }
         break;
     }
   }
@@ -268,7 +270,7 @@ class _SettingsState extends State<Settings> {
   // Function to store switch valueo
   void initState() {
     super.initState();
-   // _selectedOptions.add(_optionMap['Alarms']!);
+    // _selectedOptions.add(_optionMap['Alarms']!);
     _loadSelectedUnit();
     _loadRingtones();
     _loadRadiusData();
@@ -305,8 +307,10 @@ class _SettingsState extends State<Settings> {
 
   void _updateMarkerAndCamera() {
     if (_currentLocation != null) {
-      final position = LatLng(_currentLocation!.latitude!, _currentLocation!.longitude!);
-      mapController?.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: position, zoom: 15)));
+      final position =
+          LatLng(_currentLocation!.latitude!, _currentLocation!.longitude!);
+      mapController?.animateCamera(CameraUpdate.newCameraPosition(
+          CameraPosition(target: position, zoom: 15)));
       setState(() {
         _markers.clear();
         _markers.add(
@@ -319,17 +323,19 @@ class _SettingsState extends State<Settings> {
       });
     }
   }
+
   Future<void> _saveSettings(String ringtone) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('selectedRingtone', ringtone);
     await prefs.setStringList('selectedOptions', _selectedOptions.toList());
     print(_selectedOptions);
   }
+
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      final selectedOptions =
-          prefs.getStringList('selectedOptions') ?? <String>['alarms']; // Default to 'alarms' if no saved settings
+      final selectedOptions = prefs.getStringList('selectedOptions') ??
+          <String>['alarms']; // Default to 'alarms' if no saved settings
       _selectedOptions = selectedOptions.toSet();
     });
   }
@@ -340,7 +346,6 @@ class _SettingsState extends State<Settings> {
     setState(() {
       _selectedUnit = newValue;
     });
-
   }
 
   Future _loadSelectedUnit() async {
@@ -352,7 +357,6 @@ class _SettingsState extends State<Settings> {
     });
   }
 
-
   Future<void> _launchInBrowser(Uri url) async {
     if (!await launchUrl(
       url,
@@ -361,18 +365,18 @@ class _SettingsState extends State<Settings> {
       throw Exception('Could not launch $url');
     }
   }
+
   int screenIndex = 2;
   final Uri toLaunch =
-  Uri(scheme: 'https', host: 'www.cylog.org', path: 'headers/');
-
+      Uri(scheme: 'https', host: 'www.cylog.org', path: 'headers/');
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool isSwitched = false;
   SharedPreferences? prefs;
 
-
   @override
   bool _imperial = false;
+
   void _setMapType(MapType mapType) {
     setState(() {
       _currentMapType = mapType;
@@ -385,39 +389,44 @@ class _SettingsState extends State<Settings> {
       builder: (context) {
         return Container(
           height: 800,
-          child: Stack(
-              children: [
-                GoogleMap(
-                  mapType: MapType.normal,
-                  myLocationEnabled: true,
-                  initialCameraPosition: CameraPosition(
-                    zoom: 15,
-                    target: _currentLocation != null
-                        ? LatLng(_currentLocation!.latitude!, _currentLocation!.longitude!)
-                        : LatLng(0, 0),
-                  ),
-                  onMapCreated: (GoogleMapController controller) {
-                    controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-                      target: LatLng(_currentLocation!.latitude!, _currentLocation!.longitude!),
-                      zoom: 15,
-                    )));
-                  },
+          child: Stack(children: [
+            GoogleMap(
+              mapType: MapType.normal,
+              myLocationEnabled: true,
+              initialCameraPosition: CameraPosition(
+                zoom: 15,
+                target: _currentLocation != null
+                    ? LatLng(_currentLocation!.latitude!,
+                        _currentLocation!.longitude!)
+                    : LatLng(0, 0),
+              ),
+              onMapCreated: (GoogleMapController controller) {
+                controller.animateCamera(
+                    CameraUpdate.newCameraPosition(CameraPosition(
+                  target: LatLng(_currentLocation!.latitude!,
+                      _currentLocation!.longitude!),
+                  zoom: 15,
+                )));
+              },
+            ),
+            Positioned(
+              top: 16,
+              left: 16,
+              child: IconButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                icon: Icon(
+                  Icons.cancel,
+                  size: 36,
                 ),
-                Positioned(
-                  top: 16,left: 16,
-                  child: IconButton(onPressed: (){
-                    Navigator.of(context).pop();
-                  }, icon: Icon(Icons.cancel,size: 36,),
-                  ),
-                ),
-              ]
-          ),
+              ),
+            ),
+          ]),
         );
       },
     );
   }
-
-
 
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
@@ -441,12 +450,10 @@ class _SettingsState extends State<Settings> {
           NavigationDrawerDestination(
             icon: Icon(Icons.alarm),
             label: Text('Set a Alarm'),
-
           ),
           NavigationDrawerDestination(
             icon: Icon(Icons.settings_outlined),
             label: Text('Settings'),
-
           ),
           Divider(),
           Padding(
@@ -539,34 +546,81 @@ class _SettingsState extends State<Settings> {
                 height: height / 37.8,
               ),
               Text(
-                'Options',
+                'Select a Ring Options',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
+              // Column(
+              //   children: [
+              //     ..._optionMap.keys.map((option) {
+              //       if (option == 'Alarms in Silent Mode') {
+              //         // Show "Alarms in Silent Mode" only if "Alarms" is selected
+              //         return Visibility(
+              //           visible:
+              //           _selectedOptions.contains(_optionMap['Alarms']),
+              //           child: CheckboxListTile(
+              //             title: Text(option),
+              //             value: _selectedOptions.contains(_optionMap[option]),
+              //             onChanged: (bool? value) {
+              //               setState(() {
+              //                 if (value!) {
+              //                   _selectedOptions.add(_optionMap[option]!);
+              //                 } else {
+              //                   _selectedOptions.remove(_optionMap[option]);
+              //                 }
+              //                 print(_selectedOptions);
+              //                 _saveSettings(selectedRingtone!);
+              //               });
+              //             },
+              //           ),
+              //         );
+              //       }
+              //       else {
+              //         return CheckboxListTile(
+              //           title: Text(option),
+              //           value: _selectedOptions.contains(_optionMap[option]),
+              //           onChanged: (bool? value) {
+              //             setState(() {
+              //               if (value!) {
+              //                 _selectedOptions.add(_optionMap[option]!);
+              //               } else {
+              //                 _selectedOptions.remove(_optionMap[option]);
+              //                 if (option == 'Alarms') {
+              //                   _selectedOptions.remove(
+              //                       _optionMap['Alarms in Silent Mode']);
+              //                 }
+              //               }
+              //               print(_selectedOptions);
+              //               _saveSettings(selectedRingtone!);
+              //             });
+              //           },
+              //         );
+              //       }
+              //     }).toList(),
+              //     Visibility(
+              //       visible: _selectedOptions.contains(_optionMap['Alarms']),
+              //       child: Container(
+              //         child: Column(
+              //           crossAxisAlignment: CrossAxisAlignment.start,
+              //           children: [
+              //             Divider(),
+              //             SizedBox(
+              //               height: MediaQuery.of(context).size.height / 37.8,
+              //             ),
+              //             Text(
+              //               'Alarm',
+              //               style: Theme.of(context).textTheme.titleLarge,
+              //             ),
+              //             _buildRingtoneDropdown(),
+              //           ],
+              //         ),
+              //       ),
+              //     ),
+              //   ],
+              // ),\
               Column(
                 children: [
-                  ..._optionMap.keys.map((option) {
-                    if (option == 'Alarms in Silent Mode') {
-                      // Show "Alarms in Silent Mode" only if "Alarms" is selected
-                      return Visibility(
-                        visible:
-                        _selectedOptions.contains(_optionMap['Alarms']),
-                        child: CheckboxListTile(
-                          title: Text(option),
-                          value: _selectedOptions.contains(_optionMap[option]),
-                          onChanged: (bool? value) {
-                            setState(() {
-                              if (value!) {
-                                _selectedOptions.add(_optionMap[option]!);
-                              } else {
-                                _selectedOptions.remove(_optionMap[option]);
-                              }
-                              print(_selectedOptions);
-                              _saveSettings(selectedRingtone!);
-                            });
-                          },
-                        ),
-                      );
-                    } else {
+                  ...['Vibrate', 'Alarms'].map((option) {
+                    if (option == 'Vibrate') {
                       return CheckboxListTile(
                         title: Text(option),
                         value: _selectedOptions.contains(_optionMap[option]),
@@ -576,37 +630,58 @@ class _SettingsState extends State<Settings> {
                               _selectedOptions.add(_optionMap[option]!);
                             } else {
                               _selectedOptions.remove(_optionMap[option]);
-                              if (option == 'Alarms') {
-                                _selectedOptions.remove(
-                                    _optionMap['Alarms in Silent Mode']);
-                              }
                             }
                             print(_selectedOptions);
                             _saveSettings(selectedRingtone!);
                           });
                         },
                       );
+                    } else if (option == 'Alarms') {
+                      return Column(
+                        children: [
+                          CheckboxListTile(
+                            title: Text(option),
+                            value:
+                                _selectedOptions.contains(_optionMap[option]),
+                            onChanged: (bool? value) {
+                              setState(() {
+                                if (value!) {
+                                  _selectedOptions.add(_optionMap[option]!);
+                                } else {
+                                  _selectedOptions.remove(_optionMap[option]);
+                                }
+                                print(_selectedOptions);
+                                _saveSettings(selectedRingtone!);
+                              });
+                            },
+                          ),
+                          Visibility(
+                            visible:
+                                _selectedOptions.contains(_optionMap[option]),
+                            child: Container(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    height: MediaQuery.of(context).size.height /
+                                        37.8,
+                                  ),
+                                  Text(
+                                    'Alarm',
+                                    style:
+                                        Theme.of(context).textTheme.titleLarge,
+                                  ),
+                                  _buildRingtoneDropdown(),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    } else {
+                      return Container();
                     }
                   }).toList(),
-                  Visibility(
-                    visible: _selectedOptions.contains(_optionMap['Alarms']),
-                    child: Container(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Divider(),
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height / 37.8,
-                          ),
-                          Text(
-                            'Alarm',
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                          _buildRingtoneDropdown(),
-                        ],
-                      ),
-                    ),
-                  ),
                 ],
               ),
               Divider(),
@@ -740,7 +815,6 @@ class _SettingsState extends State<Settings> {
                     _handleSettingsSet();
                   },
                   child: Text("Set"),
-
                 ),
               ),
             ],
