@@ -977,7 +977,6 @@ import 'about page.dart';
 import 'adhelper.dart';
 import 'main.dart';
 
-
 class MyHomePage extends StatefulWidget {
   final String? title;
 
@@ -991,7 +990,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   final Connectivity _connectivity = Connectivity();
   late StreamSubscription<ConnectivityResult> _connectivitySubscription;
   double meterRadius = 100; // Initial value for meter radius
@@ -1019,7 +1017,6 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-
   Future<void> _goToCurrentLocation() async {
     if (currentLocation == null) {
       setState(() {
@@ -1033,7 +1030,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
     // Rest of your code...
   }
-
 
   updateradiusvalue(value) {
     print("updatevalue:" + value.toString());
@@ -1105,8 +1101,7 @@ class _MyHomePageState extends State<MyHomePage> {
       return;
     }
 
-    setState(() {
-    });
+    setState(() {});
   }
 
   Future<void> loadData() async {
@@ -1204,8 +1199,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> checkLocation() async {
-
-
     location.Location ls = new location.Location();
     if (await Permission.notification.request().isGranted &&
         await Permission.location.request().isGranted &&
@@ -1224,7 +1217,6 @@ class _MyHomePageState extends State<MyHomePage> {
           : MapType.normal;
     });
   }
-
 
   Set<Marker> _markers = {};
   LatLng? _current = const LatLng(13.067439, 80.237617);
