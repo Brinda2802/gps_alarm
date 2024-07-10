@@ -19,8 +19,14 @@ class About extends StatefulWidget {
 final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
 class _AboutState extends State<About> {
-  final Uri toLaunch =
-      Uri(scheme: 'https', host: 'www.cylog.org', path: 'headers/');
+  // final Uri toLaunch =
+  //     Uri(scheme: 'https', host: 'www.cylog.org', path: 'headers/');
+  final Uri playStoreUri = Uri(
+    scheme: 'https',
+    host: 'play.google.com',
+    path: 'store/apps/details',
+    queryParameters: {'id': 'com.inodesys.gps_alarm', 'hl': 'en'},
+  );
   double radius = 0;
 
   void handleScreenChanged(int index) {
@@ -46,17 +52,15 @@ class _AboutState extends State<About> {
       case 3:
         Navigator.of(context).pop();
         final RenderBox box = context.findRenderObject() as RenderBox;
-        Rect dummyRect = Rect.fromCenter(
-            center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
         Share.share(
-          'Check out my awesome app! Download it from the app store:',
+          'Check out my awesome app! Download it from the app store: https://play.google.com/store/apps/details?id=com.inodesys.gps_alarm&hl=en',
           subject: 'Share this amazing app!',
-          sharePositionOrigin: dummyRect,
+          sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size,
         );
         break;
       case 4:
         Navigator.of(context).pop();
-        _launchInBrowser(toLaunch);
+        _launchInBrowser(playStoreUri);
         break;
       case 5:
         Navigator.of(context).pop();
@@ -197,30 +201,187 @@ class _AboutState extends State<About> {
           maxLines: 1,
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Container(
-          padding: EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Column(
-            children: [
-              Text(
-                  "However, here's a general idea of how you might use Naplarm based on the information provided Download and Install Naplarm: ",
-                  style: Theme.of(context).textTheme.titleMedium),
-              SizedBox(
-                height: height / 18.9,
-              ),
-              Text(
-                " 1.Set a location: Open the app and choose the desired destination for your map.\n \n 2.Pick Your Wake Up Style: Select a calming sound or vibration to wake you up gently at the end of your nap.\n  \n 3.Set Location-Based Reminder (Android Only): If you're using GPSalarm on Android and want a nap reminder based on your location,\nenable location services within the app and enter your destination.\n \n 4.For any remarks or support contact support@Qsyss.com",
-                textAlign: TextAlign.left,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Column(
+              children: [
+                Text("GPS Alarm App ",
+                    style: Theme.of(context).textTheme.titleLarge),
+                SizedBox(
+                  height: 24,
+                ),
+                Text(
+                  "A GPS Alarm app is designed to alert users when they reach a specific geographic location. This can be useful for various scenarios, such as:",
+                  textAlign: TextAlign.left,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                SizedBox(
+                  height: 16,
+                ),
+            Text.rich(
+              TextSpan(
                 style: Theme.of(context).textTheme.bodyMedium,
+                children: [
+                  TextSpan(
+                    text: "1. Commuting: Ensuring you wake up or get off at the right bus or train stop.\n\n",
+                  ),
+                  TextSpan(
+                    text: "2. Traveling: Getting alerts when you are near tourist attractions or points of interest.\n\n",
+                  ),
+                  TextSpan(
+                    text: "3. Daily Routines: Reminding you of tasks when you arrive at specific locations (e.g., grocery shopping when near a store).",
+                  ),
+                ],
               ),
-            ],
-          ),
+              textAlign: TextAlign.left,
+            ),
+
+                SizedBox(
+                  height: 24,
+                ),
+                // Column(
+                //   crossAxisAlignment: CrossAxisAlignment.start,
+                //   children: [
+                //     Padding(
+                //       padding: const EdgeInsets.only(right: 150.0),
+                //       child: Text("How It Works",
+                //           style: Theme.of(context).textTheme.titleLarge),
+                //     ),
+                //     SizedBox(
+                //       height: 16,
+                //     ),
+                //     Text(
+                //       "1.Select a Location:",
+                //       style: Theme.of(context).textTheme.titleMedium,
+                //       textAlign: TextAlign.left,
+                //     ),
+                //     SizedBox(
+                //       height: 16,
+                //     ),
+                //     Text(
+                //       "1.Users can search for a location or drop a pin on a map to set the alarm point.",
+                //       textAlign: TextAlign.left,
+                //       style: Theme.of(context).textTheme.bodyMedium,
+                //     ),
+                //     SizedBox(
+                //       height: 16,
+                //     ),
+                //     Text(
+                //       "2.Set Alarm Parameters:",
+                //       style: Theme.of(context).textTheme.titleMedium,
+                //       textAlign: TextAlign.left,
+                //     ),
+                //     SizedBox(
+                //       height: 16,
+                //     ),
+                //     Text(
+                //       "1.Define the radius around the location where the alarm should trigger. \n                                                                                      2.Choose the notification type (sound, vibration, or both).",
+                //       textAlign: TextAlign.left,
+                //       style: Theme.of(context).textTheme.bodyMedium,
+                //     ),
+                //     SizedBox(
+                //       height: 16,
+                //     ),
+                //     Text(
+                //       "3.Background Monitoring:",
+                //       style: Theme.of(context).textTheme.titleMedium,
+                //       textAlign: TextAlign.left,
+                //     ),
+                //     SizedBox(
+                //       height: 16,
+                //     ),
+                //     Text(
+                //       "1.The app runs in the background, monitoring the device's location.\n                                                                                                   2.When the device enters the predefined radius, the alarm triggers.",
+                //       textAlign: TextAlign.left,
+                //       style: Theme.of(context).textTheme.bodyMedium,
+                //     ),
+                //     SizedBox(height: 16),
+                //   ],
+                // )
+
+                // Column(
+                //   crossAxisAlignment: CrossAxisAlignment.start,
+                //   children: [
+                //     Text("How It Works",
+                //         style: Theme.of(context).textTheme.titleLarge),
+                //   ],
+                // ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 150.0),
+                  child: Text(
+                    "How It Works",
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ),
+                SizedBox(height: 16),
+                Text(
+                  "1. Select a Location:",
+                  style: Theme.of(context).textTheme.titleMedium,
+                  textAlign: TextAlign.left,
+                ),
+                SizedBox(height: 16),
+                Text(
+                  "Users can search for a location or drop a pin on a map to set the alarm point.",
+                  textAlign: TextAlign.left,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                SizedBox(height: 16),
+                Text(
+                  "2. Set Alarm Parameters:",
+                  style: Theme.of(context).textTheme.titleMedium,
+                  textAlign: TextAlign.left,
+                ),
+                SizedBox(height: 16),
+                Text(
+                  "Define the radius around the location where the alarm should trigger.",
+                  textAlign: TextAlign.left,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                SizedBox(height: 8),
+                Text(
+                  "Choose the notification type (sound, vibration, or both).",
+                  textAlign: TextAlign.left,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                SizedBox(height: 16),
+                Text(
+                  "3. Background Monitoring:",
+                  style: Theme.of(context).textTheme.titleMedium,
+                  textAlign: TextAlign.left,
+                ),
+                SizedBox(height: 16),
+                Text(
+                  "The app runs in the background, monitoring the device's location.",
+                  textAlign: TextAlign.left,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                SizedBox(height: 8),
+                Text(
+                  "When the device enters the predefined radius, the alarm triggers.",
+                  textAlign: TextAlign.left,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                SizedBox(height: 16),
+              ],
+            ),
+
+
+
+
+    ]
         ),
+      ),
+    ),
       ),
     );
   }

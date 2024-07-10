@@ -4398,33 +4398,7 @@ dismissNotification(int? notificationId2) async {
   await flutterLocalNotificationsPlugin.cancel(notificationId2!);
 }
 
-// Future<String> extractActionTypeFromPayload(String? payload) async {
-//   String? actionType;
-//
-//   if (payload != null) {
-//     if (payload.contains('dismiss')) {
-//       Alarmplayer alarmplayer = Alarmplayer();
-//       alarmplayer.StopAlarm();
-//       Vibration.cancel;
-//       actionType = 'dismiss';
-//       print("dismiss1");
-//     } else {
-//
-//     }
-//   }
-//
-//   if (actionType == null) {
-//     _shouldHandleNotifications = false;
-//     Alarmplayer alarmplayer = Alarmplayer();
-//     await alarmplayer.StopAlarm();
-//     stopVibrationLoop();
-//     print("dismiss2");
-//     print("cancel notification");
-//     return 'unknown';
-//     // Return a default value
-//   }
-//   return payload!.contains('dismiss') ? 'dismiss' : 'other';
-// }
+@pragma('vm:entry-point')
 void onDidReceiveNotificationResponse(
     NotificationResponse notificationResponse) async {
   final String? payload = notificationResponse.payload;
@@ -4432,19 +4406,8 @@ void onDidReceiveNotificationResponse(
     await Vibration.cancel();
     Alarmplayer alarmplayer = Alarmplayer();
     await alarmplayer.StopAlarm();
-    // stopVibration();
     debugPrint('notification payload: $payload');
     debugPrint('valid notification');
-
-// Extract action type (if needed)
-//     final actionType = extractActionTypeFromPayload(payload);
-//
-//     if (actionType == 'dismiss') {
-//       Alarmplayer alarmplayer = Alarmplayer();
-//       alarmplayer.StopAlarm();
-//       stopVibrationLoop();
-//       dismissNotification(notificationId);
-//     }
   }
 }
 

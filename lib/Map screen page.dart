@@ -1039,8 +1039,12 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  final Uri toLaunch =
-      Uri(scheme: 'https', host: 'www.cylog.org', path: 'headers/');
+  final Uri playStoreUri = Uri(
+    scheme: 'https',
+    host: 'play.google.com',
+    path: 'store/apps/details',
+    queryParameters: {'id': 'com.inodesys.gps_alarm', 'hl': 'en'},
+  );
   TextEditingController controller = TextEditingController();
   GoogleMapController? mapController;
   location.LocationData? currentLocation;
@@ -1385,17 +1389,15 @@ class _MyHomePageState extends State<MyHomePage> {
       case 3:
         // Share functionality, no navigation
         final RenderBox box = context.findRenderObject() as RenderBox;
-        Rect dummyRect = Rect.fromCenter(
-            center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
         Share.share(
-          'Check out my awesome app! Download it from the app store:',
+          'Check out my awesome app! Download it from the app store: https://play.google.com/store/apps/details?id=com.inodesys.gps_alarm&hl=en',
           subject: 'Share this amazing app!',
-          sharePositionOrigin: dummyRect,
+          sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size,
         );
         break;
       case 4:
         // Launch URL, no navigation
-        _launchInBrowser(toLaunch);
+        _launchInBrowser(playStoreUri);
         break;
       case 5:
         // Navigator.pushNamed(context, '/fouthpage'); // Navigate to screen4

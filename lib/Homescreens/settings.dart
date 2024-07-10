@@ -42,6 +42,7 @@ class _SettingsState extends State<Settings> {
     if (_atleastOneoptionsSelected()) {
       Navigator.of(context)
           .push(MaterialPageRoute(builder: (context) => MyAlarmsPage()));
+      return true;
     } else {
       showDialog(
           context: context,
@@ -59,6 +60,7 @@ class _SettingsState extends State<Settings> {
               ],
             );
           });
+      return false;
     }
   }
 
@@ -203,19 +205,14 @@ class _SettingsState extends State<Settings> {
         break;
       case 3:
         final RenderBox box = context.findRenderObject() as RenderBox;
-        Rect dummyRect = Rect.fromCenter(
-          center: box.localToGlobal(Offset.zero),
-          width: 1.0,
-          height: 1.0,
-        );
         Share.share(
-          'Check out my awesome app! Download it from the app store:',
+          'Check out my awesome app! Download it from the app store: https://play.google.com/store/apps/details?id=com.inodesys.gps_alarm&hl=en',
           subject: 'Share this amazing app!',
-          sharePositionOrigin: dummyRect,
+          sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size,
         );
         break;
       case 4:
-        _launchInBrowser(toLaunch);
+        _launchInBrowser(playStoreUri);
         break;
       case 5:
         if (_navigateToAlarmspage()) {
@@ -367,8 +364,12 @@ class _SettingsState extends State<Settings> {
   }
 
   int screenIndex = 2;
-  final Uri toLaunch =
-      Uri(scheme: 'https', host: 'www.cylog.org', path: 'headers/');
+  final Uri playStoreUri = Uri(
+    scheme: 'https',
+    host: 'play.google.com',
+    path: 'store/apps/details',
+    queryParameters: {'id': 'com.inodesys.gps_alarm', 'hl': 'en'},
+  );
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool isSwitched = false;

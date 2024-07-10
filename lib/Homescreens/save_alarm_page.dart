@@ -281,18 +281,15 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
       case 3:
         Navigator.of(context).pop();
         final RenderBox box = context.findRenderObject() as RenderBox;
-        Rect dummyRect = Rect.fromCenter(
-            center: box.localToGlobal(Offset.zero), width: 1.0, height: 1.0);
         Share.share(
-          'Check out my awesome app! Download it from the app store:',
+          'Check out my awesome app! Download it from the app store: https://play.google.com/store/apps/details?id=com.inodesys.gps_alarm&hl=en',
           subject: 'Share this amazing app!',
-          sharePositionOrigin: dummyRect,
+          sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size,
         );
         break;
       case 4:
         Navigator.of(context).pop();
-
-        _launchInBrowser(toLaunch);
+        _launchInBrowser(playStoreUri);
         break;
       case 5:
         Navigator.of(context).pop();
@@ -302,9 +299,12 @@ class _MyAlarmsPageState extends State<MyAlarmsPage> {
     }
   }
 
-  final Uri toLaunch =
-      Uri(scheme: 'https', host: 'www.cylog.org', path: 'headers/');
-
+  final Uri playStoreUri = Uri(
+    scheme: 'https',
+    host: 'play.google.com',
+    path: 'store/apps/details',
+    queryParameters: {'id': 'com.inodesys.gps_alarm', 'hl': 'en'},
+  );
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
