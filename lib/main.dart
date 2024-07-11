@@ -4506,10 +4506,9 @@ Future<void> onStart(ServiceInstance service) async {
   // );
 }
 
-late StreamSubscription<Position?> subscription;
+StreamSubscription<Position?>? subscription;
 
 Future<void> _startLocationUpdates(ServiceInstance service) async {
-  Position? _lastPosition;
   Position? initialPosition;
   initialPosition = await Geolocator.getCurrentPosition();
   List<AlarmDetails> alarms = [];
@@ -4530,8 +4529,9 @@ Future<void> _startLocationUpdates(ServiceInstance service) async {
     accuracy: LocationAccuracy.high,
     distanceFilter: _distanceFilter.toInt(),
   );
-  _positionStreamSubscription?.cancel();
-  Geolocator.getPositionStream(locationSettings: locationOptions)
+
+  subscription?.cancel();
+  subscription = Geolocator.getPositionStream(locationSettings: locationOptions)
       .listen((Position? position) async {
     List<AlarmDetails> alarms = [];
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -4643,7 +4643,7 @@ Future<void> _startLocationUpdates(ServiceInstance service) async {
       }
       alarms = alarms.where((element) => element.isEnabled).toList();
       if (alarms.isEmpty) {
-        _positionStreamSubscription?.cancel();
+        subscription?.cancel();
         service.invoke('stopped');
         print('stopped service');
         service.stopSelf();
@@ -4656,9 +4656,9 @@ Future<void> _startLocationUpdates(ServiceInstance service) async {
 
   service.on('stopService').listen((event) {
     print('stopping service');
+    subscription?.cancel();
     service.invoke('stopped');
     service.stopSelf();
-    subscription.cancel();
   });
 }
 
@@ -4722,7 +4722,7 @@ Future<double> calculateMinDistance(
       position.longitude,
       alarm.lat,
       alarm.lng,
-    );
+    ) - alarm.locationRadius;
 
     print(
         'Distance to alarm at (${alarm.lat}, ${alarm.lng}): $alarmDistance meters');
@@ -4740,8 +4740,16 @@ Future<double> calculateMinDistance(
     print('No enabled alarms found.');
   }
 
+  if(minDistance < 1) {
+    minDistance = 1;
+  }
+
   // Halve the minDistance value
-  double halfMinDistance = minDistance / 2;
+  double halfMinDistance = minDistance;
+
+  if(halfMinDistance > 2) {
+    halfMinDistance = halfMinDistance / 2;
+  }
 
   return halfMinDistance;
 }
